@@ -926,17 +926,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Logistic Bullet badges */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[9px] font-mono text-neutral-500 pt-2 border-t border-neutral-900/40">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c] shrink-0" />
-                      <span>AUTOCLAVED & THERMOCURED CASTING</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c] shrink-0" />
-                      <span>ATELIER CRATED SHIPPING COURIER INSURED</span>
-                    </div>
-                  </div>
 
                   {/* Kit Actions */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
