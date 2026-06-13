@@ -360,7 +360,7 @@ export default function App() {
 
       {/* 2. Brand Main Navigation Header */}
       <header className="sticky top-0 z-30 bg-[#030303]/90 backdrop-blur-md border-b border-neutral-900/60 transition-all">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-4 flex items-center justify-between">
+        <div className="w-full px-6 md:px-10 lg:px-16 py-4 flex items-center justify-between">
           
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -469,7 +469,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-[1600px] mx-auto px-4 md:px-12 mt-8 space-y-20">
+      <main className="w-full px-6 md:px-10 lg:px-16 mt-8 space-y-20">
         
         {/* =========================================================================
             TIER 1 SECTION — FULL KIT BUILDER (VeilSide Fortune Premier Widebody Kit)
@@ -499,10 +499,10 @@ export default function App() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             {/* LEFT COLUMN: 360 viewer, buttons and fitment logs */}
-            <div className="lg:col-span-6 space-y-4">
+            <div className="lg:col-span-5 space-y-4">
               
               {/* Dynamic blueprint rendering layout */}
               <CarVisualizer
@@ -518,7 +518,7 @@ export default function App() {
             </div>
 
             {/* RIGHT COLUMN: SELECT COMPONENTS builder config */}
-            <div className="lg:col-span-6 space-y-6">
+            <div className="lg:col-span-7 space-y-6">
               
               {/* Header select */}
               <div className="flex items-center justify-between">
