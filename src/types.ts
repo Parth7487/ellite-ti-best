@@ -3,11 +3,19 @@ export type FinishType = 'matte' | 'gloss' | 'forged' | 'kevlar';
 export interface KitComponent {
   id: string;
   name: string;
-  price: number;
+  price: number; // base FRP price
   material: 'frp' | 'carbon';
-  canFRP: boolean; // GT Wing and Vented Hood are carbon only
+  canFRP: boolean;
   isSelected: boolean;
   finish?: FinishType;
+  // Real per-material prices from CSV
+  prices?: {
+    frp?: number;
+    matte?: number;
+    gloss?: number;
+    forged?: number;
+    kevlar?: number;
+  };
 }
 
 export interface BuildState {

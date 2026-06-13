@@ -32,36 +32,39 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Recommended initial components for Tier 1 Kit
+// Nissan 350Z Top Secret Style Widebody Body Kit — real prices from Shopify CSV
 const initialTier1Components: KitComponent[] = [
-  { id: 'front_bumper', name: 'FRONT BUMPER', price: 1150, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte' },
-  { id: 'front_fenders', name: 'FRONT WIDE FENDERS +50MM', price: 980, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte' },
-  { id: 'side_skirts', name: 'SIDE SKIRTS', price: 920, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte' },
-  { id: 'rear_fenders', name: 'REAR WIDE FENDERS +50MM', price: 1350, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte' },
-  { id: 'rear_bumper', name: 'REAR BUMPER & DIFFUSER', price: 1090, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte' },
-  { id: 'vented_hood', name: 'VENTED HOOD', price: 1450, material: 'carbon', canFRP: false, isSelected: true, finish: 'matte' },
-  { id: 'gt_wing', name: 'GT WING', price: 1280, material: 'carbon', canFRP: false, isSelected: true, finish: 'matte' }
+  { id: 'front_bumper', name: 'FRONT BUMPER', price: 955, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 955, matte: 2105, gloss: 2105, forged: 2315, kevlar: 2420 } },
+  { id: 'front_fender', name: 'FRONT FENDER', price: 1275, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 1275, matte: 2805, gloss: 2805, forged: 3085, kevlar: 3225 } },
+  { id: 'side_skirt', name: 'SIDE SKIRT', price: 955, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 955, matte: 2105, gloss: 2105, forged: 2315, kevlar: 2420 } },
+  { id: 'rear_fender', name: 'REAR FENDER', price: 1595, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 1595, matte: 3505, gloss: 3505, forged: 3855, kevlar: 4030 } },
+  { id: 'rear_bumper', name: 'REAR BUMPER', price: 955, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 955, matte: 2105, gloss: 2105, forged: 2315, kevlar: 2420 } },
+  { id: 'fuel_cover', name: 'FUEL COVER', price: 195, material: 'carbon', canFRP: true, isSelected: true, finish: 'matte',
+    prices: { frp: 195, matte: 425, gloss: 425, forged: 465, kevlar: 485 } },
+  { id: 'lower_wing_top_legs', name: 'LOWER WING TOP LEGS', price: 575, material: 'carbon', canFRP: false, isSelected: true, finish: 'matte',
+    prices: { matte: 575, gloss: 575, forged: 635, kevlar: 660 } }
 ];
 
-// Centralized dynamic component price calculator
+// Centralized dynamic component price calculator — uses real CSV prices
 export const getComponentPrice = (item: KitComponent) => {
-  let basePrice = item.price;
-  
-  // FRP gives a slight reduction (approx $180) from listed prime prices of widebody components
-  if (item.canFRP && item.material === 'frp') {
-    basePrice -= 180;
-  }
-  
-  // Apply finish markup on CARBON only
-  if (item.material === 'carbon') {
-    const itemFinish = item.finish || 'matte';
-    if (itemFinish === 'forged') {
-      basePrice = Math.round(basePrice * 1.10);
-    } else if (itemFinish === 'kevlar') {
-      basePrice = Math.round(basePrice * 1.12);
+  // If we have real per-variant prices, use them directly
+  if (item.prices) {
+    if (item.material === 'frp' && item.prices.frp) {
+      return item.prices.frp;
+    }
+    if (item.material === 'carbon') {
+      const fin = item.finish || 'matte';
+      const price = item.prices[fin as keyof typeof item.prices];
+      if (price) return price;
     }
   }
-  return basePrice;
+  // Fallback to base price
+  return item.price;
 };
 
 export default function App() {
@@ -69,7 +72,14 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [shopByCarOpen, setShopByCarOpen] = useState(false);
-  const [activeCar, setActiveCar] = useState('Mazda RX-7 (FD3S)');
+  const [activeCar, setActiveCar] = useState('Nissan 350Z');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const productImages = [
+    '/images/350z-hero-0.jpg',
+    '/images/350z-hero-1.jpg',
+    '/images/350z-hero-8.jpg',
+    '/images/350z-hero-9.jpg'
+  ];
 
   // Toasts / alerts
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -206,8 +216,8 @@ export default function App() {
 
     const newCartItem: CartItem = {
       id: cartId,
-      title: "VEILSIDE FORTUNE WIDEBODY KIT",
-      subtitle: "MAZDA RX-7 (FD3S) FULL BUILD",
+      title: "TOP SECRET STYLE WIDEBODY BODY KIT",
+      subtitle: "NISSAN 350Z FULL BUILD",
       imageType: 'tier1',
       qty: 1,
       unitPrice: tier1Total,
@@ -225,7 +235,7 @@ export default function App() {
 
     setCart(prev => [...prev, newCartItem]);
     setIsCartOpen(true);
-    triggerToast("✨ VeilSide Fortune Widebody Build Added to Cart!");
+    triggerToast("✨ Top Secret Widebody Build Added to Cart!");
   };
 
   // --- Calculations for Tier 2 ---
@@ -263,7 +273,7 @@ export default function App() {
     const newCartItem: CartItem = {
       id: cartId,
       title: "RE AMEMIYA GT CARBON HOOD",
-      subtitle: `MAZDA RX-7 (FD3S) / HOODS`,
+      subtitle: `NISSAN 350Z / HOODS`,
       imageType: 'tier2',
       qty: 1,
       unitPrice: tier2Total,
@@ -429,7 +439,7 @@ export default function App() {
                       CHASSIS CONFIGURATIONS
                     </div>
                     {[
-                      'Mazda RX-7 (FD3S)',
+                      'Nissan 350Z',
                       'Toyota Supra (A80)',
                       'Nissan Skyline GT-R (R34)',
                       'Honda NSX (NA1)'
@@ -511,7 +521,7 @@ export default function App() {
       <main className="w-full px-6 md:px-10 lg:px-16 mt-8 space-y-20">
         
         {/* =========================================================================
-            TIER 1 SECTION — FULL KIT BUILDER (VeilSide Fortune Premier Widebody Kit)
+            TIER 1 SECTION — NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
             ========================================================================= */}
         <section className="space-y-6">
           <div className="border-b border-neutral-900 pb-5">
@@ -519,40 +529,81 @@ export default function App() {
             <div className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase flex items-center gap-1.5 mb-1.5">
               <span>VEHICLES</span>
               <span className="text-neutral-700">/</span>
-              <span>MAZDA</span>
+              <span>NISSAN</span>
               <span className="text-neutral-700">/</span>
-              <span className="text-[#c0f20c] font-medium">{activeCar.replace('Mazda ', '')}</span>
+              <span className="text-[#c0f20c] font-medium">350Z</span>
             </div>
 
             {/* Accent badge text */}
             <span className="text-xs font-mono font-extrabold tracking-widest text-[#c0f20c] uppercase">
-              {activeCar.toUpperCase()} SPECIFICATION
+              NISSAN 350Z SPECIFICATION
             </span>
 
             {/* Header titles */}
             <h1 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight mt-1 leading-none">
-              VEILSIDE FORTUNE PREMIER WIDEBODY KIT
+              NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
             </h1>
             <p className="text-[10px] font-mono tracking-widest text-neutral-400 mt-2 uppercase">
-              BESPOKE CARBON • BUILT TO ORDER IN THE ETI ATELIER, BANGKOK
+              BESPOKE CARBON • BUILT TO ORDER • $5,845.00 USD COMPLETE KIT (FRP)
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
-            {/* LEFT COLUMN: 360 viewer, buttons and fitment logs */}
-            <div className="lg:col-span-5 space-y-4">
+            {/* LEFT COLUMN: Product image gallery */}
+            <div className="lg:col-span-5 space-y-3">
               
-              {/* Dynamic blueprint rendering layout */}
-              <CarVisualizer
-                activeView={tier1ActiveView}
-                components={tier1Components}
-                finish={tier1Finish}
-                onViewChange={(view) => {
-                  setTier1ActiveView(view);
-                  triggerToast(`CAMERA MOVED TO ${view.toUpperCase()} RANGE`);
-                }}
-              />
+              {/* Main product image */}
+              <div className="relative rounded-lg overflow-hidden bg-[#0a0a0a] border border-neutral-900 aspect-square">
+                <img 
+                  src={productImages[activeImageIndex]} 
+                  alt={`Nissan 350Z Top Secret Widebody - View ${activeImageIndex + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                {/* ETI Badge overlay */}
+                <div className="absolute top-4 left-4 flex items-center gap-2">
+                  <span className="text-[9px] font-mono font-bold tracking-widest text-[#c0f20c] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-[#c0f20c]/20 uppercase">
+                    ETI ATELIER SPEC
+                  </span>
+                </div>
+                {/* Image counter */}
+                <div className="absolute bottom-4 right-4 text-[9px] font-mono font-bold text-white/70 bg-black/60 backdrop-blur-sm px-2 py-1 rounded">
+                  {activeImageIndex + 1} / {productImages.length}
+                </div>
+              </div>
+
+              {/* Thumbnail strip */}
+              <div className="grid grid-cols-4 gap-2">
+                {productImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`aspect-square rounded-md overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
+                      activeImageIndex === idx 
+                        ? 'border-[#c0f20c] shadow-[0_0_10px_rgba(192,242,12,0.2)]' 
+                        : 'border-neutral-800 hover:border-neutral-600 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img 
+                      src={img} 
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Fitment badge */}
+              <div className="flex items-center gap-3 text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
+                  <span>FITMENT: NISSAN 350Z</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
+                  <span>7 COMPONENTS</span>
+                </div>
+              </div>
 
             </div>
 
@@ -926,7 +977,7 @@ export default function App() {
             <div className="md:col-span-4 p-8 bg-neutral-950 border-b md:border-b-0 md:border-r border-neutral-900 flex flex-col justify-between items-start min-h-[300px]">
               
               <div className="w-full">
-                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">MAZDA / RX-7 (FD3S) / HOODS</span>
+                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">NISSAN / 350Z / HOODS</span>
                 <h3 className="font-display font-bold text-xl text-white tracking-tight uppercase mt-1">
                   RE AMEMIYA GT CARBON HOOD
                 </h3>
