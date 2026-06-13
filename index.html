@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var fetchVal = originalFetch;
+          
+          try {
+            delete window.fetch;
+          } catch (e) {}
+
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return fetchVal || originalFetch;
+            },
+            set: function(val) {
+              fetchVal = val;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          try {
+            var proto = Object.getPrototypeOf(window) || Window.prototype;
+            if (proto) {
+              try {
+                delete proto.fetch;
+              } catch (err) {}
+              
+              var customFetch = window.fetch;
+              Object.defineProperty(proto, 'fetch', {
+                get: function() {
+                  return customFetch || originalFetch;
+                },
+                set: function(val) {
+                  customFetch = val;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (err2) {
+            console.warn("Unable to fully shim fetch:", err2);
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

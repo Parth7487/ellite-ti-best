@@ -1,0 +1,8 @@
+{
+  "name": "Remix: ELITE TI Build Studio 01",
+  "description": "Premium bespoke carbon fiber and titanium parts builder for Mazda RX-7 (FD3S). Fully interactive product page customizer with live subtotal pricing engines, 3D/2D visualizer, and shopping cart.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
