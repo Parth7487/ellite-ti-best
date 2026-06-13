@@ -951,7 +951,7 @@ export default function App() {
                       onClick={() => triggerToast("Our bespoke specialist team has been notified of your interest. Check your dashboard messages shortly!")}
                       className="py-4 bg-transparent border border-neutral-800 text-neutral-300 hover:border-neutral-600 hover:text-white font-display font-bold text-[11px] uppercase tracking-widest rounded-md transition-all cursor-pointer hover:bg-neutral-900/30"
                     >
-                      CONTACT SPEC ADVISOR
+                      Want a Custom Finish
                     </button>
                   </div>
 
