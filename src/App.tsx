@@ -26,7 +26,9 @@ import {
   Truck,
   HelpCircle,
   Layers,
-  ArrowRight
+  ArrowRight,
+  User,
+  ShoppingCart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -327,72 +329,92 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-24">
       
-      {/* 1. Header Marquee */}
-      <div className="w-full bg-[#0d0d0d] border-b border-neutral-900 py-2.5 overflow-hidden relative z-40">
+      {/* 1. Announcement Marquee Bar */}
+      <div className="w-full bg-[#0a0a0a] border-b border-neutral-900/50 py-2 overflow-hidden relative z-40">
         <div className="whitespace-nowrap flex text-[10px] uppercase font-mono tracking-[0.25em] text-neutral-400">
-          <div className="animate-marquee flex gap-12 items-center">
-            <span>THE DRIVEN</span>
+          <div className="animate-marquee flex gap-8 items-center">
+            <span>MADE TO ORDER</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>TITANIUM HARDWARE</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>RACE-ENGINEERED</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>THE MANUFAKTUR FOR JDM</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>BUILT FOR THE DRIVEN</span>
             <span className="text-[#c0f20c]">•</span>
             <span>BESPOKE CARBON</span>
             <span className="text-[#c0f20c]">•</span>
-            <span>MADE TO ORDER IN OUR ATELIER</span>
-            <span className="text-[#c0f20c]">•</span>
-            <span>TITANIUM HARDWARE COMPONENTS</span>
-            <span className="text-[#c0f20c]">•</span>
-            <span>RACE-ENGINEERED PERFORMANCE</span>
+            <span>TITANIUM HARDWARE</span>
             <span className="text-[#c0f20c]">•</span>
           </div>
-          {/* Duplicate to bridge seam */}
-          <div className="animate-marquee flex gap-12 items-center">
-            <span>THE DRIVEN</span>
+          <div className="animate-marquee flex gap-8 items-center">
+            <span>MADE TO ORDER</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>TITANIUM HARDWARE</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>RACE-ENGINEERED</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>THE MANUFAKTUR FOR JDM</span>
+            <span className="text-[#c0f20c]">•</span>
+            <span>BUILT FOR THE DRIVEN</span>
             <span className="text-[#c0f20c]">•</span>
             <span>BESPOKE CARBON</span>
             <span className="text-[#c0f20c]">•</span>
-            <span>MADE TO ORDER IN OUR ATELIER</span>
-            <span className="text-[#c0f20c]">•</span>
-            <span>TITANIUM HARDWARE COMPONENTS</span>
-            <span className="text-[#c0f20c]">•</span>
-            <span>RACE-ENGINEERED PERFORMANCE</span>
+            <span>TITANIUM HARDWARE</span>
             <span className="text-[#c0f20c]">•</span>
           </div>
         </div>
       </div>
 
-      {/* 2. Brand Main Navigation Header */}
-      <header className="sticky top-0 z-30 bg-[#030303]/90 backdrop-blur-md border-b border-neutral-900/60 transition-all">
-        <div className="w-full px-6 md:px-10 lg:px-16 py-4 flex items-center justify-between">
+      {/* 2. Main Navigation Header — matches Elite TI Shopify store */}
+      <header className="sticky top-0 z-30 bg-[#111111] border-b border-neutral-800/50 transition-all">
+        <div className="w-full px-4 md:px-8 lg:px-12 py-0 flex items-center justify-between h-[58px]">
           
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <a href="/" className="font-display font-bold text-2xl tracking-tighter text-white hover:opacity-90">
-              ELITE <span className="text-[#c0f20c]">TI</span>
-            </a>
-            <span className="h-4 w-px bg-neutral-800 hidden sm:inline" />
-            <span className="text-[10px] font-mono tracking-widest text-[#c0f20c] hidden sm:inline bg-[#c0f20c]/5 border border-[#c0f20c]/20 px-2 py-0.5 rounded uppercase">
-              STUDIO EDITION
-            </span>
-          </div>
+          {/* Left: Logo */}
+          <a href="/" className="shrink-0 flex items-center mr-6 hover:opacity-90 transition-opacity">
+            {/* ETI Stylized Logo matching the store */}
+            <svg viewBox="0 0 80 32" className="h-7 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* E */}
+              <path d="M2 4h18v4.5H7.5v4H17v4.5H7.5v4H20V26H2V4Z" fill="white" />
+              {/* T */}
+              <path d="M24 4h20v5h-7v17h-6V9h-7V4Z" fill="white" />
+              {/* I */}
+              <path d="M48 4h6v22h-6V4Z" fill="#c0f20c" />
+              {/* Accent slash */}
+              <path d="M58 4l6 0l-4 22h-6l4-22Z" fill="#c0f20c" opacity="0.3" />
+            </svg>
+          </a>
 
-          {/* Nav list */}
-          <nav className="hidden lg:flex items-center space-x-8 text-xs font-mono font-medium uppercase tracking-[0.2em] text-neutral-400">
-            <a href="#vehicles" className="hover:text-white transition-colors">VEHICLES</a>
-            <a href="#catalog" className="text-white">CATALOG</a>
-            <a href="#titanium" className="hover:text-white transition-colors">TITANIUM</a>
-            <a href="#story" className="hover:text-white transition-colors">STORY</a>
+          {/* Center: Navigation links */}
+          <nav className="hidden lg:flex items-center gap-6 text-[11px] font-display font-bold uppercase tracking-[0.15em] text-white">
+            <a href="#vehicles" className="flex items-center gap-1 hover:text-[#c0f20c] transition-colors py-4">
+              VEHICLES
+              <ChevronDown className="w-3 h-3 text-neutral-500" />
+            </a>
+            <a href="#catalog" className="hover:text-[#c0f20c] transition-colors py-4">CATALOG</a>
+            <a href="#titanium" className="hover:text-[#c0f20c] transition-colors py-4">TITANIUM</a>
+            <a href="#motorsports" className="hover:text-[#c0f20c] transition-colors py-4">ETI MOTORSPORTS</a>
+            <a href="#story" className="hover:text-[#c0f20c] transition-colors py-4">STORY</a>
+            <a href="#contact" className="hover:text-[#c0f20c] transition-colors py-4">CONTACT</a>
+            <a href="#swag" className="hover:text-[#c0f20c] transition-colors py-4">SWAG</a>
           </nav>
 
-          {/* Actions panel */}
-          <div className="flex items-center gap-4">
-            {/* CAR SELECTOR (dropdown) */}
-            <div className="relative">
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 md:gap-3">
+
+            {/* SHOP BY CAR dropdown */}
+            <div className="relative hidden md:block">
               <button 
                 onClick={() => setShopByCarOpen(!shopByCarOpen)}
                 id="shop-by-car-dropdown"
-                className="px-4 py-2 bg-neutral-950 border border-neutral-800 rounded font-mono text-[10px] tracking-widest uppercase text-neutral-300 hover:border-neutral-700 transition-colors flex items-center gap-2"
+                className="h-8 px-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-full font-mono text-[9px] tracking-widest uppercase text-neutral-300 hover:border-neutral-600 transition-colors flex items-center gap-1.5"
               >
-                <span>SHOP BY CAR:</span> 
-                <span className="text-[#c0f20c] font-bold">{activeCar.replace('Mazda ', '')}</span> 
-                <ChevronDown className="w-3.5 h-3.5 text-neutral-500" />
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-[#c0f20c]" fill="currentColor">
+                  <path d="M2.5 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm11 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM1 7l1.5-4h11L15 7v4h-1.05a2 2 0 0 0-3.9 0H5.95a2 2 0 0 0-3.9 0H1V7z" />
+                </svg>
+                <span>SHOP BY CAR</span>
+                <ChevronDown className="w-3 h-3 text-neutral-500" />
               </button>
 
               <AnimatePresence>
@@ -401,7 +423,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="absolute right-0 mt-1.5 w-60 rounded border border-neutral-800 bg-[#0c0c0c] p-1.5 shadow-2xl z-50 text-[11px] font-mono"
+                    className="absolute right-0 mt-1.5 w-60 rounded-lg border border-neutral-800 bg-[#0c0c0c] p-1.5 shadow-2xl z-50 text-[11px] font-mono"
                   >
                     <div className="p-2 text-[9px] text-neutral-500 uppercase tracking-wider border-b border-neutral-900 mb-1">
                       CHASSIS CONFIGURATIONS
@@ -433,16 +455,33 @@ export default function App() {
               </AnimatePresence>
             </div>
 
-            {/* Shopping cart button */}
+            {/* Country / Currency selector */}
+            <button className="hidden lg:flex h-8 px-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-full font-mono text-[9px] tracking-widest uppercase text-neutral-300 hover:border-neutral-600 transition-colors items-center gap-1.5">
+              <span>UNITED STATES</span>
+              <span className="text-neutral-600">|</span>
+              <span>USD $</span>
+              <ChevronDown className="w-3 h-3 text-neutral-500" />
+            </button>
+
+            {/* Search */}
+            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all">
+              <Search className="w-[18px] h-[18px]" />
+            </button>
+
+            {/* Account */}
+            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all">
+              <User className="w-[18px] h-[18px]" />
+            </button>
+
+            {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
               id="cart-drawer-trigger"
-              className="p-2.5 rounded bg-neutral-950 border border-neutral-800 hover:border-neutral-700 text-neutral-300 transition-all flex items-center gap-2 cursor-pointer relative"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all relative cursor-pointer"
             >
-              <ShoppingBag className="w-4 h-4 text-[#c0f20c]" />
-              <span className="text-xs font-mono font-bold hidden sm:inline">CART</span>
+              <ShoppingCart className="w-[18px] h-[18px]" />
               {cart.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-[#c0f20c] text-black rounded-full text-[9px] font-mono font-bold flex items-center justify-center border-2 border-black animate-pulse">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#c0f20c] text-black rounded-full text-[8px] font-mono font-bold flex items-center justify-center border-[1.5px] border-[#111111]">
                   {cart.reduce((sum, item) => sum + item.qty, 0)}
                 </span>
               )}
