@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, X, ShoppingCart, Shield, ArrowRight, Gauge, Cpu, Zap, Activity } from 'lucide-react';
+import { Plus, X, ShoppingCart, Shield, ArrowRight, Trophy } from 'lucide-react';
 
 interface ComponentItem {
   id: string;
@@ -12,7 +12,7 @@ interface ComponentItem {
   image: string;
 }
 
-const componentsList: ComponentItem[] = [
+const supraComponents: ComponentItem[] = [
   {
     id: 'rear-wing',
     name: 'GT Wing (Track-spec)',
@@ -69,6 +69,63 @@ const componentsList: ComponentItem[] = [
   }
 ];
 
+const z350Components: ComponentItem[] = [
+  {
+    id: 'front-bumper',
+    name: 'Carbon Front Bumper Fascia',
+    price: 2105,
+    description: 'High-downforce front bumper replacement with an integrated carbon splitter and enlarged intakes to feed high-flow cooling ducts.',
+    specs: ['Bespoke prepreg vacuum carbon', 'Engineered intake dams for radiator airflow', 'Direct bolt-on replacement fitting stock crash bars'],
+    position: { top: '70%', left: '60%' },
+    image: '/images/350z-hero-0.jpg'
+  },
+  {
+    id: 'front-fender',
+    name: 'Vented Front Fenders',
+    price: 2805,
+    description: 'Bespoke front fenders adding +50mm track width per side. Sculpted vents alleviate turbulent high-pressure pocket drag inside the wheel wells.',
+    specs: ['Weight savings: -4.2kg per fender', 'Aerodynamic heat-extraction vents', 'Compatible with stock liners'],
+    position: { top: '58%', left: '46%' },
+    image: '/images/350z-hero-1.jpg'
+  },
+  {
+    id: 'side-skirts',
+    name: 'Aerodynamic Side Skirts',
+    price: 2105,
+    description: 'Extended profile side skirts that manage side airflow, preventing high-pressure drafts from leaking underneath the flat bottom under-tray.',
+    specs: ['Grade 5 titanium under-fasteners included', 'Vacuum bagged carbon fiber structure', 'Designed for optimal ground clearance'],
+    position: { top: '72%', left: '36%' },
+    image: '/images/350z-hero-8.jpg'
+  },
+  {
+    id: 'rear-fender',
+    name: 'Widebody Rear Fenders',
+    price: 3505,
+    description: 'Over-fender rear extensions adding +60mm width. Permits wider track setups, aggressive offsets, and wider performance compounds.',
+    specs: ['Ultra-light high-tensile carbon build', 'Seamless body flare integration lines', 'Bakes in autoclave at 120°C'],
+    position: { top: '55%', left: '26%' },
+    image: '/images/350z-hero-9.jpg'
+  },
+  {
+    id: 'rear-bumper',
+    name: 'Diffused Rear Bumper',
+    price: 2105,
+    description: 'Bespoke rear bumper cover with integrated drag-reduction vents and optimized exhaust exits to clean rear turbulent wake.',
+    specs: ['Autoclave cured prepreg carbon', 'Direct bolt-on design', 'High UV protective glossy coat'],
+    position: { top: '70%', left: '16%' },
+    image: '/images/350z-hero-0.jpg'
+  },
+  {
+    id: 'rear-wing',
+    name: 'Top Secret GT Wing',
+    price: 1895,
+    description: 'Dry carbon deck lid spoiler designed specifically for the Z33 chassis to improve rear downforce coefficients at track speeds.',
+    specs: ['Calculated foil coordinates', 'Subtle trunk layout alignment', 'Mounts using reinforced structural backing plates'],
+    position: { top: '48%', left: '20%' },
+    image: '/images/350z-hero-1.jpg'
+  }
+];
+
 interface InteractiveCarExplorerProps {
   onAddToCart: (product: { id: string; title: string; price: number; category: string }) => void;
 }
@@ -76,9 +133,20 @@ interface InteractiveCarExplorerProps {
 export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ onAddToCart }) => {
   const [activeComponent, setActiveComponent] = useState<string | null>(null);
   const [hoveredComponent, setHoveredComponent] = useState<string | null>(null);
-  const [activeChassis, setActiveChassis] = useState<'supra' | 'rx7' | 'r34'>('supra');
+  const [activeChassis, setActiveChassis] = useState<'350z' | 'supra'>('350z');
+
+  const componentsList = activeChassis === '350z' ? z350Components : supraComponents;
+  const chassisImage = activeChassis === '350z' ? '/images/350z-hero-1.jpg' : '/images/SUPRA green3.jpg';
+  const completeKitPrice = activeChassis === '350z' ? 13800 : 9800;
+  const completeKitTitle = activeChassis === '350z' ? '350Z Complete Aero Kit' : 'Supra Complete Aero Kit';
 
   const activeData = componentsList.find(c => c.id === (hoveredComponent || activeComponent));
+
+  const handleChassisChange = (chassis: '350z' | 'supra') => {
+    setActiveChassis(chassis);
+    setActiveComponent(null);
+    setHoveredComponent(null);
+  };
 
   return (
     <section className="py-24 relative overflow-hidden bg-[#0a0a0b] border-t border-neutral-900">
@@ -117,7 +185,13 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
           {/* Immersive JDM Chassis Selector */}
           <div className="flex gap-2 font-mono text-[9px] uppercase tracking-wider self-start lg:self-end">
             <button 
-              onClick={() => setActiveChassis('supra')}
+              onClick={() => handleChassisChange('350z')}
+              className={`px-4 py-2 border transition-all cursor-pointer ${activeChassis === '350z' ? 'bg-[#c0f20c] border-[#c0f20c] text-black font-bold' : 'border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-white'}`}
+            >
+              NISSAN 350Z Z33
+            </button>
+            <button 
+              onClick={() => handleChassisChange('supra')}
               className={`px-4 py-2 border transition-all cursor-pointer ${activeChassis === 'supra' ? 'bg-[#c0f20c] border-[#c0f20c] text-black font-bold' : 'border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-white'}`}
             >
               TOYOTA SUPRA JZA80
@@ -151,8 +225,8 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
             >
               {/* Car Image */}
               <img
-                src="/images/SUPRA green3.jpg"
-                alt="Elite Ti Supra Aero Showcase"
+                src={chassisImage}
+                alt={`Elite Ti ${activeChassis.toUpperCase()} Aero Showcase`}
                 className="w-full h-full object-cover opacity-80 group-hover/image:opacity-85 transition-opacity duration-500"
               />
 
@@ -210,7 +284,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
             <div className="mt-4 flex items-center justify-between border-b border-neutral-900 pb-3 font-mono text-[9px]">
               <div className="flex items-center gap-2 text-neutral-500">
                 <span className="w-1.5 h-1.5 bg-[#c0f20c] rounded-full inline-block animate-ping" />
-                <span>TOYOTA SUPRA JZA80 PROGRAM</span>
+                <span>{activeChassis === '350z' ? 'NISSAN 350Z Z33 PROGRAM' : 'TOYOTA SUPRA JZA80 PROGRAM'}</span>
                 <span className="text-neutral-700">|</span>
                 <span>{componentsList.length} SCHEMATICS LOADED</span>
               </div>
@@ -306,7 +380,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
                   >
                     <div>
                       <span className="font-mono text-[9px] text-[#c0f20c] uppercase tracking-widest block font-bold">PROGRAM METADATA</span>
-                      <h3 className="text-lg font-display font-bold text-white uppercase tracking-wider mt-1">JZA80 AERO DIRECTORY</h3>
+                      <h3 className="text-lg font-display font-bold text-white uppercase tracking-wider mt-1">{activeChassis === '350z' ? 'Z33 AERO DIRECTORY' : 'JZA80 AERO DIRECTORY'}</h3>
                       <p className="text-neutral-300 text-[10px] font-sans mt-1 leading-relaxed">
                         Select a component from the list below or click an image hotspot to load technical data sheets.
                       </p>
@@ -352,22 +426,22 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
                         </div>
                         <div>
                           <span className="text-neutral-500 block uppercase">WEIGHT REDUCTION</span>
-                          <span className="text-white block uppercase font-bold mt-0.5">-55.0 KG TOTAL</span>
+                          <span className="text-white block uppercase font-bold mt-0.5">{activeChassis === '350z' ? '-65.0 KG TOTAL' : '-55.0 KG TOTAL'}</span>
                         </div>
                         <div>
                           <span className="text-neutral-500 block uppercase">DOWNFORCE (200KMH)</span>
-                          <span className="text-white block uppercase font-bold mt-0.5">+145 KG RATING</span>
+                          <span className="text-white block uppercase font-bold mt-0.5">{activeChassis === '350z' ? '+160 KG RATING' : '+145 KG RATING'}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Quick Checkout CTA */}
                     <button 
-                      onClick={() => onAddToCart({ id: 'supra-aero-kit', title: 'Supra Complete Aero Kit', price: 9800, category: 'carbon' })}
+                      onClick={() => onAddToCart({ id: activeChassis === '350z' ? 'z33-aero-kit' : 'supra-aero-kit', title: completeKitTitle, price: completeKitPrice, category: 'carbon' })}
                       className="w-full h-11 bg-neutral-900 hover:bg-[#c0f20c] text-white hover:text-black border border-neutral-800 hover:border-transparent font-mono text-[10px] tracking-widest uppercase font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <ShoppingCart className="w-3.5 h-3.5 stroke-[2]" />
-                      ALLOCATE COMPLETE AERO KIT ($9,800)
+                      ALLOCATE COMPLETE AERO KIT (${completeKitPrice.toLocaleString()})
                     </button>
                   </motion.div>
                 )}
@@ -386,10 +460,10 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
           className="mt-16 text-center"
         >
           <button 
-            onClick={() => onAddToCart({ id: 'supra-aero-kit', title: 'Supra Complete Aero Kit', price: 9800, category: 'carbon' })}
+            onClick={() => onAddToCart({ id: activeChassis === '350z' ? 'z33-aero-kit' : 'supra-aero-kit', title: completeKitTitle, price: completeKitPrice, category: 'carbon' })}
             className="border border-[#c0f20c]/60 hover:border-[#c0f20c] text-[#c0f20c] hover:bg-[#c0f20c] hover:text-black px-8 h-12 font-mono text-[10px] tracking-widest uppercase transition-all duration-300 font-bold bg-transparent cursor-pointer"
           >
-            SHOP COMPLETE JZA80 AERO KIT &mdash; $9,800
+            SHOP COMPLETE {activeChassis.toUpperCase()} AERO KIT &mdash; ${completeKitPrice.toLocaleString()}
           </button>
         </motion.div>
 
