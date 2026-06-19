@@ -9,6 +9,9 @@ import {
 } from './types';
 import CarVisualizer from './components/CarVisualizer';
 import CartDrawer from './components/CartDrawer';
+import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
+import { ModelFinder } from './components/ModelFinder';
+import { AboutUs } from './components/AboutUs';
 import { 
   ShoppingBag, 
   Search, 
@@ -31,6 +34,68 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+interface AnimatedCounterProps {
+  target: number;
+  duration?: number;
+  decimals?: number;
+  suffix?: string;
+}
+
+const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ target, duration = 1500, decimals = 0, suffix = "" }) => {
+  const [count, setCount] = React.useState(0);
+  const elementRef = React.useRef<HTMLSpanElement>(null);
+
+  React.useEffect(() => {
+    let observer: IntersectionObserver;
+    let animationFrameId: number;
+
+    const startAnimation = () => {
+      const startTime = performance.now();
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = progress * (2 - progress); // easeOutQuad
+        const currentValue = easeProgress * target;
+        setCount(currentValue);
+
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(animate);
+        } else {
+          setCount(target);
+        }
+      };
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    if (elementRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              startAnimation();
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(elementRef.current);
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [target, duration]);
+
+  return (
+    <span ref={elementRef}>
+      {count.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+};
 
 // Nissan 350Z Top Secret Style Widebody Body Kit — real prices from Shopify CSV
 const initialTier1Components: KitComponent[] = [
@@ -336,8 +401,659 @@ export default function App() {
     triggerToast("Item removed from your cart.");
   };
 
+  // Page state routing
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story'>('home');
+  const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
+
+  // Custom Interactive states & datasets for newly added sections and pages
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [catalogFilter, setCatalogFilter] = useState<'all' | 'carbon' | 'titanium' | 'swag'>('all');
+  const [catalogSort, setCatalogSort] = useState<'alpha-asc' | 'alpha-desc' | 'price-asc' | 'price-desc'>('alpha-asc');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [titaniumFinish, setTitaniumFinish] = useState<'raw_ti' | 'burnt_blue' | 'gold' | 'purple'>('burnt_blue');
+  const [swagSize, setSwagSize] = useState<'S' | 'M' | 'L' | 'XL'>('M');
+
+  // --- Slides Data for Featured Chassis Slider ---
+  const slidesData = [
+    {
+      name: "Mazda RX-7",
+      chassis: "FD3S",
+      label: "Hand-Finished & Circuit Ready",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      products: [
+        { id: "rx7-hood", title: "FD3S RE AMEMIYA CARBON HOOD", price: 1450, type: "tier2" as const },
+        { id: "rx7-lip", title: "FD3S FEED-STYLE CARBON FRONT LIP", price: 680, type: "tier1" as const },
+        { id: "rx7-skirt", title: "FD3S CARBON SIDE SKIRTS", price: 580, type: "tier1" as const },
+        { id: "rx7-bolts", title: "FD3S TITANIUM BAY FASTENERS", price: 189, type: "tier3" as const }
+      ]
+    },
+    {
+      name: "Toyota Supra MK4",
+      chassis: "JZA80",
+      label: "2JZ-Worthy Race Armor",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      products: [
+        { id: "supra4-lip", title: "JZA80 R-RIDERS CARBON FRONT LIP", price: 720, type: "tier1" as const },
+        { id: "supra4-plug", title: "2JZ CARBON SPARK PLUG COVER", price: 340, type: "tier1" as const },
+        { id: "supra4-wing", title: "JZA80 TRD-STYLE CARBON WING", price: 890, type: "tier1" as const },
+        { id: "supra4-ti", title: "JZA80 TITANIUM ENGINE BAY KIT", price: 295, type: "tier3" as const }
+      ]
+    },
+    {
+      name: "Toyota Supra MK5",
+      chassis: "A90",
+      label: "Modern Aerodynamic Icon",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      products: [
+        { id: "supra5-spoiler", title: "A90 HKS-STYLE CARBON DUCKTAIL", price: 540, type: "tier1" as const },
+        { id: "supra5-fender", title: "A90 CARBON FENDER GARNISH", price: 280, type: "tier1" as const },
+        { id: "supra5-diffuser", title: "A90 CARBON REAR DIFFUSER", price: 980, type: "tier1" as const },
+        { id: "supra5-hardware", title: "A90 GRADE 5 TITANIUM BOLTS", price: 145, type: "tier3" as const }
+      ]
+    },
+    {
+      name: "Nissan Skyline GT-R",
+      chassis: "BNR34",
+      label: "The Godzilla Circuit Curation",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      products: [
+        { id: "r34-diffuser", title: "BNR34 V-SPEC CARBON REAR DIFFUSER", price: 1850, type: "tier1" as const },
+        { id: "r34-splitter", title: "BNR34 CARBON FRONT SPLITTER", price: 790, type: "tier1" as const },
+        { id: "r34-wing", title: "BNR34 CARBON WING BLADE EXTS", price: 420, type: "tier1" as const },
+        { id: "r34-fasteners", title: "BNR34 RB26 TITANIUM BOLTS KIT", price: 280, type: "tier3" as const }
+      ]
+    },
+    {
+      name: "Nissan GT-R",
+      chassis: "R35",
+      label: "Track Beast Carbon Suit",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      products: [
+        { id: "r35-hood", title: "R35 N-STYLE VENTED CARBON HOOD", price: 2195, type: "tier2" as const },
+        { id: "r35-trunk", title: "R35 OEM CARBON TRUNK LID", price: 1150, type: "tier1" as const },
+        { id: "r35-fenders", title: "R35 VENTED CARBON FENDERS", price: 1550, type: "tier1" as const },
+        { id: "r35-lugs", title: "R35 TITANIUM WHEEL LUG NUTS", price: 320, type: "tier3" as const }
+      ]
+    },
+    {
+      name: "Nissan 370Z",
+      chassis: "Z34",
+      label: "Wide-Body Spec Fasteners",
+      catalogLink: "catalog",
+      heroImage: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      products: [
+        { id: "370z-wing", title: "Z34 NIS-STYLE CARBON REAR WING", price: 850, type: "tier1" as const },
+        { id: "370z-lip", title: "Z34 CARBON FRONT LIP SPLITTER", price: 590, type: "tier1" as const },
+        { id: "370z-mirror", title: "Z34 CARBON MIRROR COVERS", price: 180, type: "tier1" as const },
+        { id: "370z-bay", title: "Z34 VQ37 TITANIUM BAY FASTENERS", price: 189, type: "tier3" as const }
+      ]
+    }
+  ];
+
+  const catalogProducts = [
+    {
+      id: "cat-2jz-swap",
+      title: "TOYOTA SUPRA JZA80 2JZ SWAP KIT",
+      category: "carbon" as const,
+      price: 560,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Untitled_design_59.png?v=1769703290",
+      badge: "BESTSELLER",
+      chassis: "JZA80"
+    },
+    {
+      id: "cat-2jz-manifold",
+      title: "TOYOTA SUPRA JZA80 2JZ-GTE/GE CARBON INTAKE MANIFOLD",
+      category: "carbon" as const,
+      price: 2195,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      badge: "PRE-ORDER",
+      chassis: "JZA80"
+    },
+    {
+      id: "cat-350z-ti-kit",
+      title: "NISSAN 350Z Z33 TITANIUM HARDWARE KIT",
+      category: "titanium" as const,
+      price: 250,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      badge: "MADE TO ORDER",
+      chassis: "Z33"
+    },
+    {
+      id: "cat-8pcs-interior",
+      title: "NISSAN 350Z Z33 8PCS CARBON FIBER INTERIOR SET",
+      category: "carbon" as const,
+      price: 18.01,
+      originalPrice: 30.00,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      badge: "SALE",
+      chassis: "Z33"
+    },
+    {
+      id: "cat-add-insurance",
+      title: "ADD INSURANCE",
+      category: "titanium" as const,
+      price: 8.50,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      badge: "OPTIONAL",
+      chassis: "ALL"
+    },
+    {
+      id: "cat-tesla-armrest",
+      title: "FOR TESLA MODEL Y/3 CAR ARMREST BOX COVER",
+      category: "carbon" as const,
+      price: 18.01,
+      originalPrice: 30.00,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      badge: "SALE",
+      chassis: "MODEL Y"
+    },
+    {
+      id: "cat-eti-tee",
+      title: "ETI OFFICIAL ATELIER LOGO TEE",
+      category: "swag" as const,
+      price: 35.00,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group.png?v=1760445002",
+      badge: "APPAREL",
+      chassis: "ALL"
+    },
+    {
+      id: "cat-eti-hoodie",
+      title: "ETI TRACK ZIP HOODIE",
+      category: "swag" as const,
+      price: 65.00,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group_2.png?v=1760683834",
+      badge: "APPAREL",
+      chassis: "ALL"
+    },
+
+    // --- Added from slidesData and other chassis options ---
+    // MAZDA
+    {
+      id: "rx7-hood",
+      title: "MAZDA RX-7 FD3S RE AMEMIYA CARBON HOOD",
+      category: "carbon" as const,
+      price: 1450,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      badge: "BESPOKE",
+      chassis: "FD3S"
+    },
+    {
+      id: "rx7-lip",
+      title: "MAZDA RX-7 FD3S FEED-STYLE CARBON FRONT LIP",
+      category: "carbon" as const,
+      price: 680,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      badge: "AUTOCLAVE",
+      chassis: "FD3S"
+    },
+    {
+      id: "rx7-skirt",
+      title: "MAZDA RX-7 FD3S CARBON SIDE SKIRTS",
+      category: "carbon" as const,
+      price: 580,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "FD3S"
+    },
+    {
+      id: "rx7-bolts",
+      title: "MAZDA RX-7 FD3S TITANIUM BAY FASTENERS",
+      category: "titanium" as const,
+      price: 189,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "FD3S"
+    },
+    {
+      id: "rx8-lip",
+      title: "MAZDA RX-8 SE3P CARBON FRONT LIP",
+      category: "carbon" as const,
+      price: 520,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "SE3P"
+    },
+
+    // TOYOTA
+    {
+      id: "supra4-lip",
+      title: "TOYOTA SUPRA JZA80 R-RIDERS CARBON FRONT LIP",
+      category: "carbon" as const,
+      price: 720,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "JZA80"
+    },
+    {
+      id: "supra4-plug",
+      title: "TOYOTA SUPRA JZA80 2JZ CARBON SPARK PLUG COVER",
+      category: "carbon" as const,
+      price: 340,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "JZA80"
+    },
+    {
+      id: "supra4-wing",
+      title: "TOYOTA SUPRA JZA80 TRD-STYLE CARBON WING",
+      category: "carbon" as const,
+      price: 890,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "JZA80"
+    },
+    {
+      id: "supra4-ti",
+      title: "TOYOTA SUPRA JZA80 TITANIUM ENGINE BAY KIT",
+      category: "titanium" as const,
+      price: 295,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "JZA80"
+    },
+    {
+      id: "supra5-spoiler",
+      title: "TOYOTA SUPRA A90 HKS-STYLE CARBON DUCKTAIL",
+      category: "carbon" as const,
+      price: 540,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "A90"
+    },
+    {
+      id: "supra5-fender",
+      title: "TOYOTA SUPRA A90 CARBON FENDER GARNISH",
+      category: "carbon" as const,
+      price: 280,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "A90"
+    },
+    {
+      id: "supra5-diffuser",
+      title: "TOYOTA SUPRA A90 CARBON REAR DIFFUSER",
+      category: "carbon" as const,
+      price: 980,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "A90"
+    },
+    {
+      id: "supra5-hardware",
+      title: "TOYOTA SUPRA A90 GRADE 5 TITANIUM BOLTS",
+      category: "titanium" as const,
+      price: 145,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "A90"
+    },
+    {
+      id: "toyota-zn6-hood",
+      title: "TOYOTA GT86 / FT86 ZN6 CARBON VENTED HOOD",
+      category: "carbon" as const,
+      price: 1250,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "ZN6"
+    },
+    {
+      id: "toyota-zn8-wing",
+      title: "TOYOTA GR86 ZN8 CARBON REAR SPOILER",
+      category: "carbon" as const,
+      price: 490,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "ZN8"
+    },
+    {
+      id: "toyota-mr2-skirt",
+      title: "TOYOTA MR2 SW20 CARBON SIDE SHARDS",
+      category: "carbon" as const,
+      price: 420,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "SW20"
+    },
+
+    // NISSAN
+    {
+      id: "r34-diffuser",
+      title: "NISSAN SKYLINE BNR34 V-SPEC CARBON REAR DIFFUSER",
+      category: "carbon" as const,
+      price: 1850,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "BNR34"
+    },
+    {
+      id: "r34-splitter",
+      title: "NISSAN SKYLINE BNR34 CARBON FRONT SPLITTER",
+      category: "carbon" as const,
+      price: 790,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "BNR34"
+    },
+    {
+      id: "r34-wing",
+      title: "NISSAN SKYLINE BNR34 CARBON WING BLADE EXTS",
+      category: "carbon" as const,
+      price: 420,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "BNR34"
+    },
+    {
+      id: "r34-fasteners",
+      title: "NISSAN SKYLINE BNR34 RB26 TITANIUM BOLTS KIT",
+      category: "titanium" as const,
+      price: 280,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "BNR34"
+    },
+    {
+      id: "r35-hood",
+      title: "NISSAN GT-R R35 N-STYLE VENTED CARBON HOOD",
+      category: "carbon" as const,
+      price: 2195,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "R35"
+    },
+    {
+      id: "r35-trunk",
+      title: "NISSAN GT-R R35 OEM CARBON TRUNK LID",
+      category: "carbon" as const,
+      price: 1150,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "R35"
+    },
+    {
+      id: "r35-fenders",
+      title: "NISSAN GT-R R35 VENTED CARBON FENDERS",
+      category: "carbon" as const,
+      price: 1550,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "R35"
+    },
+    {
+      id: "r35-lugs",
+      title: "NISSAN GT-R R35 TITANIUM WHEEL LUG NUTS",
+      category: "titanium" as const,
+      price: 320,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "R35"
+    },
+    {
+      id: "nissan-r32-lip",
+      title: "NISSAN SKYLINE BNR32 N1-STYLE CARBON LIP",
+      category: "carbon" as const,
+      price: 495,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "R32"
+    },
+    {
+      id: "nissan-r33-wing",
+      title: "NISSAN SKYLINE BCNR33 CARBON WING BLADE",
+      category: "carbon" as const,
+      price: 430,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
+      chassis: "R33"
+    },
+    {
+      id: "370z-wing",
+      title: "NISSAN 370Z Z34 NIS-STYLE CARBON REAR WING",
+      category: "carbon" as const,
+      price: 850,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "Z34"
+    },
+    {
+      id: "370z-lip",
+      title: "NISSAN 370Z Z34 CARBON FRONT LIP SPLITTER",
+      category: "carbon" as const,
+      price: 590,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "Z34"
+    },
+    {
+      id: "370z-mirror",
+      title: "NISSAN 370Z Z34 CARBON MIRROR COVERS",
+      category: "carbon" as const,
+      price: 180,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "Z34"
+    },
+    {
+      id: "370z-bay",
+      title: "NISSAN 370Z Z34 VQ37 TITANIUM BAY FASTENERS",
+      category: "titanium" as const,
+      price: 189,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "Z34"
+    },
+    {
+      id: "nissan-s15-hood",
+      title: "NISSAN SILVIA S15 D-MAX STYLE CARBON HOOD",
+      category: "carbon" as const,
+      price: 1195,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "S15"
+    },
+    {
+      id: "nissan-s14-lip",
+      title: "NISSAN SILVIA S14 KOUKI CARBON FRONT LIP",
+      category: "carbon" as const,
+      price: 380,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "S14"
+    },
+    {
+      id: "nissan-s13-hatch",
+      title: "NISSAN 180SX S13 CARBON REAR HATCH COVER",
+      category: "carbon" as const,
+      price: 640,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "S13"
+    },
+    {
+      id: "nissan-g35-pillar",
+      title: "NISSAN G35 V35 CARBON FIBER PILLAR POSTS",
+      category: "carbon" as const,
+      price: 85,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "V35"
+    },
+
+    // MITSUBISHI
+    {
+      id: "mitsu-evo9-lip",
+      title: "MITSUBISHI LANCER EVO 8 / 9 CARBON FRONT LIP",
+      category: "carbon" as const,
+      price: 450,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "8 / 9"
+    },
+    {
+      id: "mitsu-evox-hood",
+      title: "MITSUBISHI LANCER EVO X VENTED CARBON HOOD",
+      category: "carbon" as const,
+      price: 1350,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "X"
+    },
+    {
+      id: "mitsu-gto-exhaust",
+      title: "MITSUBISHI GTO / 3000GT TITANIUM EXHAUST DRESS-UP",
+      category: "titanium" as const,
+      price: 180,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
+      chassis: "3000GT"
+    },
+    {
+      id: "mitsu-fto-splitter",
+      title: "MITSUBISHI FTO CARBON FRONT SPLITTER",
+      category: "carbon" as const,
+      price: 360,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "FTO"
+    },
+
+    // HONDA
+    {
+      id: "honda-civic-fk8-wing",
+      title: "HONDA CIVIC FC / FK TYPE R CARBON REAR WING",
+      category: "carbon" as const,
+      price: 680,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "FC / FK"
+    },
+    {
+      id: "honda-civic-eg-mirrors",
+      title: "HONDA CIVIC EG / EK SPOON-STYLE CARBON MIRRORS",
+      category: "carbon" as const,
+      price: 195,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "EG / EK"
+    },
+    {
+      id: "honda-jazz-wing",
+      title: "HONDA JAZZ / FIT RS CARBON REAR WING",
+      category: "carbon" as const,
+      price: 290,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
+      chassis: "JAZZ / FIT"
+    },
+
+    // SUBARU
+    {
+      id: "subaru-wrx-diffuser",
+      title: "SUBARU iMPREZA / WRX VARIS-STYLE CARBON DIFFUSER",
+      category: "carbon" as const,
+      price: 890,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "iMPREZA / WRX"
+    },
+
+    // BMW
+    {
+      id: "bmw-m2-splitter",
+      title: "BMW M2 F87 M-PERFORMANCE CARBON SPLITTER",
+      category: "carbon" as const,
+      price: 740,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "F87"
+    },
+    {
+      id: "bmw-e46-trunk",
+      title: "BMW E46 M3 CSL-STYLE FULL CARBON TRUNK LID",
+      category: "carbon" as const,
+      price: 895,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "E46"
+    },
+    {
+      id: "bmw-e92-hood",
+      title: "BMW 3-SERIES E90-E93 M3 CARBON VENTED HOOD",
+      category: "carbon" as const,
+      price: 1450,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "E90-E93"
+    },
+    {
+      id: "bmw-f32-splitter",
+      title: "BMW 4-SERIES F32 &middot; M4 CARBON FRONT SPOILER",
+      category: "carbon" as const,
+      price: 650,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "F32 &middot; M4"
+    },
+    {
+      id: "bmw-e60-fenders",
+      title: "BMW 5-SERIES E60-G30 CARBON FRONT FENDERS",
+      category: "carbon" as const,
+      price: 980,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "E60-G30"
+    },
+    {
+      id: "bmw-z4-grilles",
+      title: "BMW Z4 E89 CARBON SIDE MIRRORS & GRILLES",
+      category: "carbon" as const,
+      price: 240,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "E89"
+    },
+
+    // PORSCHE
+    {
+      id: "porsche-gt3-wing",
+      title: "PORSCHE 911 GT3 CARBON REAR WING BLADE",
+      category: "carbon" as const,
+      price: 2350,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "911"
+    },
+    {
+      id: "porsche-cayman-ducts",
+      title: "PORSCHE 981 CAYMAN / BOXSTER CARBON SIDE AIR INTAKES",
+      category: "carbon" as const,
+      price: 380,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "981 CAYMAN / BOXSTER"
+    },
+
+    // LAMBORGHINI
+    {
+      id: "lambo-lugs",
+      title: "LAMBORGHINI HURACAN/AVENTADOR TITANIUM WHEEL BOLTS",
+      category: "titanium" as const,
+      price: 450,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
+      chassis: "LAMBORGHINI"
+    },
+
+    // CHEVROLET
+    {
+      id: "chevy-corvette-lip",
+      title: "CHEVROLET C8 CORVETTE CARBON FRONT LIP SPLITTER",
+      category: "carbon" as const,
+      price: 695,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
+      chassis: "C8 CORVETTE"
+    },
+
+    // FORD
+    {
+      id: "ford-ranger-flares",
+      title: "FORD RANGER CARBON FLARED WHEEL ARCHES",
+      category: "carbon" as const,
+      price: 580,
+      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
+      chassis: "RANGER"
+    }
+  ];
+
+  // Handler to add simple products (catalog / swag / titanium) to cart
+  const handleAddSimpleProductToCart = (p: { id: string, title: string, price: number, category: string, imageType?: 'tier1' | 'tier2' | 'tier3' }) => {
+    const cartId = `${p.id}-${Date.now()}`;
+    const imgType = p.imageType || (p.category === 'titanium' ? 'tier3' : p.category === 'swag' ? 'tier2' : 'tier1');
+    const newCartItem: CartItem = {
+      id: cartId,
+      title: p.title,
+      subtitle: `${p.category.toUpperCase()} PRODUCT`,
+      imageType: imgType,
+      qty: 1,
+      unitPrice: p.price,
+      totalPrice: p.price,
+      selectedOptions: [
+        { label: "Category", value: p.category.toUpperCase() }
+      ],
+      specDetails: [
+        `Direct Catalog Order`,
+        `Price: $${p.price} USD`
+      ]
+    };
+    setCart(prev => [...prev, newCartItem]);
+    setIsCartOpen(true);
+    triggerToast(`✨ Added ${p.title} to cart!`);
+  };
+
+  const handleSelectChassis = (query: string, page: 'catalog' | 'product' = 'catalog') => {
+    setSearchQuery(query);
+    setCurrentPage(page);
+    setShopByCarOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-24">
+    <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
       
       {/* 1. Announcement Marquee Bar */}
       <div className="w-full bg-[#0a0a0a] border-b border-neutral-900/50 py-2 overflow-hidden relative z-40">
@@ -378,36 +1094,71 @@ export default function App() {
       </div>
 
       {/* 2. Main Navigation Header — matches Elite TI Shopify store */}
-      <header className="sticky top-0 z-30 bg-[#111111] border-b border-neutral-800/50 transition-all">
-        <div className="w-full px-4 md:px-8 lg:px-12 py-0 flex items-center justify-between h-[58px]">
+      <header className="sticky top-0 z-50 bg-[#0a0a0b] border-b border-neutral-900 transition-all">
+        <div className="w-full px-4 md:px-8 lg:px-12 py-0 flex items-center justify-between h-[76px] relative max-w-[1700px] mx-auto">
           
           {/* Left: Logo */}
-          <a href="/" className="shrink-0 flex items-center mr-6 hover:opacity-90 transition-opacity">
-            {/* ETI Stylized Logo matching the store */}
-            <svg viewBox="0 0 80 32" className="h-7 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* E */}
-              <path d="M2 4h18v4.5H7.5v4H17v4.5H7.5v4H20V26H2V4Z" fill="white" />
-              {/* T */}
-              <path d="M24 4h20v5h-7v17h-6V9h-7V4Z" fill="white" />
-              {/* I */}
-              <path d="M48 4h6v22h-6V4Z" fill="#c0f20c" />
-              {/* Accent slash */}
-              <path d="M58 4l6 0l-4 22h-6l4-22Z" fill="#c0f20c" opacity="0.3" />
-            </svg>
-          </a>
+          <button 
+            onClick={() => setCurrentPage('home')}
+            className="shrink-0 flex items-center mr-6 hover:opacity-90 transition-opacity cursor-pointer bg-transparent border-0"
+          >
+            <img src="/images/logo.png" alt="Elite TI Logo" className="h-[48px] w-auto object-contain" />
+          </button>
 
           {/* Center: Navigation links */}
-          <nav className="hidden lg:flex items-center gap-6 text-[11px] font-display font-bold uppercase tracking-[0.15em] text-white">
-            <a href="#vehicles" className="flex items-center gap-1 hover:text-[#c0f20c] transition-colors py-4">
-              VEHICLES
-              <ChevronDown className="w-3 h-3 text-neutral-500" />
-            </a>
-            <a href="#catalog" className="hover:text-[#c0f20c] transition-colors py-4">CATALOG</a>
-            <a href="#titanium" className="hover:text-[#c0f20c] transition-colors py-4">TITANIUM</a>
-            <a href="#motorsports" className="hover:text-[#c0f20c] transition-colors py-4">ETI MOTORSPORTS</a>
-            <a href="#story" className="hover:text-[#c0f20c] transition-colors py-4">STORY</a>
-            <a href="#contact" className="hover:text-[#c0f20c] transition-colors py-4">CONTACT</a>
-            <a href="#swag" className="hover:text-[#c0f20c] transition-colors py-4">SWAG</a>
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-bold uppercase tracking-[0.18em] text-white">
+            <div 
+              className="relative"
+              onMouseEnter={() => setVehiclesMenuOpen(true)}
+              onMouseLeave={() => setVehiclesMenuOpen(false)}
+            >
+              <button 
+                onClick={() => {
+                  setCurrentPage('catalog');
+                  setVehiclesMenuOpen(false);
+                }}
+                className={`flex items-center gap-1.5 hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'catalog' ? 'text-[#c0f20c]' : ''}`}
+              >
+                VEHICLES
+                <ChevronDown className="w-3.5 h-3.5 text-neutral-500" />
+              </button>
+
+              {/* VEHICLES Dropdown Mega Menu — Vertical List matching Screenshot 3 */}
+              <AnimatePresence>
+                {vehiclesMenuOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 mt-0 w-60 bg-[#0a0a0b] border border-neutral-850 p-6 shadow-2xl z-50 flex flex-col gap-3 font-display font-medium text-[13px] tracking-widest text-neutral-400"
+                  >
+                    {[
+                      'MAZDA', 'TOYOTA', 'NISSAN', 'MITSUBISHI', 'HONDA', 
+                      'SUBARU', 'BMW', 'MERCEDES-BENZ', 'PORSCHE', 
+                      'LAMBORGHINI', 'CHEVROLET', 'FORD', 'TESLA'
+                    ].map((make) => (
+                      <button
+                        key={make}
+                        onClick={() => {
+                          setCurrentPage('catalog');
+                          setVehiclesMenuOpen(false);
+                        }}
+                        className="hover:text-white transition-colors cursor-pointer text-left w-full uppercase bg-transparent border-0"
+                      >
+                        {make}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <button onClick={() => setCurrentPage('catalog')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'catalog' ? 'text-[#c0f20c]' : ''}`}>CATALOG</button>
+            <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
+            <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
+            <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
+            <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">CONTACT</button>
+            <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
           </nav>
 
           {/* Right: Actions */}
@@ -417,56 +1168,23 @@ export default function App() {
             <div className="relative hidden md:block">
               <button 
                 onClick={() => setShopByCarOpen(!shopByCarOpen)}
-                id="shop-by-car-dropdown"
-                className="h-8 px-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-full font-mono text-[9px] tracking-widest uppercase text-neutral-300 hover:border-neutral-600 transition-colors flex items-center gap-1.5"
+                id="shop-by-car-trigger"
+                className={`h-9 px-4 border rounded-full font-mono text-[9px] tracking-widest uppercase transition-colors flex items-center gap-1.5 cursor-pointer ${
+                  shopByCarOpen 
+                    ? 'bg-[#c0f20c] text-black border-[#c0f20c]' 
+                    : 'bg-[#111112] border-neutral-850 text-neutral-300 hover:border-neutral-700'
+                }`}
               >
-                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-[#c0f20c]" fill="currentColor">
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor">
                   <path d="M2.5 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm11 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM1 7l1.5-4h11L15 7v4h-1.05a2 2 0 0 0-3.9 0H5.95a2 2 0 0 0-3.9 0H1V7z" />
                 </svg>
                 <span>SHOP BY CAR</span>
-                <ChevronDown className="w-3 h-3 text-neutral-500" />
+                <ChevronDown className="w-3 h-3" />
               </button>
-
-              <AnimatePresence>
-                {shopByCarOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="absolute right-0 mt-1.5 w-60 rounded-lg border border-neutral-800 bg-[#0c0c0c] p-1.5 shadow-2xl z-50 text-[11px] font-mono"
-                  >
-                    <div className="p-2 text-[9px] text-neutral-500 uppercase tracking-wider border-b border-neutral-900 mb-1">
-                      CHASSIS CONFIGURATIONS
-                    </div>
-                    {[
-                      'Nissan 350Z',
-                      'Toyota Supra (A80)',
-                      'Nissan Skyline GT-R (R34)',
-                      'Honda NSX (NA1)'
-                    ].map((car) => (
-                      <button
-                        key={car}
-                        onClick={() => {
-                          setActiveCar(car);
-                          setShopByCarOpen(false);
-                          triggerToast(`Switched active catalog layout to ${car}`);
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded transition-colors uppercase ${
-                          activeCar === car 
-                            ? 'bg-[#c0f20c]/10 text-[#c0f20c] font-bold' 
-                            : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
-                        }`}
-                      >
-                        {car}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
 
             {/* Country / Currency selector */}
-            <button className="hidden lg:flex h-8 px-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-full font-mono text-[9px] tracking-widest uppercase text-neutral-300 hover:border-neutral-600 transition-colors items-center gap-1.5">
+            <button className="hidden lg:flex h-9 px-4 bg-[#111112] border border-neutral-850 rounded-full font-mono text-[9px] tracking-widest uppercase text-neutral-300 hover:border-neutral-700 transition-colors items-center gap-1.5 cursor-pointer">
               <span>UNITED STATES</span>
               <span className="text-neutral-600">|</span>
               <span>USD $</span>
@@ -474,12 +1192,12 @@ export default function App() {
             </button>
 
             {/* Search */}
-            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all">
+            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-450 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer bg-transparent border-0">
               <Search className="w-[18px] h-[18px]" />
             </button>
 
             {/* Account */}
-            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all">
+            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer">
               <User className="w-[18px] h-[18px]" />
             </button>
 
@@ -487,7 +1205,7 @@ export default function App() {
             <button
               onClick={() => setIsCartOpen(true)}
               id="cart-drawer-trigger"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800/50 transition-all relative cursor-pointer"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all relative cursor-pointer"
             >
               <ShoppingCart className="w-[18px] h-[18px]" />
               {cart.length > 0 && (
@@ -500,6 +1218,499 @@ export default function App() {
 
         </div>
       </header>
+
+      {/* SHOP BY CAR Dropdown Panel */}
+      <AnimatePresence>
+        {shopByCarOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="fixed left-0 right-0 top-[76px] bg-[#0a0a0b]/98 border-t border-neutral-900/50 shadow-2xl z-40 overflow-y-auto max-h-[calc(100vh-76px)]"
+          >
+            <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-10">
+              <div className="flex justify-between items-baseline border-b border-neutral-900 pb-4 mb-8">
+                <h3 className="font-display font-bold text-xs uppercase tracking-[0.2em] text-[#fafaf7]">SELECT YOUR CHASSIS</h3>
+                <span className="font-mono text-[9px] uppercase tracking-wider text-neutral-400">30+ CHASSIS &nbsp;/&nbsp; MADE-TO-ORDER FITMENT</span>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-12 text-left">
+                {/* COLUMN 1: MAZDA -> BMW -> TESLA */}
+                <div className="flex flex-col gap-8">
+                  {/* MAZDA */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('MAZDA')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      MAZDA
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('FD3S'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">RX-7</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">FD3S</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('SE3P'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">RX-8</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">SE3P</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MAZDA 2 / 3'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MAZDA 2 / 3
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* BMW */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('BMW')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      BMW
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('F87'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">M2</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">F87</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('E46'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          E46
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('E90-E93'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">3-SERIES</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">E90-E93</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('F32 \u00b7 M4'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">4-SERIES</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">F32 &middot; M4</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('E60-G30'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">5-SERIES</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">E60-G30</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('E89'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">Z4</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">E89</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('HERITAGE & GT'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          HERITAGE & GT
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Green rule divider between BMW and Tesla */}
+                  <div className="border-t border-[#9cce00]/40 my-1"></div>
+
+                  {/* TESLA */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('TESLA')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      TESLA
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MODEL Y'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MODEL Y
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MODEL S'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MODEL S
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MODEL X'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MODEL X
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MODEL 3'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MODEL 3
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* COLUMN 2: TOYOTA -> MERCEDES-BENZ */}
+                <div className="flex flex-col gap-8">
+                  {/* TOYOTA */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('TOYOTA')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      TOYOTA
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('JZA80'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SUPRA MK4</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">JZA80</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('A90'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SUPRA MK5</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">A90</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('ZN6'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">GT86 / FT86</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">ZN6</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('ZN8'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">GR86</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">ZN8</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('SW20'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">MR2</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">SW20</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* MERCEDES-BENZ */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('MERCEDES-BENZ')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      MERCEDES-BENZ
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('W140'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">S-CLASS</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">W140</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('W220'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">S-CLASS</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">W220</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('R129'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SL</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">R129</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('SLR MCLAREN'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          SLR MCLAREN
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('MORE MERCEDES'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          MORE MERCEDES
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* COLUMN 3: NISSAN -> PORSCHE */}
+                <div className="flex flex-col gap-8">
+                  {/* NISSAN */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('NISSAN')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      NISSAN
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('R32'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SKYLINE GT-R</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">R32</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('R33'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SKYLINE GT-R</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">R33</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('R34'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SKYLINE GT-R</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">R34</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('R35'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">GT-R</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">R35</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('Z33', 'product'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">350Z</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">Z33</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('Z34'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">370Z</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">Z34</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('S15'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SILVIA</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">S15</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('S14'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">SILVIA</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">S14</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('S13'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">180SX</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">S13</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('V35'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">G35</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">V35</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* PORSCHE */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('PORSCHE')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      PORSCHE
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('718'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          718
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('981 CAYMAN / BOXSTER'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs font-bold">
+                          981 CAYMAN / BOXSTER
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('986 / 987'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs font-bold">
+                          986 / 987
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('911'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          911
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('CAYENNE'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          CAYENNE
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('PANAMERA'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          PANAMERA
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('TAYCAN'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          TAYCAN
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* COLUMN 4: MITSUBISHI -> LAMBORGHINI */}
+                <div className="flex flex-col gap-8">
+                  {/* MITSUBISHI */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('MITSUBISHI')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      MITSUBISHI
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('8 / 9'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">LANCER EVO</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">8 / 9</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('X'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">LANCER EVO</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">X</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('3000GT'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          GTO / 3000GT
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('FTO'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          FTO
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* LAMBORGHINI */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('LAMBORGHINI')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      LAMBORGHINI
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('LAMBORGHINI'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          SHOP LAMBORGHINI
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* COLUMN 5: HONDA -> CHEVROLET */}
+                <div className="flex flex-col gap-8">
+                  {/* HONDA */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('HONDA')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      HONDA
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('FC / FK'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">CIVIC</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">FC / FK</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('EG / EK'); }} className="flex items-baseline gap-2 text-neutral-400 hover:text-[#9cce00] transition-colors group">
+                          <span className="font-sans text-xs">CIVIC</span>
+                          <span className="font-mono text-[9px] text-neutral-600 group-hover:text-[#9cce00]">EG / EK</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('JAZZ / FIT'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          JAZZ / FIT
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* CHEVROLET */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('CHEVROLET')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      CHEVROLET
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('C8 CORVETTE'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          C8 CORVETTE
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* COLUMN 6: SUBARU -> FORD */}
+                <div className="flex flex-col gap-8">
+                  {/* SUBARU */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('SUBARU')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      SUBARU
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('iMPREZA / WRX'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs italic">
+                          iMPREZA / WRX
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* FORD */}
+                  <div>
+                    <button
+                      onClick={() => handleSelectChassis('FORD')}
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                    >
+                      FORD
+                    </button>
+                    <ul className="space-y-3 list-none p-0 m-0">
+                      <li>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelectChassis('RANGER'); }} className="text-neutral-400 hover:text-[#9cce00] transition-colors font-sans text-xs">
+                          RANGER
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center border-t border-neutral-900 pt-6 mt-8 text-neutral-500 font-mono text-[10px] uppercase tracking-wider">
+                <span>DON'T SEE YOUR CHASSIS? BESPOKE FITMENT AVAILABLE.</span>
+                <a href="#" onClick={(e) => { e.preventDefault(); triggerToast("Bespoke fitment request form opened."); }} className="text-[#9cce00] hover:text-[#aacc00] font-bold">REQUEST A FITMENT &rarr;</a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Toast alert system for interactive styling changes */}
       <AnimatePresence>
@@ -518,726 +1729,1460 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="w-full px-6 md:px-10 lg:px-16 mt-8 space-y-20">
-        
-        {/* =========================================================================
-            TIER 1 SECTION — NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
-            ========================================================================= */}
-        <section className="space-y-6">
-          <div className="border-b border-neutral-900 pb-5">
-            {/* Breadcrumb matching layout */}
-            <div className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase flex items-center gap-1.5 mb-1.5">
-              <span>VEHICLES</span>
-              <span className="text-neutral-700">/</span>
-              <span>NISSAN</span>
-              <span className="text-neutral-700">/</span>
-              <span className="text-[#c0f20c] font-medium">350Z</span>
-            </div>
-
-            {/* Accent badge text */}
-            <span className="text-xs font-mono font-extrabold tracking-widest text-[#c0f20c] uppercase">
-              NISSAN 350Z SPECIFICATION
-            </span>
-
-            {/* Header titles */}
-            <h1 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight mt-1 leading-none">
-              NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
-            </h1>
-            <p className="text-[10px] font-mono tracking-widest text-neutral-400 mt-2 uppercase">
-              BESPOKE CARBON • BUILT TO ORDER • $5,845.00 USD COMPLETE KIT (FRP)
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            
-            {/* LEFT COLUMN: Product image gallery */}
-            <div className="lg:col-span-5 space-y-3">
-              
-              {/* Main product image */}
-              <div className="relative rounded-lg overflow-hidden bg-[#0a0a0a] border border-neutral-900 aspect-square">
-                <img 
-                  src={productImages[activeImageIndex]} 
-                  alt={`Nissan 350Z Top Secret Widebody - View ${activeImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {/* ETI Badge overlay */}
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <span className="text-[9px] font-mono font-bold tracking-widest text-[#c0f20c] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-[#c0f20c]/20 uppercase">
-                    ETI ATELIER SPEC
-                  </span>
+      {/* RENDER PAGES BASED ON STATE */}
+      {currentPage === 'home' && (
+        <div className="eti-page">
+          {/* HERO SECTION */}
+          <section className="hero" aria-labelledby="heroTitle">
+            <div className="hero__media"></div>
+            <div className="hero__veil"></div>
+            <div className="container hero__inner">
+              <div className="hero__copy">
+                <div className="hero__kicker reveal" style={{ '--reveal-delay': '0ms' } as React.CSSProperties}>
+                  <span className="kicker">ENGINEERED FOR THE DRIVEN</span>
                 </div>
-                {/* Image counter */}
-                <div className="absolute bottom-4 right-4 text-[9px] font-mono font-bold text-white/70 bg-black/60 backdrop-blur-sm px-2 py-1 rounded">
-                  {activeImageIndex + 1} / {productImages.length}
+                <h1 id="heroTitle" className="display-xl hero__title reveal" style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
+                  Carbon. Titanium.<br />
+                  <em>Precision.</em>
+                </h1>
+                <p className="hero__sub reveal" style={{ '--reveal-delay': '240ms' } as React.CSSProperties}>
+                  Aerospace-grade composites and titanium hardware, built for JDM and time attack. Lighter, stronger, faster.
+                </p>
+                <div className="hero__ctas reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
+                  <button onClick={() => setCurrentPage('product')} className="btn">Shop the Build <span className="arrow"></span></button>
+                  <button onClick={() => setCurrentPage('catalog')} className="text-link bg-transparent border-0 cursor-pointer text-white">Our Process</button>
                 </div>
               </div>
+              <div className="hero__meta reveal" style={{ '--reveal-delay': '600ms' } as React.CSSProperties}>
+                <div className="hero__meta-col">
+                  <span>Established</span>
+                  <span>2022</span>
+                </div>
+                <div className="hero__meta-col">
+                  <span>Locations</span>
+                  <span>HK · USA · TH</span>
+                </div>
+                <div className="hero__meta-col">
+                  <span>Fitments</span>
+                  <span>30+ Chassis</span>
+                </div>
+                <div className="hero__meta-col">
+                  <span>Build</span>
+                  <span>Bespoke · Made to Order</span>
+                </div>
+              </div>
+            </div>
+            <div className="hero__scroll" aria-hidden="true">SCROLL</div>
+          </section>
 
-              {/* Thumbnail strip */}
-              <div className="grid grid-cols-4 gap-2">
-                {productImages.map((img, idx) => (
-                  <button
+          {/* BRAND SPEC STRIP (MARQUEE) */}
+          <div className="py-6 border-y border-neutral-900 bg-[#0a0a0b] overflow-hidden">
+            <div className="flex whitespace-nowrap text-xs font-mono uppercase tracking-[0.2em] text-neutral-400">
+              <div className="animate-marquee flex gap-8 items-center">
+                <span>NISSAN 350Z</span> <span className="text-[#9cce00]">•</span>
+                <span>MAZDA RX-7</span> <span className="text-[#9cce00]">•</span>
+                <span>TOYOTA SUPRA MK4</span> <span className="text-[#9cce00]">•</span>
+                <span>NISSAN SKYLINE R34</span> <span className="text-[#9cce00]">•</span>
+                <span>HONDA NSX NA1</span> <span className="text-[#9cce00]">•</span>
+                <span>CORVETTE C8</span> <span className="text-[#9cce00]">•</span>
+              </div>
+              <div className="animate-marquee flex gap-8 items-center">
+                <span>NISSAN 350Z</span> <span className="text-[#9cce00]">•</span>
+                <span>MAZDA RX-7</span> <span className="text-[#9cce00]">•</span>
+                <span>TOYOTA SUPRA MK4</span> <span className="text-[#9cce00]">•</span>
+                <span>NISSAN SKYLINE R34</span> <span className="text-[#9cce00]">•</span>
+                <span>HONDA NSX NA1</span> <span className="text-[#9cce00]">•</span>
+                <span>CORVETTE C8</span> <span className="text-[#9cce00]">•</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 001 — CHASSIS COLLECTIONS GRID */}
+          <section className="eti-featured-chassis" id="fitment">
+            <div className="container">
+              <div className="section-head">
+                <div>
+                  <span className="kicker reveal">001 — CHASSIS</span>
+                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle</h2>
+                </div>
+                <div className="ti-rule reveal-mask in"></div>
+                <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>30+ chassis &nbsp;/&nbsp; bespoke fitment</span>
+              </div>
+
+              <div className="eti-chassis-grid">
+                {[
+                  { make: "MAZDA", model: "RX-7", code: "FD3S", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254" },
+                  { make: "TOYOTA", model: "SUPRA MK4", code: "JZA80", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300" },
+                  { make: "TOYOTA", model: "SUPRA MK5", code: "A90", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" },
+                  { make: "NISSAN", model: "SKYLINE GT-R", code: "BNR34", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270" },
+                  { make: "NISSAN", model: "GT-R", code: "R35", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271" },
+                  { make: "NISSAN", model: "350Z", code: "Z33", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262" }
+                ].map((card, idx) => (
+                  <button 
                     key={idx}
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`aspect-square rounded-md overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
-                      activeImageIndex === idx 
-                        ? 'border-[#c0f20c] shadow-[0_0_10px_rgba(192,242,12,0.2)]' 
-                        : 'border-neutral-800 hover:border-neutral-600 opacity-60 hover:opacity-100'
-                    }`}
+                    onClick={() => {
+                      if (card.model.includes("350Z")) {
+                        setCurrentPage('product');
+                      } else {
+                        setCurrentPage('catalog');
+                      }
+                    }}
+                    className="eti-chassis-tile reveal bg-transparent p-0 text-left border-0 cursor-pointer"
+                    style={{ '--reveal-delay': `${idx * 60}ms` } as React.CSSProperties}
                   >
-                    <img 
-                      src={img} 
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    <div className="eti-chassis-tile__img">
+                      <img src={card.image} alt={`${card.make} ${card.model} ${card.code}`} loading="lazy" />
+                    </div>
+                    <div className="eti-chassis-tile__ov">
+                      <span className="eti-chassis-tile__make">{card.make}</span>
+                      <span className="eti-chassis-tile__model">{card.model}</span>
+                      <span className="eti-chassis-tile__code">{card.code}</span>
+                    </div>
                   </button>
                 ))}
               </div>
 
-              {/* Fitment badge */}
-              <div className="flex items-center gap-3 text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
-                  <span>FITMENT: NISSAN 350Z</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
-                  <span>7 COMPONENTS</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* RIGHT COLUMN: SELECT COMPONENTS builder config */}
-            <div className="lg:col-span-7 space-y-6">
-              
-              {/* Header select */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono font-bold tracking-widest text-[#c0f20c]">01</span>
-                  <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">SELECT COMPONENTS</span>
-                </div>
-                <span className="text-[10px] font-mono text-neutral-500 uppercase">Interactive Configurator</span>
-              </div>
-
-              {/* COMPLETE KIT TOGGLE SWITCH */}
-              <div 
-                onClick={handleCompleteKitToggle}
-                className={`p-4 rounded-lg border transition-all duration-300 flex items-center justify-between cursor-pointer select-none relative overflow-hidden ${
-                  isCompleteKit 
-                    ? 'bg-[#c0f20c]/10 border-[#c0f20c] shadow-[0_0_15px_rgba(192,242,12,0.15)]' 
-                    : 'bg-[#121212]/40 border-neutral-900 hover:border-neutral-800'
-                }`}
+              <button 
+                onClick={() => setCurrentPage('catalog')}
+                className="eti-chassis-viewall reveal bg-transparent border-0 border-b border-[#9cce00] cursor-pointer text-[#fafaf7]"
+                style={{ '--reveal-delay': '360ms' } as React.CSSProperties}
               >
-                {/* Visual side glow accent on selective complete kit */}
-                {isCompleteKit && (
-                  <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#c0f20c]" />
-                )}
+                View all 30+ chassis <span aria-hidden="true">&rarr;</span>
+              </button>
+            </div>
+          </section>
 
-                <div className="flex items-center gap-3.5">
-                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 shrink-0 ${
-                    isCompleteKit 
-                      ? 'border-[#c0f20c] bg-[#c0f20c] shadow-[0_0_8px_rgba(192,242,12,0.4)]' 
-                      : 'border-neutral-700 bg-neutral-950'
-                  }`}>
-                    {isCompleteKit && <Check className="w-3.5 h-3.5 text-black stroke-[3.5]" />}
+          {/* 002 — FEATURED CHASSIS SHOWCASE SLIDER */}
+          <section className="featured-section">
+            <div className="container">
+              <div className="section-head featured-section-head">
+                <div>
+                  <span className="kicker reveal">002 — FEATURED CHASSIS</span>
+                  <h2 className="display-m featured-section__title reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>
+                    <span className="featured-section__name">{slidesData[activeSlide].name}</span>
+                    <span className="featured-section__chassis">{slidesData[activeSlide].chassis}</span>
+                  </h2>
+                </div>
+                <div className="ti-rule reveal-mask in"></div>
+                <button
+                  onClick={() => setCurrentPage('catalog')}
+                  className="text-link reveal featured-section__catalog bg-transparent border-0 border-b cursor-pointer text-white"
+                  style={{ '--reveal-delay': '200ms' } as React.CSSProperties}
+                >
+                  View Catalog
+                </button>
+              </div>
+
+              <div className="featured-slider">
+                <div className="featured-slider__track">
+                  {slidesData.map((slide, idx) => (
+                    <div 
+                      key={idx}
+                      className={`featured-slide ${activeSlide === idx ? 'is-active' : ''}`}
+                    >
+                      <button 
+                        onClick={() => setCurrentPage('catalog')}
+                        className="featured-slide__hero text-left border-0 cursor-pointer"
+                        style={{ backgroundImage: `url(${slide.heroImage})` }}
+                      >
+                        <span className="featured-slide__hero-pretitle">{slide.chassis} &middot; BESPOKE CARBON</span>
+                        <span className="featured-slide__hero-label">Made to Order &middot; {slide.label}</span>
+                      </button>
+                      <div className="featured-slide__products">
+                        {slide.products.map((p) => (
+                          <div 
+                            key={p.id}
+                            onClick={() => handleAddSimpleProductToCart({ id: p.id, title: p.title, price: p.price, category: p.type === 'tier3' ? 'titanium' : 'carbon' })}
+                            className="featured-product"
+                            style={{ backgroundImage: `url(${slide.heroImage})` }}
+                          >
+                            <span className="featured-product__name">{p.title}</span>
+                            <span className="featured-product__meta">
+                              <span>{slide.chassis}</span>
+                              <strong>${p.price}</strong>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="featured-slider__nav" role="tablist">
+                  {slidesData.map((slide, idx) => (
+                    <button 
+                      key={idx}
+                      className={`featured-dot ${activeSlide === idx ? 'is-active' : ''}`}
+                      onClick={() => setActiveSlide(idx)}
+                      type="button" 
+                      aria-label={`Go to ${slide.name}`}
+                    >
+                      <span key={activeSlide} className="featured-dot__bar"></span>
+                      <span className="featured-dot__chassis">{slide.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 002.5 — INTERACTIVE AERO EXPLORER */}
+          <InteractiveCarExplorer onAddToCart={handleAddSimpleProductToCart} />
+
+          {/* 003 — THE ETI STANDARD */}
+          <section className="section standard">
+            <div className="container">
+              <div className="section-head">
+                <div>
+                  <span className="kicker reveal">003 — STANDARD</span>
+                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>The ETi Standard</h2>
+                </div>
+                <div className="ti-rule reveal-mask in"></div>
+                <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>Engineered. Tested. Built to last.</span>
+              </div>
+
+              <p className="standard__lede reveal" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
+                Every ETi piece is <strong>bespoke carbon</strong>, made to order against your chassis — not a catalog template.{" "}
+                <strong>Race-engineered</strong> for measurable downforce. <strong>OEM-precision fit</strong> for bolt-on, drive-off install.{" "}
+                Lighter than the factory part. Stronger under load. Built to outlast your build.
+              </p>
+
+              <div className="standard-grid">
+                <div className="standard-item reveal" style={{ '--reveal-delay': '0ms' } as React.CSSProperties}>
+                  <div className="ti-divider"></div>
+                  <span className="item-num"><em>01</em> &nbsp;/&nbsp; MATERIAL</span>
+                  <div className="standard-item__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="16,3 27,9.5 27,22.5 16,29 5,22.5 5,9.5" />
+                      <polygon points="16,11 22,14.5 22,21.5 16,25 10,21.5 10,14.5" />
+                      <line x1="5" y1="9.5" x2="10" y2="14.5" />
+                      <line x1="27" y1="9.5" x2="22" y2="14.5" />
+                      <line x1="5" y1="22.5" x2="10" y2="21.5" />
+                      <line x1="27" y1="22.5" x2="22" y2="21.5" />
+                      <line x1="16" y1="3" x2="16" y2="11" />
+                      <line x1="16" y1="25" x2="16" y2="29" />
+                    </svg>
+                  </div>
+                  <div className="counter"><span><AnimatedCounter target={40} suffix="%" /></span></div>
+                  <h3>Lighter Than OEM</h3>
+                  <p>Aerospace-grade carbon construction with a measurable weight reduction over the factory part. Stronger flex, greater fatigue life.</p>
+                </div>
+
+                <div className="standard-item reveal" style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
+                  <div className="ti-divider"></div>
+                  <span className="item-num"><em>02</em> &nbsp;/&nbsp; AERO</span>
+                  <div className="standard-item__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 9 Q16 4 28 9" />
+                      <path d="M4 16 Q16 11 28 16" />
+                      <path d="M4 23 Q16 18 28 23" />
+                      <polyline points="22,6 28,9 25,15" />
+                      <polyline points="22,13 28,16 25,22" />
+                    </svg>
+                  </div>
+                  <div className="counter"><span><AnimatedCounter target={200} /></span><span className="unit">km/h</span></div>
+                  <h3>Track-Tuned Downforce</h3>
+                  <p>Every shape is refined on real cars at real speed. Measurable downforce, reduced drag, no guesswork.</p>
+                </div>
+
+                <div className="standard-item reveal" style={{ '--reveal-delay': '240ms' } as React.CSSProperties}>
+                  <div className="ti-divider"></div>
+                  <span className="item-num"><em>03</em> &nbsp;/&nbsp; FINISH</span>
+                  <div className="standard-item__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" stroke="currentColor" stroke-width="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="16" cy="16" r="12" />
+                      <circle cx="16" cy="16" r="6" />
+                      <path d="M9 9 L11.5 11.5" />
+                      <path d="M14 5 L14 8" />
+                      <path d="M22 9 L20 11" />
+                      <circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none" />
+                    </svg>
+                  </div>
+                  <div className="counter"><span><AnimatedCounter target={10} /></span><span className="unit">yr</span></div>
+                  <h3>Built to Last</h3>
+                  <p>Marine-grade clearcoat resists yellowing, heat cycling, and daily abuse. Gloss holds for years, not seasons.</p>
+                </div>
+
+                <div className="standard-item reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
+                  <div className="ti-divider"></div>
+                  <span className="item-num"><em>04</em> &nbsp;/&nbsp; FITMENT</span>
+                  <div className="standard-item__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" stroke="currentColor" stroke-width="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="16" cy="16" r="12" />
+                      <circle cx="16" cy="16" r="6" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="16" y1="26" x2="16" y2="30" />
+                      <line x1="2" y1="16" x2="6" y2="16" />
+                      <line x1="26" y1="16" x2="30" y2="16" />
+                      <circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none" />
+                    </svg>
+                  </div>
+                  <div className="counter"><span><AnimatedCounter target={0.5} decimals={1} /></span><span className="unit">mm</span></div>
+                  <h3>OEM-Precision Fit</h3>
+                  <p>Made to your chassis, not a catalog template. No heat gun. No sanding guesswork. Bolt on and drive.</p>
+                </div>
+              </div>
+
+              <div className="standard__close reveal" style={{ '--reveal-delay': '480ms' } as React.CSSProperties}>
+                <p className="standard__close-tagline">
+                  The ETi Standard isn't a feature list. It's how every part leaves the bench.
+                </p>
+                <button onClick={() => setCurrentPage('catalog')} className="btn btn--paper">Read the ETi Process <span className="arrow"></span></button>
+              </div>
+            </div>
+          </section>
+
+          {/* 004 — STORY */}
+          <section className="story" id="story">
+            <div className="story-grid">
+              <div className="story__copy">
+                <span className="kicker reveal">004 — STORY</span>
+                <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>Built in a garage. Refined for the world.</h2>
+                <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>ETi started in a garage with one goal: build parts we'd trust on our own cars. That same mindset scaled into a global carbon and titanium brand for JDM and motorsport — the Manufaktur house for the chassis that deserve it.</p>
+                <p className="reveal" style={{ '--reveal-delay': '280ms' } as React.CSSProperties}>Every piece we make is made to order. No catalog runs. No mass production. Make it lighter. Make it stronger. Make it perfect — for your build.</p>
+                <div className="story__stats reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
+                  <div>
+                    <span>Founded</span>
+                    <span>2022</span>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-display font-medium text-xs text-white uppercase tracking-widest">
-                        COMPLETE KIT — ALL 7 PIECES
-                      </h4>
-                      <span className="relative flex h-2 w-2">
-                        {isCompleteKit && (
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c0f20c] opacity-75"></span>
-                        )}
-                        <span className={`relative inline-flex rounded-full h-2 w-2 ${isCompleteKit ? 'bg-[#c0f20c]' : 'bg-neutral-800'}`}></span>
-                      </span>
-                    </div>
-                    <p className="text-[10px] font-mono text-neutral-400 uppercase mt-0.5">
-                      Includes matched autoclave fiber casting & factory crating
-                    </p>
+                    <span>Production</span>
+                    <span>Bangkok, TH</span>
+                  </div>
+                  <div>
+                    <span>Standard</span>
+                    <span>Bespoke &middot; Made to Order</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0 ml-2">
-                  <span className="text-[9.5px] font-mono font-extrabold px-2.5 py-1 rounded text-black bg-[#c0f20c] tracking-wider shadow-sm">
-                    SAVE 10%
-                  </span>
+              </div>
+              <div className="story__media">
+                <div className="story__media-inner" style={{ backgroundImage: "url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/565312703_10161443462990684_2525092078171342042_n.jpg?v=1766319824')" }}></div>
+                <span className="story__media-label">FILE / 2024-08 / SUPRA MK4 / NIGHT FITMENT</span>
+              </div>
+            </div>
+          </section>
+
+          {/* 005 — MOTORSPORTS */}
+          <section className="story story--reverse" id="motorsports" aria-labelledby="motorsportsTitle">
+            <div className="story-grid story-grid--reverse">
+              <div className="story__media story__media--motorsports">
+                <div className="story__media-inner" style={{ backgroundImage: "url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group_2.png?v=1760683834')" }}></div>
+                <span className="story__media-label">FILE / 2026 / TIME ATTACK / CIRCUIT PROGRAM</span>
+              </div>
+              <div className="story__copy">
+                <span className="kicker reveal">005 — MOTORSPORTS</span>
+                <h2 id="motorsportsTitle" className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>ETi Motorsports.</h2>
+                <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>Race-engineered, track-tested, proven on the chassis we sell. ETi Motorsports is the racing arm of the brand — where every part is refined under real load before it ships to your driveway.</p>
+                <p className="reveal" style={{ '--reveal-delay': '280ms' } as React.CSSProperties}>Time attack. Circuit. Drift. The same Manufaktur standard, applied to the cars that earn it.</p>
+                <div className="cta-row reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
+                  <button onClick={() => setCurrentPage('catalog')} className="text-link bg-transparent border-0 cursor-pointer text-white">Explore the Program</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 006 — EDITORIAL JDM REVIVAL BANNER */}
+          <section className="banner">
+            <div className="banner__bg" style={{ backgroundImage: `radial-gradient(ellipse at 30% 70%, rgba(0,0,0,0.4), transparent 60%), url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group.png?v=1760445002')` }}></div>
+            <div className="banner__veil"></div>
+            <div className="container banner__inner">
+              <div className="banner__copy">
+                <span className="banner__kicker kicker reveal">EDITORIAL — 006</span>
+                <h2 className="display-xl reveal" style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>The '90s JDM Revival.</h2>
+                <p className="reveal" style={{ '--reveal-delay': '240ms' } as React.CSSProperties}>The return of a golden era. Bespoke carbon, OEM-precision fitment, and parts your build deserves.</p>
+                <div className="reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
+                  <button onClick={() => setCurrentPage('catalog')} className="btn">Explore the Era <span className="arrow"></span></button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 008 — NEWSLETTER SIGNUP */}
+          <section className="newsletter">
+            <div className="container">
+              <div className="newsletter-inner">
+                <div>
+                  <span className="kicker reveal">008 — JOIN</span>
+                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>Join the Elites.</h2>
+                  <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>First access to new chassis support, build features, and motorsport drops. No spam. No mailing-list garbage.</p>
+                </div>
+                <form 
+                  className="form-row reveal" 
+                  style={{ '--reveal-delay': '300ms' } as React.CSSProperties}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    triggerToast("✨ SUBSCRIBED TO ETI NEWSLETTER!");
+                  }}
+                >
+                  <input type="email" placeholder="your@email.com" required />
+                  <button type="submit">Subscribe</button>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* CATALOG PAGE VIEW */}
+      {currentPage === 'catalog' && (
+        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1400px] mx-auto space-y-10 min-h-[75vh]">
+          {/* Page Title */}
+          <div className="border-b border-neutral-900 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">ETI ATELIER DIRECTORY</span>
+              <h1 className="text-4xl font-bold text-white tracking-tight uppercase mt-1">PRODUCTS</h1>
+              <p className="text-xs font-mono text-neutral-500 uppercase mt-2">
+                Curated custom JDM collections &bull; Autoclave carbon molds &bull; Titanium hardware
+              </p>
+            </div>
+
+            {/* Global Search inside Catalog */}
+            <div className="relative">
+              <input 
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full md:w-64 bg-neutral-950 border border-neutral-850 rounded px-4 py-2 text-xs font-mono text-white placeholder:text-neutral-600 uppercase focus:outline-none focus:border-neutral-700"
+              />
+            </div>
+          </div>
+
+          {/* Model Finder search panel */}
+          <ModelFinder 
+            onSearch={(query, message) => {
+              setSearchQuery(query);
+              triggerToast(message);
+            }} 
+          />
+
+          {/* Filtering and Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+            {/* Left Filter Sidebar */}
+            <div className="space-y-6 bg-[#080809] border border-neutral-900 rounded p-6">
+              <div className="space-y-3">
+                <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-850 pb-2">CATEGORIES</h4>
+                <div className="flex flex-col gap-2 font-mono text-xs">
+                  {[
+                    { key: 'all', label: 'ALL PRODUCTS' },
+                    { key: 'carbon', label: 'CARBON FIBER' },
+                    { key: 'titanium', label: 'TITANIUM HARDWARE' },
+                    { key: 'swag', label: 'SWAG / APPAREL' }
+                  ].map((cat) => (
+                    <button
+                      key={cat.key}
+                      onClick={() => setCatalogFilter(cat.key as any)}
+                      className={`text-left uppercase font-bold py-1 transition-colors cursor-pointer bg-transparent border-0 ${
+                        catalogFilter === cat.key ? 'text-[#c0f20c]' : 'text-neutral-450 hover:text-white'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* COMPONENT ROWS LIST */}
-              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-                {tier1Components.map((item) => {
-                  const currentPrice = getComponentPrice(item);
-                  const isCarbon = item.material === 'carbon';
-                  const isFRP = item.material === 'frp';
-                  const activeFinish = item.finish || 'matte';
-                  
-                  return (
+              <div className="space-y-3 pt-4 border-t border-neutral-900">
+                <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-850 pb-2">CHASSIS FITMENT</h4>
+                <div className="flex flex-col gap-1.5 font-mono text-[10px] text-neutral-400">
+                  <button onClick={() => { setSearchQuery('Z33'); triggerToast("Filtered to 350Z chassis"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">350Z / Z33</button>
+                  <button onClick={() => { setSearchQuery('JZA80'); triggerToast("Filtered to Supra MK4"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SUPRA MK4 JZA80</button>
+                  <button onClick={() => { setSearchQuery('A90'); triggerToast("Filtered to Supra MK5"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SUPRA MK5 A90</button>
+                  <button onClick={() => { setSearchQuery('FD3S'); triggerToast("Filtered to RX-7"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">MAZDA RX-7 FD3S</button>
+                  <button onClick={() => { setSearchQuery('BNR34'); triggerToast("Filtered to GT-R R34"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SKYLINE BNR34</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Main Grid */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs text-neutral-400 bg-[#080809] border border-neutral-900 p-4 rounded">
+                <div className="uppercase">
+                  FILTERING: <span className="text-[#c0f20c] font-bold">{catalogFilter.toUpperCase()}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="uppercase">SORT BY:</span>
+                  <select 
+                    value={catalogSort}
+                    onChange={(e) => setCatalogSort(e.target.value as any)}
+                    className="bg-neutral-950 border border-neutral-850 text-white rounded px-2.5 py-1 text-xs uppercase focus:outline-none"
+                  >
+                    <option value="alpha-asc">ALPHABETICALLY, A-Z</option>
+                    <option value="alpha-desc">ALPHABETICALLY, Z-A</option>
+                    <option value="price-asc">PRICE, LOW TO HIGH</option>
+                    <option value="price-desc">PRICE, HIGH TO LOW</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Products List Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {catalogProducts
+                  .filter((p) => catalogFilter === 'all' || p.category === catalogFilter)
+                  .filter((p) => p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.chassis.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .sort((a, b) => {
+                    if (catalogSort === 'alpha-asc') return a.title.localeCompare(b.title);
+                    if (catalogSort === 'alpha-desc') return b.title.localeCompare(a.title);
+                    if (catalogSort === 'price-asc') return a.price - b.price;
+                    if (catalogSort === 'price-desc') return b.price - a.price;
+                    return 0;
+                  })
+                  .map((p) => (
                     <div 
-                      key={item.id}
-                      className={`p-4 rounded-lg border transition-all duration-300 relative overflow-hidden ${
-                        item.isSelected 
-                          ? 'bg-neutral-900/60 border-neutral-700/60 shadow-lg shadow-black/40' 
-                          : 'bg-[#0a0a0a]/30 border-neutral-900/60 opacity-60 hover:opacity-95 hover:border-neutral-800 hover:bg-neutral-950/40'
+                      key={p.id}
+                      className="bg-neutral-950 border border-neutral-900 rounded-lg overflow-hidden group hover:border-neutral-850 transition-all flex flex-col justify-between"
+                    >
+                      {/* Product image */}
+                      <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
+                        <img 
+                          src={p.image} 
+                          alt={p.title} 
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-95 group-hover:scale-105 transition-all duration-500" 
+                        />
+                        {p.badge && (
+                          <span className="absolute top-3 right-3 text-[8px] font-mono font-bold bg-[#c0f20c] text-black px-2 py-0.5 rounded uppercase">
+                            {p.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Info & Cart add */}
+                      <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-start gap-1">
+                            <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight group-hover:text-[#c0f20c] transition-colors">
+                              {p.title}
+                            </h3>
+                          </div>
+                          <div className="text-[10px] font-mono text-neutral-500 uppercase">
+                            Chassis fitment: {p.chassis}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-sm font-mono font-bold text-[#c0f20c]">${p.price.toFixed(2)} USD</span>
+                            {p.originalPrice && (
+                              <span className="text-xs font-mono text-neutral-600 line-through">${p.originalPrice.toFixed(2)}</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleAddSimpleProductToCart(p)}
+                            className="w-full py-2 bg-neutral-900 border border-neutral-800 text-white rounded text-[10px] font-mono uppercase tracking-widest hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-all cursor-pointer"
+                          >
+                            + ADD TO CART
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* TITANIUM PAGE VIEW */}
+      {currentPage === 'titanium' && (
+        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1200px] mx-auto space-y-12 min-h-[75vh]">
+          {/* Header */}
+          <div className="border-b border-neutral-900 pb-6 text-center space-y-3">
+            <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">GRADE 5 MOTORSPORT ANCHORS</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight uppercase">TITANIUM HARDWARE</h1>
+            <p className="text-xs font-mono text-neutral-400 max-w-xl mx-auto uppercase">
+              Bespoke race-ready hardware. 45% lighter than steel, immune to corrosion, tensile strength exceeding 950 MPa.
+            </p>
+          </div>
+
+          {/* Intro Panel */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#080809] border border-neutral-900 rounded-lg p-8">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white uppercase tracking-tight">The Grade 5 Ti-6Al-4V Advantage</h2>
+              <p className="text-neutral-400 text-xs font-mono uppercase tracking-wide leading-relaxed">
+                Fasteners forged specifically for aggressive heat cycle blocks. Available in raw or burnt blue anodization options. Precision rolled threads for structural torque retention.
+              </p>
+
+              {/* Anodizing selection widget */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">SELECT ATELIER ANODIZATION STYLE:</span>
+                <div className="flex gap-2">
+                  {[
+                    { key: 'raw_ti', label: 'RAW TI' },
+                    { key: 'burnt_blue', label: 'BURNT BLUE' },
+                    { key: 'gold', label: 'ATELIER GOLD' },
+                    { key: 'purple', label: 'PURPLE ANODIZED' }
+                  ].map((fin) => (
+                    <button
+                      key={fin.key}
+                      onClick={() => {
+                        setTitaniumFinish(fin.key as any);
+                        triggerToast(`Titanium configuration finish set to ${fin.label}`);
+                      }}
+                      className={`px-3 py-1.5 border rounded font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer ${
+                        titaniumFinish === fin.key 
+                          ? 'bg-[#c0f20c] text-black border-[#c0f20c] font-bold' 
+                          : 'bg-neutral-950 border-neutral-850 text-neutral-400 hover:text-white'
                       }`}
                     >
-                      {/* Active indicator top bar glow */}
-                      {item.isSelected && (
-                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c0f20c]/60 to-transparent" />
-                      )}
+                      {fin.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-                      <div className="flex items-start justify-between gap-4">
-                        {/* Left: Checkbox + Title + material selectors */}
-                        <div className="flex-1 flex gap-4">
-                          {/* custom checkbox with premium ripple */}
-                          <button 
-                            onClick={() => handleComponentSelectToggle(item.id)}
-                            className={`w-5 h-5 rounded-md border shrink-0 flex items-center justify-center transition-all duration-300 mt-1 cursor-pointer ${
-                              item.isSelected 
-                                ? 'border-[#c0f20c] bg-gradient-to-br from-[#c0f20c] to-[#aacc00] shadow-[0_0_10px_rgba(192,242,12,0.3)]' 
-                                : 'border-neutral-800 bg-neutral-950 hover:border-neutral-600'
-                            }`}
-                          >
-                            {item.isSelected && <Check className="w-3.5 h-3.5 text-black stroke-[3.5]" />}
-                          </button>
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-850">
+              <img 
+                src="https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" 
+                alt="Titanium bolts process" 
+                className="w-full h-full object-cover filter contrast-125 saturate-50"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-4 text-[9px] font-mono text-white font-bold uppercase">
+                Active Fin: {titaniumFinish.replace('_', ' ').toUpperCase()}
+              </div>
+            </div>
+          </div>
 
-                          {/* Title & togglers */}
-                          <div className="space-y-3 w-full">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span 
-                                onClick={() => handleComponentSelectToggle(item.id)}
-                                className={`font-display text-[13px] font-semibold tracking-wider uppercase cursor-pointer select-none block hover:text-white transition-colors duration-200 ${
-                                  item.isSelected ? 'text-white font-bold' : 'text-neutral-500 line-through'
-                                }`}
-                              >
-                                {item.name}
-                              </span>
-                              
-                              {/* Small status indicators */}
-                              {item.isSelected && (
-                                <span className={`text-[8px] font-mono tracking-widest px-1.5 py-0.5 rounded leading-none ${
-                                  isCarbon 
-                                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
-                                    : 'bg-neutral-800 text-neutral-400'
-                                }`}>
-                                  {isCarbon ? 'BESPOKE WEAVE' : 'STANDARD GELCOAT'}
+          {/* Titanium Products Grid */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider border-b border-neutral-900 pb-2">PRE-PACKAGED KITS</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { id: "ti-m6-pack", title: "M6 BEAUTY WASHERS & BOLTS (10 PACK)", price: 45, desc: "Bespoke engine dress-up. High-grade rolled threads." },
+                { id: "ti-350z-bay", title: "350Z FULL ENGINE BAY HARDWARE KIT", price: 250, desc: "Replaces 68 structural fender, core support, and bracket bolts." },
+                { id: "ti-supra-bay", title: "SUPRA JZA80 2JZ TITANIUM HARDWARE KIT", price: 295, desc: "Full master dresser kit for block, manifolds and engine bay." },
+                { id: "ti-r34-bay", title: "BNR34 RB26 MASSIVE STAGED BAY KIT", price: 340, desc: "Premium grade 5 anchors for structural components." },
+                { id: "ti-lug-nuts", title: "ATELIER TITANIUM LUG NUTS (20 PACK)", price: 320, desc: "M12x1.25 open-ended hex drive race lugs." }
+              ].map((p) => (
+                <div key={p.id} className="bg-neutral-950 border border-neutral-900 rounded-lg p-5 flex flex-col justify-between hover:border-neutral-800 transition-colors">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight">{p.title}</h4>
+                      <span className="text-xs font-mono font-bold text-[#c0f20c]">${p.price}</span>
+                    </div>
+                    <p className="text-[10px] font-mono text-neutral-450 uppercase leading-snug">{p.desc}</p>
+                    <span className="inline-block text-[8px] font-mono text-neutral-500 uppercase mt-2">
+                      Finish: {titaniumFinish.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddSimpleProductToCart({ id: p.id, title: `${p.title} (${titaniumFinish.toUpperCase()})`, price: p.price, category: 'titanium', imageType: 'tier3' })}
+                    className="mt-6 w-full py-2 bg-neutral-900 border border-neutral-850 hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-colors rounded text-[10px] font-mono uppercase tracking-widest cursor-pointer text-white"
+                  >
+                    + ADD TO CART
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* SWAG PAGE VIEW */}
+      {currentPage === 'swag' && (
+        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1200px] mx-auto space-y-12 min-h-[75vh]">
+          {/* Header */}
+          <div className="border-b border-neutral-900 pb-6 text-center space-y-2">
+            <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">ATELIER APPAREL & ACCESSORIES</span>
+            <h1 className="text-4xl font-bold text-white tracking-tight uppercase">OFFICIAL SWAG</h1>
+            <p className="text-xs font-mono text-neutral-400 max-w-xl mx-auto uppercase">
+              Heavyweight garments and track caps customized to represent the Manufaktur. Shipped worldwide.
+            </p>
+          </div>
+
+          {/* Clothing sizes selector widget */}
+          <div className="bg-[#080809] border border-neutral-900 rounded-lg p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 max-w-3xl mx-auto">
+            <div>
+              <span className="text-xs font-mono text-white font-bold uppercase tracking-wider block">CLOTHING SIZE SPECIFICATION:</span>
+              <span className="text-[10px] font-mono text-neutral-500 uppercase">Applies to all T-shirts and Hoodies added below.</span>
+            </div>
+
+            <div className="flex gap-2">
+              {(['S', 'M', 'L', 'XL'] as const).map((size) => (
+                <button
+                  key={size}
+                  onClick={() => {
+                    setSwagSize(size);
+                    triggerToast(`Apparel size configured to: Size ${size}`);
+                  }}
+                  className={`w-10 h-10 border rounded font-mono text-xs uppercase tracking-wider flex items-center justify-center transition-colors cursor-pointer ${
+                    swagSize === size 
+                      ? 'bg-[#c0f20c] text-black border-[#c0f20c] font-bold' 
+                      : 'bg-neutral-950 border-neutral-850 text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Swag grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { id: "sw-tee-green", title: "ETI OFFICIAL ATELIER GREEN LOGO TEE", price: 35, image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group.png?v=1760445002", requiresSize: true },
+              { id: "sw-hoodie-zip", title: "ETI MOTORSPORTS TRACK ZIP HOODIE", price: 65, image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group_2.png?v=1760683834", requiresSize: true },
+              { id: "sw-cap-track", title: "ETI MASTER TRACK CAP (BLACK)", price: 28, image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301", requiresSize: false },
+              { id: "sw-keychain-ti", title: "GRADE 5 TITANIUM LOGO KEYCHAIN", price: 18, image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300", requiresSize: false }
+            ].map((p) => (
+              <div 
+                key={p.id}
+                className="bg-neutral-950 border border-neutral-900 rounded-lg overflow-hidden group hover:border-neutral-850 transition-all flex flex-col justify-between"
+              >
+                <div className="relative aspect-square bg-neutral-900 overflow-hidden">
+                  <img 
+                    src={p.image} 
+                    alt={p.title} 
+                    className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500" 
+                  />
+                </div>
+
+                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight group-hover:text-[#c0f20c] transition-colors">
+                      {p.title}
+                    </h3>
+                    {p.requiresSize && (
+                      <span className="inline-block text-[8px] font-mono text-neutral-500 uppercase">
+                        Size: {swagSize}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="text-xs font-mono font-bold text-[#c0f20c] block">${p.price.toFixed(2)} USD</span>
+                    <button
+                      onClick={() => handleAddSimpleProductToCart({ 
+                        id: p.id, 
+                        title: p.requiresSize ? `${p.title} (SIZE ${swagSize})` : p.title, 
+                        price: p.price, 
+                        category: 'swag',
+                        imageType: 'tier2' 
+                      })}
+                      className="w-full py-2 bg-neutral-900 border border-neutral-800 text-white rounded text-[10px] font-mono uppercase tracking-widest hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-colors cursor-pointer"
+                    >
+                      + ADD TO CART
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {currentPage === 'product' && (
+        <main className="w-full px-6 md:px-10 lg:px-16 mt-8 space-y-20">
+          
+          {/* =========================================================================
+              TIER 1 SECTION — NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
+              ========================================================================= */}
+          <section className="space-y-6">
+            <div className="border-b border-neutral-900 pb-5">
+              {/* Breadcrumb matching layout */}
+              <div className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase flex items-center gap-1.5 mb-1.5">
+                <span>VEHICLES</span>
+                <span className="text-neutral-700">/</span>
+                <span>NISSAN</span>
+                <span className="text-neutral-700">/</span>
+                <span className="text-[#c0f20c] font-medium">350Z</span>
+              </div>
+
+              {/* Accent badge text */}
+              <span className="text-xs font-mono font-extrabold tracking-widest text-[#c0f20c] uppercase">
+                NISSAN 350Z SPECIFICATION
+              </span>
+
+              {/* Header titles */}
+              <h1 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight mt-1 leading-none">
+                NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
+              </h1>
+              <p className="text-[10px] font-mono tracking-widest text-neutral-400 mt-2 uppercase">
+                BESPOKE CARBON • BUILT TO ORDER • $5,845.00 USD COMPLETE KIT (FRP)
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              
+              {/* LEFT COLUMN: Product image gallery */}
+              <div className="lg:col-span-5 space-y-3">
+                
+                {/* Main product image */}
+                <div className="relative rounded-lg overflow-hidden bg-[#0a0a0a] border border-neutral-900 aspect-square">
+                  <img 
+                    src={productImages[activeImageIndex]} 
+                    alt={`Nissan 350Z Top Secret Widebody - View ${activeImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* ETI Badge overlay */}
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="text-[9px] font-mono font-bold tracking-widest text-[#c0f20c] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-[#c0f20c]/20 uppercase">
+                      ETI ATELIER SPEC
+                    </span>
+                  </div>
+                  {/* Image counter */}
+                  <div className="absolute bottom-4 right-4 text-[9px] font-mono font-bold text-white/70 bg-black/60 backdrop-blur-sm px-2 py-1 rounded">
+                    {activeImageIndex + 1} / {productImages.length}
+                  </div>
+                </div>
+
+                {/* Thumbnail strip */}
+                <div className="grid grid-cols-4 gap-2">
+                  {productImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`aspect-square rounded-md overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
+                        activeImageIndex === idx 
+                          ? 'border-[#c0f20c] shadow-[0_0_10px_rgba(192,242,12,0.2)]' 
+                          : 'border-neutral-800 hover:border-neutral-600 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img 
+                        src={img} 
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Fitment badge */}
+                <div className="flex items-center gap-3 text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
+                    <span>FITMENT: NISSAN 350Z</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
+                    <span>7 COMPONENTS</span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* RIGHT COLUMN: SELECT COMPONENTS builder config */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Header select */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono font-bold tracking-widest text-[#c0f20c]">01</span>
+                    <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">SELECT COMPONENTS</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-neutral-500 uppercase">Interactive Configurator</span>
+                </div>
+
+                {/* COMPLETE KIT TOGGLE SWITCH */}
+                <div 
+                  onClick={handleCompleteKitToggle}
+                  className={`p-4 rounded-lg border transition-all duration-300 flex items-center justify-between cursor-pointer select-none relative overflow-hidden ${
+                    isCompleteKit 
+                      ? 'bg-[#c0f20c]/10 border-[#c0f20c] shadow-[0_0_15px_rgba(192,242,12,0.15)]' 
+                      : 'bg-[#121212]/40 border-neutral-900 hover:border-neutral-800'
+                  }`}
+                >
+                  {/* Visual side glow accent on selective complete kit */}
+                  {isCompleteKit && (
+                    <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#c0f20c]" />
+                  )}
+
+                  <div className="flex items-center gap-3.5">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 shrink-0 ${
+                      isCompleteKit 
+                        ? 'border-[#c0f20c] bg-[#c0f20c] shadow-[0_0_8px_rgba(192,242,12,0.4)]' 
+                        : 'border-neutral-700 bg-neutral-950'
+                    }`}>
+                      {isCompleteKit && <Check className="w-3.5 h-3.5 text-black stroke-[3.5]" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-display font-medium text-xs text-white uppercase tracking-widest">
+                          COMPLETE KIT — ALL 7 PIECES
+                        </h4>
+                        <span className="relative flex h-2 w-2">
+                          {isCompleteKit && (
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c0f20c] opacity-75"></span>
+                          )}
+                          <span className={`relative inline-flex rounded-full h-2 w-2 ${isCompleteKit ? 'bg-[#c0f20c]' : 'bg-neutral-800'}`}></span>
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-mono text-neutral-400 uppercase mt-0.5">
+                        Includes matched autoclave fiber casting & factory crating
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 ml-2">
+                    <span className="text-[9.5px] font-mono font-extrabold px-2.5 py-1 rounded text-black bg-[#c0f20c] tracking-wider shadow-sm">
+                      SAVE 10%
+                    </span>
+                  </div>
+                </div>
+
+                {/* COMPONENT ROWS LIST */}
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+                  {tier1Components.map((item) => {
+                    const currentPrice = getComponentPrice(item);
+                    const isCarbon = item.material === 'carbon';
+                    const isFRP = item.material === 'frp';
+                    const activeFinish = item.finish || 'matte';
+                    
+                    return (
+                      <div 
+                        key={item.id}
+                        className={`p-4 rounded-lg border transition-all duration-300 relative overflow-hidden ${
+                          item.isSelected 
+                            ? 'bg-neutral-900/60 border-neutral-700/60 shadow-lg shadow-black/40' 
+                            : 'bg-[#0a0a0a]/30 border-neutral-900/60 opacity-60 hover:opacity-95 hover:border-neutral-800 hover:bg-neutral-950/40'
+                        }`}
+                      >
+                        {/* Active indicator top bar glow */}
+                        {item.isSelected && (
+                          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c0f20c]/60 to-transparent" />
+                        )}
+
+                        <div className="flex items-start justify-between gap-4">
+                          {/* Left: Checkbox + Title + material selectors */}
+                          <div className="flex-1 flex gap-4">
+                            {/* custom checkbox with premium ripple */}
+                            <button 
+                              onClick={() => handleComponentSelectToggle(item.id)}
+                              className={`w-5 h-5 rounded-md border shrink-0 flex items-center justify-center transition-all duration-300 mt-1 cursor-pointer ${
+                                item.isSelected 
+                                  ? 'border-[#c0f20c] bg-gradient-to-br from-[#c0f20c] to-[#aacc00] shadow-[0_0_10px_rgba(192,242,12,0.3)]' 
+                                  : 'border-neutral-800 bg-neutral-950 hover:border-neutral-600'
+                              }`}
+                            >
+                              {item.isSelected && <Check className="w-3.5 h-3.5 text-black stroke-[3.5]" />}
+                            </button>
+
+                            {/* Title & togglers */}
+                            <div className="space-y-3 w-full">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span 
+                                  onClick={() => handleComponentSelectToggle(item.id)}
+                                  className={`font-display text-[13px] font-semibold tracking-wider uppercase cursor-pointer select-none block hover:text-white transition-colors duration-200 ${
+                                    item.isSelected ? 'text-white font-bold' : 'text-neutral-500 line-through'
+                                  }`}
+                                >
+                                  {item.name}
                                 </span>
+                                
+                                {/* Small status indicators */}
+                                {item.isSelected && (
+                                  <span className={`text-[8px] font-mono tracking-widest px-1.5 py-0.5 rounded leading-none ${
+                                    isCarbon 
+                                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
+                                      : 'bg-neutral-800 text-neutral-400'
+                                  }`}>
+                                    {isCarbon ? 'BESPOKE WEAVE' : 'STANDARD GELCOAT'}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* FRP vs CARBON materials buttons */}
+                              {item.isSelected && (
+                                <div className="space-y-3">
+                                  <div className="flex flex-wrap items-center gap-2.5">
+                                    {item.canFRP ? (
+                                      <div className="flex bg-neutral-950 p-[3px] rounded-md border border-neutral-850/80">
+                                        <button
+                                          onClick={() => handleComponentMaterialChange(item.id, 'frp')}
+                                          className={`px-3.5 py-1 text-[9px] font-mono font-bold tracking-widest rounded-sm transition-all duration-200 cursor-pointer ${
+                                            isFRP
+                                              ? 'bg-neutral-800 text-white font-extrabold shadow-sm'
+                                              : 'text-neutral-500 hover:text-neutral-300'
+                                          }`}
+                                        >
+                                          FRP
+                                        </button>
+                                        <button
+                                          onClick={() => handleComponentMaterialChange(item.id, 'carbon')}
+                                          className={`px-3.5 py-1 text-[9px] font-mono font-bold tracking-widest rounded-sm transition-all duration-200 relative cursor-pointer ${
+                                            isCarbon
+                                              ? 'bg-gradient-to-r from-neutral-900 to-black text-[#c0f20c] font-extrabold border border-neutral-800'
+                                              : 'text-neutral-500 hover:text-neutral-300'
+                                          }`}
+                                        >
+                                          {isCarbon && (
+                                            <span className="absolute inset-0 bg-neutral-900 carbon-weave opacity-20 rounded-sm" />
+                                          )}
+                                          <span className="relative z-10">CARBON</span>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <span className="text-[8.5px] font-mono font-extrabold text-[#c0f20c]/85 bg-[#c0f20c]/5 border border-[#c0f20c]/20 px-2 py-0.5 rounded tracking-widest uppercase">
+                                        CARBON ONLY
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Custom Finish Selection with real visual weave previews */}
+                                  <AnimatePresence>
+                                    {isCarbon && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="space-y-2 pt-1.5 overflow-hidden"
+                                      >
+                                        <span className="text-[9px] font-mono text-neutral-500 tracking-wider uppercase block">
+                                          FIBER SPECIFICATION & FINISH
+                                        </span>
+                                        <div className="grid grid-cols-4 gap-1.5">
+                                          {[
+                                            { id: 'matte', name: 'MATTE', info: 'Satin Twill', cost: 'Standard', isPremium: false },
+                                            { id: 'gloss', name: 'GLOSS', info: 'Deep Shine', cost: 'Standard', isPremium: false },
+                                            { id: 'forged', name: 'FORGED', info: 'Carbon Marble', cost: '+10%', isPremium: true },
+                                            { id: 'kevlar', name: 'KEVLAR', info: 'Core Strength', cost: '+12%', isPremium: true }
+                                          ].map((fin) => {
+                                            const isFinSelected = activeFinish === fin.id;
+                                            return (
+                                              <button
+                                                key={fin.id}
+                                                onClick={() => handleComponentFinishChange(item.id, fin.id as FinishType)}
+                                                title={`${fin.name} - ${fin.info}`}
+                                                className={`relative h-11 rounded-md transition-all duration-300 border flex flex-col justify-center px-2 text-left cursor-pointer overflow-hidden group select-none ${
+                                                  isFinSelected
+                                                    ? 'border-[#c0f20c] text-white shadow-[0_0_12px_rgba(192,242,12,0.1)]'
+                                                    : 'border-neutral-900 bg-neutral-950/50 hover:border-neutral-800 text-neutral-400 hover:text-white'
+                                                }`}
+                                              >
+                                                {fin.id === 'forged' && (
+                                                  <div className="absolute inset-0 forged-weave opacity-25 group-hover:opacity-40 transition-opacity" />
+                                                )}
+                                                {fin.id === 'kevlar' && (
+                                                  <div className="absolute inset-0 kevlar-weave opacity-20 group-hover:opacity-35 transition-opacity" />
+                                                )}
+                                                {fin.id === 'gloss' && (
+                                                  <div className="absolute inset-0 carbon-weave shiny-overlay opacity-20 group-hover:opacity-45 transition-opacity" />
+                                                )}
+                                                {fin.id === 'matte' && (
+                                                  <div className="absolute inset-0 carbon-weave opacity-[0.18] group-hover:opacity-30 transition-opacity" />
+                                                )}
+
+                                                <span className="relative z-10 text-[9px] font-mono tracking-widest font-bold leading-none uppercase">
+                                                  {fin.name}
+                                                </span>
+                                                <span className="relative z-10 text-[7.5px] font-mono text-neutral-500 mt-0.5 leading-none">
+                                                  {fin.cost}
+                                                </span>
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
                               )}
                             </div>
+                          </div>
 
-                            {/* FRP vs CARBON materials buttons */}
+                          {/* Right: Dynamic configured pricing */}
+                          <div className="text-right shrink-0">
+                            <span className={`font-mono text-xs font-bold transition-all ${item.isSelected ? 'text-[#c0f20c]' : 'text-neutral-600'}`}>
+                              ${currentPrice.toLocaleString()}
+                            </span>
                             {item.isSelected && (
-                              <div className="space-y-3">
-                                <div className="flex flex-wrap items-center gap-2.5">
-                                  {item.canFRP ? (
-                                    <div className="flex bg-neutral-950 p-[3px] rounded-md border border-neutral-850/80">
-                                      <button
-                                        onClick={() => handleComponentMaterialChange(item.id, 'frp')}
-                                        className={`px-3.5 py-1 text-[9px] font-mono font-bold tracking-widest rounded-sm transition-all duration-200 cursor-pointer ${
-                                          isFRP
-                                            ? 'bg-neutral-800 text-white font-extrabold shadow-sm'
-                                            : 'text-neutral-500 hover:text-neutral-300'
-                                        }`}
-                                      >
-                                        FRP
-                                      </button>
-                                      <button
-                                        onClick={() => handleComponentMaterialChange(item.id, 'carbon')}
-                                        className={`px-3.5 py-1 text-[9px] font-mono font-bold tracking-widest rounded-sm transition-all duration-200 relative cursor-pointer ${
-                                          isCarbon
-                                            ? 'bg-gradient-to-r from-neutral-900 to-black text-[#c0f20c] font-extrabold border border-neutral-800'
-                                            : 'text-neutral-500 hover:text-neutral-300'
-                                        }`}
-                                      >
-                                        {isCarbon && (
-                                          <span className="absolute inset-0 bg-neutral-900 carbon-weave opacity-20 rounded-sm" />
-                                        )}
-                                        <span className="relative z-10">CARBON</span>
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <span className="text-[8.5px] font-mono font-extrabold text-[#c0f20c]/85 bg-[#c0f20c]/5 border border-[#c0f20c]/20 px-2 py-0.5 rounded tracking-widest uppercase">
-                                      CARBON ONLY
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Custom Finish Selection with real visual weave previews */}
-                                <AnimatePresence>
-                                  {isCarbon && (
-                                    <motion.div
-                                      initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: 1, height: 'auto' }}
-                                      exit={{ opacity: 0, height: 0 }}
-                                      className="space-y-2 pt-1.5 overflow-hidden"
-                                    >
-                                      <span className="text-[9px] font-mono text-neutral-500 tracking-wider uppercase block">
-                                        FIBER SPECIFICATION & FINISH
-                                      </span>
-                                      <div className="grid grid-cols-4 gap-1.5">
-                                        {[
-                                          { id: 'matte', name: 'MATTE', info: 'Satin Twill', cost: 'Standard', isPremium: false },
-                                          { id: 'gloss', name: 'GLOSS', info: 'Deep Shine', cost: 'Standard', isPremium: false },
-                                          { id: 'forged', name: 'FORGED', info: 'Carbon Marble', cost: '+10%', isPremium: true },
-                                          { id: 'kevlar', name: 'KEVLAR', info: 'Core Strength', cost: '+12%', isPremium: true }
-                                        ].map((fin) => {
-                                          const isFinSelected = activeFinish === fin.id;
-                                          return (
-                                            <button
-                                              key={fin.id}
-                                              onClick={() => handleComponentFinishChange(item.id, fin.id as FinishType)}
-                                              title={`${fin.name} - ${fin.info}`}
-                                              className={`relative h-11 rounded-md transition-all duration-300 border flex flex-col justify-center px-2 text-left cursor-pointer overflow-hidden group select-none ${
-                                                isFinSelected
-                                                  ? 'border-[#c0f20c] text-white shadow-[0_0_12px_rgba(192,242,12,0.1)]'
-                                                  : 'border-neutral-900 bg-neutral-950/50 hover:border-neutral-800 text-neutral-400 hover:text-white'
-                                              }`}
-                                            >
-                                              {/* Dynamic background texture representation based on finish */}
-                                              {fin.id === 'forged' && (
-                                                <div className="absolute inset-0 forged-weave opacity-25 group-hover:opacity-40 transition-opacity" />
-                                              )}
-                                              {fin.id === 'kevlar' && (
-                                                <div className="absolute inset-0 kevlar-weave opacity-20 group-hover:opacity-35 transition-opacity" />
-                                              )}
-                                              {fin.id === 'gloss' && (
-                                                <div className="absolute inset-0 carbon-weave shiny-overlay opacity-20 group-hover:opacity-45 transition-opacity" />
-                                              )}
-                                              {fin.id === 'matte' && (
-                                                <div className="absolute inset-0 carbon-weave opacity-[0.18] group-hover:opacity-30 transition-opacity" />
-                                              )}
-
-                                              {/* Content layers */}
-                                              <span className="relative z-10 text-[9px] font-mono tracking-widest font-bold leading-none uppercase">
-                                                {fin.name}
-                                              </span>
-                                              <span className="relative z-10 text-[7.5px] font-mono text-neutral-500 mt-0.5 leading-none">
-                                                {fin.cost}
-                                              </span>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
+                              <div className="text-[8px] font-mono text-neutral-500 uppercase mt-1">
+                                {isFRP ? '-$180 GELCOAT' : activeFinish === 'forged' ? '+10% FORGED' : activeFinish === 'kevlar' ? '+12% KEVLAR' : 'STAND-WEAVE'}
                               </div>
                             )}
                           </div>
                         </div>
-
-                        {/* Right: Dynamic configured pricing */}
-                        <div className="text-right shrink-0">
-                          <span className={`font-mono text-xs font-bold transition-all ${item.isSelected ? 'text-[#c0f20c]' : 'text-neutral-600'}`}>
-                            ${currentPrice.toLocaleString()}
-                          </span>
-                          {item.isSelected && (
-                            <div className="text-[8px] font-mono text-neutral-500 uppercase mt-1">
-                              {isFRP ? '-$180 GELCOAT' : activeFinish === 'forged' ? '+10% FORGED' : activeFinish === 'kevlar' ? '+12% KEVLAR' : 'STAND-WEAVE'}
-                            </div>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* 02 REVIEW BUILD */}
-              <div className="space-y-4 pt-4 border-t border-neutral-900">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono font-bold tracking-widest text-[#c0f20c]">02</span>
-                    <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">REVIEW BUILD SPECS</span>
-                  </div>
-                  <span className="text-[9px] font-mono text-neutral-500 uppercase">ATELIER ORDER SLIP SV01</span>
+                    );
+                  })}
                 </div>
 
-                {/* Subtotal Box Panel (Style of high-end custom invoice spec card) */}
-                <div className="p-6 rounded-lg bg-neutral-950 border border-neutral-900 shadow-2xl relative overflow-hidden space-y-5">
-                  
-                  {/* Watermark/grid indicator line */}
-                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-neutral-800" />
-                  
-                  {/* Detailed Specs List */}
-                  <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
-                    <div className="text-[9px] font-mono tracking-widest text-[#c0f20c] font-bold uppercase mb-1.5 flex items-center justify-between pb-1 border-b border-neutral-900/60">
-                      <span>SPECS MANIFEST</span>
-                      <span>PRICE</span>
+                {/* 02 REVIEW BUILD */}
+                <div className="space-y-4 pt-4 border-t border-neutral-900">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold tracking-widest text-[#c0f20c]">02</span>
+                      <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">REVIEW BUILD SPECS</span>
                     </div>
-                    {selectedTier1Count === 0 ? (
-                      <div className="text-[10px] font-mono text-neutral-600 uppercase text-center py-4">
-                        — NO COMPONENTS SELECTED —
-                      </div>
-                    ) : (
-                      tier1Components.filter(c => c.isSelected).map((comp) => {
-                        const finalPrice = getComponentPrice(comp);
-                        const label = comp.material === 'frp' ? 'FRP Standard' : `${(comp.finish || 'matte').toUpperCase()} Carbon`;
-                        return (
-                          <div key={comp.id} className="flex justify-between items-baseline text-[10px] font-mono">
-                            <span className="text-neutral-400 uppercase truncate max-w-[180px]">{comp.name.replace(' +50MM', '')}</span>
-                            <span className="mx-2 flex-grow border-b border-dotted border-neutral-900" />
-                            <span className="text-[#c0f20c]/85 uppercase mr-3 text-[9px] font-bold shrink-0">{label}</span>
-                            <span className="text-white font-medium shrink-0">${finalPrice.toLocaleString()}</span>
-                          </div>
-                        );
-                      })
-                    )}
+                    <span className="text-[9px] font-mono text-neutral-500 uppercase">ATELIER ORDER SLIP SV01</span>
                   </div>
 
-                  <div className="border-t border-neutral-900" />
-                  
-                  <div className="grid grid-cols-2 gap-y-3.5 text-xs font-mono text-neutral-400">
+                  {/* Subtotal Box Panel */}
+                  <div className="p-6 rounded-lg bg-neutral-950 border border-neutral-900 shadow-2xl relative overflow-hidden space-y-5">
                     
-                    <div>SELECTIONS</div>
-                    <div className="text-right text-white font-bold uppercase">{selectedTier1Count} OF 7 PANELS</div>
-
-                    <div className="border-t border-neutral-900 pt-3.5">SUBTOTAL</div>
-                    <div className="text-right text-white font-bold border-t border-neutral-900 pt-3.5">
-                      ${tier1Subtotal.toLocaleString()}
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-neutral-800" />
+                    
+                    {/* Detailed Specs List */}
+                    <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
+                      <div className="text-[9px] font-mono tracking-widest text-[#c0f20c] font-bold uppercase mb-1.5 flex items-center justify-between pb-1 border-b border-neutral-900/60">
+                        <span>SPECS MANIFEST</span>
+                        <span>PRICE</span>
+                      </div>
+                      {selectedTier1Count === 0 ? (
+                        <div className="text-[10px] font-mono text-neutral-600 uppercase text-center py-4">
+                          — NO COMPONENTS SELECTED —
+                        </div>
+                      ) : (
+                        tier1Components.filter(c => c.isSelected).map((comp) => {
+                          const finalPrice = getComponentPrice(comp);
+                          const label = comp.material === 'frp' ? 'FRP Standard' : `${(comp.finish || 'matte').toUpperCase()} Carbon`;
+                          return (
+                            <div key={comp.id} className="flex justify-between items-baseline text-[10px] font-mono">
+                              <span className="text-neutral-400 uppercase truncate max-w-[180px]">{comp.name.replace(' +50MM', '')}</span>
+                              <span className="mx-2 flex-grow border-b border-dotted border-neutral-900" />
+                              <span className="text-[#c0f20c]/85 uppercase mr-3 text-[9px] font-bold shrink-0">{label}</span>
+                              <span className="text-white font-medium shrink-0">${finalPrice.toLocaleString()}</span>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
 
-                    {isCompleteKit && (
-                      <>
-                        <div className="text-[#c0f20c] flex items-center gap-1.5 font-bold uppercase text-[11px]">
-                          <Sparkles className="w-3 w-3 animate-pulse text-[#c0f20c]" />
-                          KIT SAVE (-10%)
-                        </div>
-                        <div className="text-right text-[#c0f20c] font-extrabold font-mono text-[11px]">
-                          -${tier1Discount.toLocaleString()}
-                        </div>
-                      </>
-                    )}
+                    <div className="border-t border-neutral-900" />
+                    
+                    <div className="grid grid-cols-2 gap-y-3.5 text-xs font-mono text-neutral-400">
+                      
+                      <div>SELECTIONS</div>
+                      <div className="text-right text-white font-bold uppercase">{selectedTier1Count} OF 7 PANELS</div>
+
+                      <div className="border-t border-neutral-900 pt-3.5">SUBTOTAL</div>
+                      <div className="text-right text-white font-bold border-t border-neutral-900 pt-3.5">
+                        ${tier1Subtotal.toLocaleString()}
+                      </div>
+
+                      {isCompleteKit && (
+                        <>
+                          <div className="text-[#c0f20c] flex items-center gap-1.5 font-bold uppercase text-[11px]">
+                            <Sparkles className="w-3 w-3 animate-pulse text-[#c0f20c]" />
+                            KIT SAVE (-10%)
+                          </div>
+                          <div className="text-right text-[#c0f20c] font-extrabold font-mono text-[11px]">
+                            -${tier1Discount.toLocaleString()}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="border-t border-neutral-900/60" />
+
+                    {/* Final Pricing */}
+                    <div className="flex justify-between items-baseline pt-2">
+                      <div>
+                        <span className="font-display font-semibold text-[11px] text-neutral-400 tracking-wider block uppercase">TOTAL CONFIGURED SPEC</span>
+                        <span className="text-[9px] font-mono text-neutral-500 uppercase mt-0.5 block">Sea Freight calculated at dispatch</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono text-3xl font-extrabold text-[#c0f20c] tracking-tight glow-text drop-shadow-[0_0_12px_rgba(192,242,12,0.15)]">
+                          ${tier1Total.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Kit Actions */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                      <button
+                        onClick={handleAddTier1ToCart}
+                        id="tier1-add-to-cart"
+                        className="py-4 bg-[#c0f20c] text-black hover:bg-[#aacc00] font-display font-extrabold text-[11px] uppercase tracking-widest rounded-md transition-all duration-300 shadow-[0_4px_20px_rgba(192,242,12,0.25)] flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-[1px]"
+                      >
+                        <ShoppingBag className="w-4 h-4 stroke-[3]" /> ADD BUILD TO CART
+                      </button>
+                      <button
+                        onClick={() => triggerToast("Our bespoke specialist team has been notified of your interest. Check your dashboard messages shortly!")}
+                        className="py-4 bg-transparent border border-neutral-800 text-neutral-300 hover:border-neutral-600 hover:text-white font-display font-bold text-[11px] uppercase tracking-widest rounded-md transition-all cursor-pointer hover:bg-neutral-900/30"
+                      >
+                        Want a Custom Finish
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </section>
+
+          {/* =========================================================================
+              TIER 2 SECTION — CONFIGURABLE COMPONENT (RE Amemiya GT Carbon Hood)
+              ========================================================================= */}
+          <section className="pt-8 border-t border-neutral-950 space-y-6">
+            <div className="text-[10px] font-mono tracking-widest text-[#c0f20c] uppercase">
+              TIER 2 — CONFIGURABLE COMPONENT (SAME CHASSIS, SCALED DOWN TO ONE PART)
+            </div>
+
+            <div className="bg-[#050505] rounded border border-neutral-900 overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0">
+              
+              {/* Left Box */}
+              <div className="md:col-span-4 p-8 bg-neutral-950 border-b md:border-b-0 md:border-r border-neutral-900 flex flex-col justify-between items-start min-h-[300px]">
+                
+                <div className="w-full">
+                  <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">NISSAN / 350Z / HOODS</span>
+                  <h3 className="font-display font-bold text-xl text-white tracking-tight uppercase mt-1">
+                    RE AMEMIYA GT CARBON HOOD
+                  </h3>
+                  <span className="text-xl font-mono font-bold text-[#c0f20c] block mt-1">
+                    $1,450
+                  </span>
+                </div>
+
+                <div className="w-full aspect-video md:aspect-square rounded border border-neutral-900 bg-[#030303] flex flex-col items-center justify-center p-4 relative overflow-hidden my-4 group">
+                  <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:10px_10px]"></div>
+                  
+                  <svg viewBox="0 0 100 80" className="w-2/3 h-auto opacity-50 group-hover:opacity-80 transition-opacity">
+                    <path d="M 20,10 L 80,10 L 75,70 L 25,70 Z" fill="none" stroke="#c0f20c" strokeWidth="1.5" />
+                    <path d="M 33,25 L 43,25 L 41,35 L 34,35 Z" fill="#c0f20c" fillOpacity="0.3" />
+                    <path d="M 67,25 L 57,25 L 59,35 L 66,35 Z" fill="#c0f20c" fillOpacity="0.3" />
+                    <path d="M 35,45 L 65,45 L 61,58 L 39,58 Z" fill="#c0f20c" fillOpacity="0.2" />
+                  </svg>
+
+                  <div className="mt-2 text-[9px] font-mono tracking-widest text-neutral-500 uppercase">
+                    PRODUCT PHOTO
+                  </div>
+                </div>
+
+                <div className="px-3 py-1 bg-black rounded border border-neutral-900 text-[10px] font-mono uppercase tracking-widest text-[#c0f20c]">
+                  • FITMENT: FD3S
+                </div>
+
+              </div>
+
+              {/* Right Box */}
+              <div className="md:col-span-8 p-8 space-y-6 flex flex-col justify-between">
+                
+                <div className="space-y-6">
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
+                        <span className="text-[#c0f20c] font-bold mr-1">01</span> FINISH
+                      </span>
+                      <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase font-bold bg-[#c0f20c]/5 border border-[#c0f20c]/15 px-1.5 rounded">{tier2.finish}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {[
+                        { id: 'matte', name: 'MATTE', info: 'Base finish', extra: 0 },
+                        { id: 'gloss', name: 'GLOSS', info: 'Epoxy weaved', extra: 0 },
+                        { id: 'forged', name: 'FORGED', info: 'Matrix', extra: 145 },
+                        { id: 'kevlar', name: 'KEVLAR', info: 'Argrid dynamic', extra: 170 },
+                      ].map((fin) => (
+                        <button
+                          key={fin.id}
+                          onClick={() => {
+                            setTier2(prev => ({ ...prev, finish: fin.id as FinishType }));
+                            triggerToast(`Hood Finish changed to ${fin.name}`);
+                          }}
+                          className={`p-2.5 rounded border text-left flex flex-col justify-between h-20 transition-all cursor-pointer ${
+                            tier2.finish === fin.id
+                              ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
+                              : 'bg-black border-neutral-900 hover:border-neutral-800'
+                          }`}
+                        >
+                          <span className="font-display font-bold text-[10px] text-white tracking-widest">{fin.name}</span>
+                          <div className="text-[9px] font-mono text-[#c0f20c]">
+                            {fin.extra > 0 ? `+$${fin.extra}` : 'STANDARD'}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="border-t border-neutral-900/60" />
-
-                  {/* Final Pricing */}
-                  <div className="flex justify-between items-baseline pt-2">
-                    <div>
-                      <span className="font-display font-semibold text-[11px] text-neutral-400 tracking-wider block uppercase">TOTAL CONFIGURED SPEC</span>
-                      <span className="text-[9px] font-mono text-neutral-500 uppercase mt-0.5 block">Sea Freight calculated at dispatch</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono text-3xl font-extrabold text-[#c0f20c] tracking-tight glow-text drop-shadow-[0_0_12px_rgba(192,242,12,0.15)]">
-                        ${tier1Total.toLocaleString()}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
+                        <span className="text-[#c0f20c] font-bold mr-1">02</span> INNER SHELL
+                      </span>
+                      <span className="text-[9.5px] font-mono text-neutral-400 uppercase">
+                        Underside reinforcement layout
                       </span>
                     </div>
-                  </div>
 
-
-                  {/* Kit Actions */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                    <button
-                      onClick={handleAddTier1ToCart}
-                      id="tier1-add-to-cart"
-                      className="py-4 bg-[#c0f20c] text-black hover:bg-[#aacc00] font-display font-extrabold text-[11px] uppercase tracking-widest rounded-md transition-all duration-300 shadow-[0_4px_20px_rgba(192,242,12,0.25)] flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-[1px]"
-                    >
-                      <ShoppingBag className="w-4 h-4 stroke-[3]" /> ADD BUILD TO CART
-                    </button>
-                    <button
-                      onClick={() => triggerToast("Our bespoke specialist team has been notified of your interest. Check your dashboard messages shortly!")}
-                      className="py-4 bg-transparent border border-neutral-800 text-neutral-300 hover:border-neutral-600 hover:text-white font-display font-bold text-[11px] uppercase tracking-widest rounded-md transition-all cursor-pointer hover:bg-neutral-900/30"
-                    >
-                      Want a Custom Finish
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </section>
-
-        {/* =========================================================================
-            TIER 2 SECTION — CONFIGURABLE COMPONENT (RE Amemiya GT Carbon Hood)
-            ========================================================================= */}
-        <section className="pt-8 border-t border-neutral-950 space-y-6">
-          <div className="text-[10px] font-mono tracking-widest text-[#c0f20c] uppercase">
-            TIER 2 — CONFIGURABLE COMPONENT (SAME CHASSIS, SCALED DOWN TO ONE PART)
-          </div>
-
-          <div className="bg-[#050505] rounded border border-neutral-900 overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0">
-            
-            {/* Left Box: Product photo representation */}
-            <div className="md:col-span-4 p-8 bg-neutral-950 border-b md:border-b-0 md:border-r border-neutral-900 flex flex-col justify-between items-start min-h-[300px]">
-              
-              <div className="w-full">
-                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">NISSAN / 350Z / HOODS</span>
-                <h3 className="font-display font-bold text-xl text-white tracking-tight uppercase mt-1">
-                  RE AMEMIYA GT CARBON HOOD
-                </h3>
-                <span className="text-xl font-mono font-bold text-[#c0f20c] block mt-1">
-                  $1,450
-                </span>
-              </div>
-
-              {/* Box Placeholder */}
-              <div className="w-full aspect-video md:aspect-square rounded border border-neutral-900 bg-[#030303] flex flex-col items-center justify-center p-4 relative overflow-hidden my-4 group">
-                <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:10px_10px]"></div>
-                
-                {/* SVG representing Carbon Hood Shape */}
-                <svg viewBox="0 0 100 80" className="w-2/3 h-auto opacity-50 group-hover:opacity-80 transition-opacity">
-                  <path d="M 20,10 L 80,10 L 75,70 L 25,70 Z" fill="none" stroke="#c0f20c" strokeWidth="1.5" />
-                  <path d="M 33,25 L 43,25 L 41,35 L 34,35 Z" fill="#c0f20c" fillOpacity="0.3" />
-                  <path d="M 67,25 L 57,25 L 59,35 L 66,35 Z" fill="#c0f20c" fillOpacity="0.3" />
-                  <path d="M 35,45 L 65,45 L 61,58 L 39,58 Z" fill="#c0f20c" fillOpacity="0.2" />
-                </svg>
-
-                <div className="mt-2 text-[9px] font-mono tracking-widest text-neutral-500 uppercase">
-                  PRODUCT PHOTO
-                </div>
-              </div>
-
-              {/* FITMENT */}
-              <div className="px-3 py-1 bg-black rounded border border-neutral-900 text-[10px] font-mono uppercase tracking-widest text-[#c0f20c]">
-                • FITMENT: FD3S
-              </div>
-
-            </div>
-
-            {/* Right Box: Customization controls */}
-            <div className="md:col-span-8 p-8 space-y-6 flex flex-col justify-between">
-              
-              <div className="space-y-6">
-                
-                {/* 01 FINISH SELECTION */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
-                      <span className="text-[#c0f20c] font-bold mr-1">01</span> FINISH
-                    </span>
-                    <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase font-bold bg-[#c0f20c]/5 border border-[#c0f20c]/15 px-1.5 rounded">{tier2.finish}</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {[
-                      { id: 'matte', name: 'MATTE', info: 'Base finish', extra: 0 },
-                      { id: 'gloss', name: 'GLOSS', info: 'Epoxy weaved', extra: 0 },
-                      { id: 'forged', name: 'FORGED', info: 'Matrix', extra: 145 },
-                      { id: 'kevlar', name: 'KEVLAR', info: 'Argrid dynamic', extra: 170 },
-                    ].map((fin) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      
                       <button
-                        key={fin.id}
-                        onClick={() => {
-                          setTier2(prev => ({ ...prev, finish: fin.id as FinishType }));
-                          triggerToast(`Hood Finish changed to ${fin.name}`);
-                        }}
-                        className={`p-2.5 rounded border text-left flex flex-col justify-between h-20 transition-all ${
-                          tier2.finish === fin.id
+                        onClick={() => setTier2(prev => ({ ...prev, innerShell: 'standard' }))}
+                        className={`p-4 rounded border text-left flex justify-between items-center transition-all cursor-pointer ${
+                          tier2.innerShell === 'standard'
                             ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
                             : 'bg-black border-neutral-900 hover:border-neutral-800'
                         }`}
                       >
-                        <span className="font-display font-bold text-[10px] text-white tracking-widest">{fin.name}</span>
-                        <div className="text-[9px] font-mono text-[#c0f20c]">
-                          {fin.extra > 0 ? `+$${fin.extra}` : 'STANDARD'}
+                        <div>
+                          <span className="font-display font-bold text-xs text-white tracking-wider block">STANDARD</span>
+                          <span className="text-[9.5px] font-mono text-neutral-500 uppercase mt-0.5 block">Fiberglass backing frame</span>
                         </div>
+                        <span className="text-xs font-mono font-bold text-neutral-400">INCLUDED</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* 02 INNER SHELL SELECTION */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
-                      <span className="text-[#c0f20c] font-bold mr-1">02</span> INNER SHELL
-                    </span>
-                    <span className="text-[9.5px] font-mono text-neutral-400 uppercase">
-                      Underside reinforcement layout
-                    </span>
-                  </div>
+                      <button
+                        onClick={() => setTier2(prev => ({ ...prev, innerShell: 'carbon_underside' }))}
+                        className={`p-4 rounded border text-left flex justify-between items-center transition-all cursor-pointer ${
+                          tier2.innerShell === 'carbon_underside'
+                            ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
+                            : 'bg-black border-neutral-900 hover:border-neutral-800'
+                        }`}
+                      >
+                        <div>
+                          <span className="font-display font-bold text-xs text-white tracking-wider block">CARBON UNDERSIDE</span>
+                          <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase mt-0.5 block">Full reinforcement structure</span>
+                        </div>
+                        <span className="text-xs font-mono font-bold text-[#c0f20c]">+$550</span>
+                      </button>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    
-                    {/* STANDARD */}
-                    <button
-                      onClick={() => setTier2(prev => ({ ...prev, innerShell: 'standard' }))}
-                      className={`p-4 rounded border text-left flex justify-between items-center transition-all ${
-                        tier2.innerShell === 'standard'
-                          ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
-                          : 'bg-black border-neutral-900 hover:border-neutral-800'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-display font-bold text-xs text-white tracking-wider block">STANDARD</span>
-                        <span className="text-[9.5px] font-mono text-neutral-500 uppercase mt-0.5 block">Fiberglass backing frame</span>
-                      </div>
-                      <span className="text-xs font-mono font-bold text-neutral-400">INCLUDED</span>
-                    </button>
-
-                    {/* CARBON UNDERSIDE */}
-                    <button
-                      onClick={() => setTier2(prev => ({ ...prev, innerShell: 'carbon_underside' }))}
-                      className={`p-4 rounded border text-left flex justify-between items-center transition-all ${
-                        tier2.innerShell === 'carbon_underside'
-                          ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
-                          : 'bg-black border-neutral-900 hover:border-neutral-800'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-display font-bold text-xs text-white tracking-wider block">CARBON UNDERSIDE</span>
-                        <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase mt-0.5 block">Full reinforcement structure</span>
-                      </div>
-                      <span className="text-xs font-mono font-bold text-[#c0f20c]">+$550</span>
-                    </button>
-
-                  </div>
-                </div>
-
-                {/* HARDWARE OPTIONS CHECKBOX */}
-                <div className="pt-2">
-                  <label 
-                    onClick={() => setTier2(prev => ({ ...prev, addTitaniumHardware: !prev.addTitaniumHardware }))}
-                    className="p-3.5 rounded border border-neutral-900 bg-black hover:border-neutral-800 flex items-center justify-between cursor-pointer select-none transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                        tier2.addTitaniumHardware ? 'border-[#c0f20c] bg-[#c0f20c]' : 'border-neutral-800 bg-neutral-950'
-                      }`}>
-                        {tier2.addTitaniumHardware && <Check className="w-3 h-3 text-black stroke-[3.5]" />}
-                      </div>
-                      <span className="font-display font-medium text-xs text-white uppercase tracking-wider">
-                        ADD TITANIUM HARDWARE KIT
-                      </span>
                     </div>
-                    <span className="font-mono text-xs font-bold text-[#c0f20c]">+$95</span>
-                  </label>
+                  </div>
+
+                  <div className="pt-2">
+                    <label 
+                      onClick={() => setTier2(prev => ({ ...prev, addTitaniumHardware: !prev.addTitaniumHardware }))}
+                      className="p-3.5 rounded border border-neutral-900 bg-black hover:border-neutral-800 flex items-center justify-between cursor-pointer select-none transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                          tier2.addTitaniumHardware ? 'border-[#c0f20c] bg-[#c0f20c]' : 'border-neutral-800 bg-neutral-950'
+                        }`}>
+                          {tier2.addTitaniumHardware && <Check className="w-3 h-3 text-black stroke-[3.5]" />}
+                        </div>
+                        <span className="font-display font-medium text-xs text-white uppercase tracking-wider">
+                          ADD TITANIUM HARDWARE KIT
+                        </span>
+                      </div>
+                      <span className="font-mono text-xs font-bold text-[#c0f20c]">+$95</span>
+                    </label>
+                  </div>
+
                 </div>
 
-              </div>
-
-              {/* Total Row & Add to Cart */}
-              <div className="border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-center sm:text-left">
-                  <span className="text-[9.5px] font-mono text-neutral-500 uppercase tracking-widest block">CONFIGURED PRICE</span>
-                  <span className="font-mono text-2xl font-bold text-white">${tier2Total.toLocaleString()}</span>
+                <div className="border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <span className="text-[9.5px] font-mono text-neutral-500 uppercase tracking-widest block">CONFIGURED PRICE</span>
+                    <span className="font-mono text-2xl font-bold text-white">${tier2Total.toLocaleString()}</span>
+                  </div>
+                  <button
+                    onClick={handleAddTier2ToCart}
+                    id="tier2-add-to-cart"
+                    className="w-full sm:w-auto px-8 py-3 bg-[#c0f20c] text-black hover:bg-[#aacc00] font-display font-bold text-xs uppercase tracking-widest rounded transition-all shadow-[0_4px_15px_rgba(192,242,12,0.1)] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ShoppingBag className="w-4 h-4 stroke-[2]" /> ADD TO CART
+                  </button>
                 </div>
-                <button
-                  onClick={handleAddTier2ToCart}
-                  id="tier2-add-to-cart"
-                  className="w-full sm:w-auto px-8 py-3 bg-[#c0f20c] text-black hover:bg-[#aacc00] font-display font-bold text-xs uppercase tracking-widest rounded transition-all shadow-[0_4px_15px_rgba(192,242,12,0.1)] flex items-center justify-center gap-2"
-                >
-                  <ShoppingBag className="w-4 h-4 stroke-[2]" /> ADD TO CART
-                </button>
+
               </div>
 
             </div>
+          </section>
 
-          </div>
-        </section>
+          {/* =========================================================================
+              TIER 3 SECTION — SIMPLE PART (ETI TITANIUM HARDWARE KIT)
+              ========================================================================= */}
+          <section className="pt-8 border-t border-neutral-950 space-y-6">
+            <div className="text-[10px] font-mono tracking-widest text-[#c0f20c] uppercase">
+              TIER 3 — SIMPLE PART (TITANIUM, MANIFOLDS): NO BUILDER, JUST FINISH AND GO
+            </div>
 
-        {/* =========================================================================
-            TIER 3 SECTION — SIMPLE PART (ETI TITANIUM HARDWARE KIT)
-            ========================================================================= */}
-        <section className="pt-8 border-t border-neutral-950 space-y-6">
-          <div className="text-[10px] font-mono tracking-widest text-[#c0f20c] uppercase">
-            TIER 3 — SIMPLE PART (TITANIUM, MANIFOLDS): NO BUILDER, JUST FINISH AND GO
-          </div>
-
-          <div className="bg-[#050505] rounded border border-neutral-900 p-5 md:p-6 flex flex-col md:flex-row items-stretch justify-between gap-6">
-            
-            {/* Left Col: Info panel */}
-            <div className="flex-1 flex gap-4 items-start">
+            <div className="bg-[#050505] rounded border border-neutral-900 p-5 md:p-6 flex flex-col md:flex-row items-stretch justify-between gap-6">
               
-              {/* Box or avatar icon representation */}
-              <div className="w-12 h-12 shrink-0 rounded bg-neutral-950 border border-neutral-900 flex items-center justify-center text-[#c0f20c]">
-                <Cpu className="w-5 h-5" />
+              <div className="flex-1 flex gap-4 items-start">
+                
+                <div className="w-12 h-12 shrink-0 rounded bg-neutral-950 border border-neutral-900 flex items-center justify-center text-[#c0f20c]">
+                  <Cpu className="w-5 h-5" />
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-display font-bold text-sm text-white uppercase tracking-wider">
+                      ETI TITANIUM HARDWARE KIT
+                    </h3>
+                    <span className="text-[8px] font-mono text-[#c0f20c] uppercase tracking-widest px-1.5 py-0.5 border border-[#c0f20c]/35 rounded bg-[#c0f20c]/5 font-bold">
+                      ETI ORIGINAL • IN-HOUSE
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
+                    GRADE 5 TITANIUM • M10 × 1.25 SEAT-RAIL SPEC • SHIPS BY COURIER
+                  </p>
+                </div>
+
               </div>
 
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5">
-                  <h3 className="font-display font-bold text-sm text-white uppercase tracking-wider">
-                    ETI TITANIUM HARDWARE KIT
-                  </h3>
-                  <span className="text-[8px] font-mono text-[#c0f20c] uppercase tracking-widest px-1.5 py-0.5 border border-[#c0f20c]/35 rounded bg-[#c0f20c]/5 font-bold">
-                    ETI ORIGINAL • IN-HOUSE
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 shrink-0 min-w-0">
+                
+                <div className="flex border border-neutral-800 rounded bg-black h-9 p-0.5">
+                  <button
+                    onClick={() => {
+                      setTier3(prev => ({ ...prev, finish: 'raw_ti' }));
+                      triggerToast("Titanium Finish configured to RAW METALLIC TI");
+                    }}
+                    className={`px-3 py-1.5 text-[9px] font-mono font-bold tracking-widest rounded uppercase transition-all cursor-pointer ${
+                      tier3.finish === 'raw_ti'
+                        ? 'bg-neutral-800 text-white'
+                        : 'text-neutral-500 hover:text-neutral-300'
+                    }`}
+                  >
+                    RAW TI
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTier3(prev => ({ ...prev, finish: 'burnt_blue' }));
+                      triggerToast("Titanium Finish configured to BURNT BLUE dynamic spectrum");
+                    }}
+                    className={`px-3 py-1.5 text-[9px] font-mono font-bold tracking-widest rounded uppercase transition-all cursor-pointer ${
+                      tier3.finish === 'burnt_blue'
+                        ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30'
+                        : 'text-neutral-500 hover:text-neutral-300'
+                    }`}
+                  >
+                    BURNT BLUE
+                  </button>
+                </div>
+
+                <div className="flex items-center border border-neutral-800 rounded bg-black h-9">
+                  <button
+                    onClick={() => setTier3(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                    className="px-2.5 h-full text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    -
+                  </button>
+                  <span className="px-3 text-xs font-mono font-bold text-white min-w-[20px] text-center">
+                    {tier3.quantity}
                   </span>
+                  <button
+                    onClick={() => setTier3(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                    className="px-2.5 h-full text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    +
+                  </button>
                 </div>
-                <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
-                  GRADE 5 TITANIUM • M10 × 1.25 SEAT-RAIL SPEC • SHIPS BY COURIER
-                </p>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <span className="text-[9px] font-mono text-neutral-500 block uppercase">SUBTOTAL</span>
+                    <span className="font-mono text-base font-bold text-[#c0f20c]">${tier3Total.toLocaleString()}</span>
+                  </div>
+                  <button
+                    onClick={handleAddTier3ToCart}
+                    id="tier3-add-to-cart"
+                    className="px-6 py-2.5 bg-neutral-900 border border-neutral-800 text-white hover:text-black hover:bg-[#c0f20c] hover:border-transparent font-display font-bold text-xs uppercase tracking-widest rounded transition-all cursor-pointer"
+                  >
+                    ADD TO CART
+                  </button>
+                </div>
+
               </div>
 
             </div>
+          </section>
 
-            {/* Right Col: selectors & qty button */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 shrink-0 min-w-0">
-              
-              {/* Option switch raw vs burnt */}
-              <div className="flex border border-neutral-800 rounded bg-black h-9 p-0.5">
-                <button
-                  onClick={() => {
-                    setTier3(prev => ({ ...prev, finish: 'raw_ti' }));
-                    triggerToast("Titanium Finish configured to RAW METALLIC TI");
-                  }}
-                  className={`px-3 py-1.5 text-[9px] font-mono font-bold tracking-widest rounded uppercase transition-all ${
-                    tier3.finish === 'raw_ti'
-                      ? 'bg-neutral-800 text-white'
-                      : 'text-neutral-500 hover:text-neutral-300'
-                  }`}
-                >
-                  RAW TI
-                </button>
-                <button
-                  onClick={() => {
-                    setTier3(prev => ({ ...prev, finish: 'burnt_blue' }));
-                    triggerToast("Titanium Finish configured to BURNT BLUE dynamic spectrum");
-                  }}
-                  className={`px-3 py-1.5 text-[9px] font-mono font-bold tracking-widest rounded uppercase transition-all ${
-                    tier3.finish === 'burnt_blue'
-                      ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30'
-                      : 'text-neutral-500 hover:text-neutral-300'
-                  }`}
-                >
-                  BURNT BLUE
-                </button>
-              </div>
+        </main>
+      )}
 
-              {/* Quantity Changer */}
-              <div className="flex items-center border border-neutral-800 rounded bg-black h-9">
-                <button
-                  onClick={() => setTier3(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
-                  className="px-2.5 h-full text-neutral-400 hover:text-white transition-colors"
-                >
-                  -
-                </button>
-                <span className="px-3 text-xs font-mono font-bold text-white min-w-[20px] text-center">
-                  {tier3.quantity}
-                </span>
-                <button
-                  onClick={() => setTier3(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
-                  className="px-2.5 h-full text-neutral-400 hover:text-white transition-colors"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Price & Cart CTA */}
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <span className="text-[9px] font-mono text-neutral-500 block uppercase">SUBTOTAL</span>
-                  <span className="font-mono text-base font-bold text-[#c0f20c]">${tier3Total.toLocaleString()}</span>
-                </div>
-                <button
-                  onClick={handleAddTier3ToCart}
-                  id="tier3-add-to-cart"
-                  className="px-6 py-2.5 bg-neutral-900 border border-neutral-800 text-white hover:text-black hover:bg-[#c0f20c] hover:border-transparent font-display font-bold text-xs uppercase tracking-widest rounded transition-all"
-                >
-                  ADD TO CART
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-        </section>
-
-      </main>
+      {currentPage === 'story' && (
+        <AboutUs />
+      )}
 
       {/* Slide Drawer Cart */}
       <CartDrawer
@@ -1249,12 +3194,111 @@ export default function App() {
         onClearCart={() => setCart([])}
       />
 
-      {/* Bottom Legal footer notes */}
-      <footer className="mt-20 border-t border-neutral-950 bg-[#020202] py-8 text-center text-neutral-600 text-[10px] font-mono tracking-widest uppercase">
-        <p>© 2026 ELITE TI CO., LTD. • ALL CHASSIS TRADEMARKS DESIGNED BY RESPECTIVE MANUFACTURERS</p>
-        <p className="mt-1 text-neutral-800">POWERED BY SHOPIFY SECURE API PORTAL • TOKYO ATELIER LABS</p>
+      {/* DETAILED STORE FOOTER — Styled identically to the theme export */}
+      <footer className="mt-20 border-t border-neutral-900 bg-[#070708] pt-16 pb-8 text-neutral-400">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 border-b border-neutral-900 pb-12">
+          
+          {/* Brand block (logo + description + social links) */}
+          <div className="lg:col-span-2 space-y-6">
+            <img src="/images/logo.png" alt="Elite TI Logo" className="h-9 w-auto object-contain" />
+            <p className="text-xs font-mono uppercase tracking-wide leading-relaxed text-neutral-400 max-w-sm">
+              Bespoke carbon and titanium for JDM and motorsport. Race-engineered, made to order, shipped worldwide.
+            </p>
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 rounded border border-neutral-800 flex items-center justify-center hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors">
+                <span className="text-xs font-mono font-bold">FB</span>
+              </a>
+              <a href="#" className="w-10 h-10 rounded border border-neutral-800 flex items-center justify-center hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors">
+                <span className="text-xs font-mono font-bold">IG</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Menu links */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-900 pb-2">MENU LINKS</h4>
+            <ul className="space-y-2 font-mono text-[11px]">
+              <li><button onClick={() => setCurrentPage('home')} className="hover:text-white transition-colors cursor-pointer uppercase">HOME</button></li>
+              <li><button onClick={() => setCurrentPage('story')} className="hover:text-white transition-colors cursor-pointer uppercase">ABOUT US</button></li>
+              <li><button className="hover:text-white transition-colors cursor-pointer uppercase">TRACK ORDER</button></li>
+            </ul>
+          </div>
+
+          {/* Shop by vehicle */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-900 pb-2">SHOP BY VEHICLE</h4>
+            <ul className="space-y-2 font-mono text-[11px]">
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">RX7 / FD3S</button></li>
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">SUPRA MK4</button></li>
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">SUPRA MK5</button></li>
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">NISSAN R34 GTR</button></li>
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">SHOP ALL</button></li>
+            </ul>
+          </div>
+
+          {/* Quick links & supports */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-900 pb-2">QUICK LINKS</h4>
+            <ul className="space-y-2 font-mono text-[11px]">
+              <li><button className="hover:text-white transition-colors cursor-pointer uppercase">BLOG</button></li>
+              <li><button className="hover:text-white transition-colors cursor-pointer uppercase">SEARCH</button></li>
+              <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">CATALOG</button></li>
+              <li><button className="hover:text-white transition-colors cursor-pointer uppercase">WHOLESALE</button></li>
+            </ul>
+          </div>
+
+        </div>
+
+        {/* OFFICES/LOCATIONS GRID */}
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-10 grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-neutral-900 text-xs font-mono uppercase tracking-wider text-neutral-400">
+          <div>
+            <span className="text-white font-bold block mb-2">UNITED STATES</span>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              41W972 Compton Hills Rd<br />Elburn, IL 60119<br />United States
+            </p>
+          </div>
+          <div>
+            <span className="text-white font-bold block mb-2">THAILAND</span>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              136/5 Charoen Suk Alley<br />Thung Khru, Bangkok<br />10140
+            </p>
+          </div>
+          <div>
+            <span className="text-white font-bold block mb-2">HONG KONG</span>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              Suite C, Level 7, World Trust Tower<br />58 Stanley Street, Central<br />Hong Kong
+            </p>
+          </div>
+          <div>
+            <span className="text-white font-bold block mb-2">CONTACT</span>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              +1 682 332 2322<br />+66 8624484553 (WhatsApp)<br />NATE@MYELITETI.COM
+            </p>
+          </div>
+        </div>
+
+        {/* BOTTOM METADATA & COPYRIGHT */}
+        <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-mono tracking-widest uppercase text-neutral-600">
+          <div className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
+            <span>&copy; {new Date().getFullYear()} ELITE TI. All rights reserved.</span>
+            <a href="#" className="hover:text-white transition-colors">Refund policy</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy policy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms of service</a>
+            <a href="#" className="hover:text-white transition-colors">Shipping policy</a>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-[9px] text-neutral-550">SECURE CHECKOUT</span>
+            <div className="flex gap-2">
+              <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">AMEX</span>
+              <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">VISA</span>
+              <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">APPLE PAY</span>
+              <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">GOOGLE PAY</span>
+            </div>
+          </div>
+        </div>
       </footer>
-      
+
     </div>
   );
 }
