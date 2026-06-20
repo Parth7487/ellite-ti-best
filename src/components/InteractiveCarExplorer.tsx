@@ -76,7 +76,7 @@ const z350Components: ComponentItem[] = [
     price: 2105,
     description: 'High-downforce front bumper replacement with an integrated carbon splitter and enlarged intakes to feed high-flow cooling ducts.',
     specs: ['Bespoke prepreg vacuum carbon', 'Engineered intake dams for radiator airflow', 'Direct bolt-on replacement fitting stock crash bars'],
-    position: { top: '70%', left: '60%' },
+    position: { top: '76%', left: '92%' },
     image: '/images/350z-hero-0.jpg'
   },
   {
@@ -85,7 +85,7 @@ const z350Components: ComponentItem[] = [
     price: 2805,
     description: 'Bespoke front fenders adding +50mm track width per side. Sculpted vents alleviate turbulent high-pressure pocket drag inside the wheel wells.',
     specs: ['Weight savings: -4.2kg per fender', 'Aerodynamic heat-extraction vents', 'Compatible with stock liners'],
-    position: { top: '58%', left: '46%' },
+    position: { top: '68%', left: '80%' },
     image: '/images/350z-hero-1.jpg'
   },
   {
@@ -94,16 +94,15 @@ const z350Components: ComponentItem[] = [
     price: 2105,
     description: 'Extended profile side skirts that manage side airflow, preventing high-pressure drafts from leaking underneath the flat bottom under-tray.',
     specs: ['Grade 5 titanium under-fasteners included', 'Vacuum bagged carbon fiber structure', 'Designed for optimal ground clearance'],
-    position: { top: '72%', left: '36%' },
+    position: { top: '84%', left: '50%' },
     image: '/images/350z-hero-8.jpg'
-  },
-  {
+  },  {
     id: 'rear-fender',
     name: 'Widebody Rear Fenders',
     price: 3505,
     description: 'Over-fender rear extensions adding +60mm width. Permits wider track setups, aggressive offsets, and wider performance compounds.',
     specs: ['Ultra-light high-tensile carbon build', 'Seamless body flare integration lines', 'Bakes in autoclave at 120°C'],
-    position: { top: '55%', left: '26%' },
+    position: { top: '66%', left: '24%' },
     image: '/images/350z-hero-9.jpg'
   },
   {
@@ -112,7 +111,7 @@ const z350Components: ComponentItem[] = [
     price: 2105,
     description: 'Bespoke rear bumper cover with integrated drag-reduction vents and optimized exhaust exits to clean rear turbulent wake.',
     specs: ['Autoclave cured prepreg carbon', 'Direct bolt-on design', 'High UV protective glossy coat'],
-    position: { top: '70%', left: '16%' },
+    position: { top: '78%', left: '10%' },
     image: '/images/350z-hero-0.jpg'
   },
   {
@@ -121,7 +120,7 @@ const z350Components: ComponentItem[] = [
     price: 1895,
     description: 'Dry carbon deck lid spoiler designed specifically for the Z33 chassis to improve rear downforce coefficients at track speeds.',
     specs: ['Calculated foil coordinates', 'Subtle trunk layout alignment', 'Mounts using reinforced structural backing plates'],
-    position: { top: '48%', left: '20%' },
+    position: { top: '63%', left: '16%' },
     image: '/images/350z-hero-1.jpg'
   }
 ];
@@ -136,7 +135,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
   const [activeChassis, setActiveChassis] = useState<'350z' | 'supra'>('350z');
 
   const componentsList = activeChassis === '350z' ? z350Components : supraComponents;
-  const chassisImage = activeChassis === '350z' ? '/images/350z-hero-1.jpg' : '/images/SUPRA green3.jpg';
+  const chassisImage = activeChassis === '350z' ? '/images/350z-side.png' : '/images/SUPRA green3.jpg';
   const completeKitPrice = activeChassis === '350z' ? 13800 : 9800;
   const completeKitTitle = activeChassis === '350z' ? '350Z Complete Aero Kit' : 'Supra Complete Aero Kit';
 
