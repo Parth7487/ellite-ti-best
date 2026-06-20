@@ -49,7 +49,7 @@ export default function CartDrawer({
         onClick={onClose}
       />
 
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div className="w-screen max-w-md bg-[#080808] border-l border-neutral-800 flex flex-col shadow-2xl relative">
           
           {/* Header */}

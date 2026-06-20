@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, X, ShoppingCart, Shield, ArrowRight, Trophy } from 'lucide-react';
+import { Plus, X, ShoppingBag, Shield, ArrowRight, Trophy } from 'lucide-react';
 
 interface ComponentItem {
   id: string;
@@ -182,7 +182,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
           </motion.div>
 
           {/* Immersive JDM Chassis Selector */}
-          <div className="flex gap-2 font-mono text-[9px] uppercase tracking-wider self-start lg:self-end">
+          <div className="flex flex-wrap gap-2 font-mono text-[9px] uppercase tracking-wider self-start lg:self-end">
             <button 
               onClick={() => handleChassisChange('350z')}
               className={`px-4 py-2 border transition-all cursor-pointer ${activeChassis === '350z' ? 'bg-[#c0f20c] border-[#c0f20c] text-black font-bold' : 'border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-white'}`}
@@ -357,7 +357,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
                           onClick={() => onAddToCart({ id: activeData.id, title: activeData.name, price: activeData.price, category: 'carbon' })}
                           className="w-full h-11 bg-[#c0f20c] hover:bg-[#aacc00] text-black font-mono text-[10px] tracking-widest uppercase font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer border-0"
                         >
-                          <ShoppingCart className="w-3.5 h-3.5 stroke-[2]" />
+                          <ShoppingBag className="w-3.5 h-3.5 stroke-[2]" />
                           ALLOCATE COMPONENT
                         </button>
                         <button 
@@ -439,7 +439,7 @@ export const InteractiveCarExplorer: React.FC<InteractiveCarExplorerProps> = ({ 
                       onClick={() => onAddToCart({ id: activeChassis === '350z' ? 'z33-aero-kit' : 'supra-aero-kit', title: completeKitTitle, price: completeKitPrice, category: 'carbon' })}
                       className="w-full h-11 bg-neutral-900 hover:bg-[#c0f20c] text-white hover:text-black border border-neutral-800 hover:border-transparent font-mono text-[10px] tracking-widest uppercase font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <ShoppingCart className="w-3.5 h-3.5 stroke-[2]" />
+                      <ShoppingBag className="w-3.5 h-3.5 stroke-[2]" />
                       ALLOCATE COMPLETE AERO KIT (${completeKitPrice.toLocaleString()})
                     </button>
                   </motion.div>

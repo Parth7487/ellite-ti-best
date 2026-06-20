@@ -24,7 +24,7 @@ const titaniumProducts: Product[] = [
   {
     id: 'ti_turbo_guard',
     title: 'ETI UNIVERSAL TITANIUM TURBO GUARD',
-    price: 287,
+    price: 289,
     image: '/images/prod_ti_turbo_guard.jpg',
     eyebrow: 'Universal Fitment',
     fitment: 'Universal'
@@ -120,7 +120,7 @@ const titaniumProducts: Product[] = [
   {
     id: 'ti_rx7_key',
     title: 'ETI RX-7 TITANIUM KEY',
-    price: 49.99,
+    price: 125,
     image: '/images/prod_rx7_key.jpg',
     eyebrow: 'Mazda RX-7 FD3S',
     fitment: 'Mazda'
@@ -132,6 +132,57 @@ const titaniumProducts: Product[] = [
     image: '/images/prod_fk_exhaust.jpg',
     eyebrow: 'Civic Type R FK8',
     fitment: 'Honda'
+  },
+  {
+    id: 'ti_rx7_wheel_studs',
+    title: 'ETI RX-7 TITANIUM WHEEL STUDS 55MM',
+    price: 90,
+    image: '/images/prod_rx7_wheel_studs.jpg',
+    eyebrow: 'Mazda RX-7 FD3S',
+    fitment: 'Mazda',
+    isSale: true
+  },
+  {
+    id: 'ti_rx7_key_fd',
+    title: 'ETI RX-7 TITANIUM KEY (FB/FC/FD)',
+    price: 125,
+    image: '/images/prod_rx7_ti_key.jpg',
+    eyebrow: 'Mazda RX-7 All Generations',
+    fitment: 'Mazda'
+  },
+  {
+    id: 'ti_350z_hw_kit',
+    title: 'ETI 350Z TITANIUM HARDWARE KIT',
+    price: 250,
+    image: '/images/prod_350z_ti_hardware_kit.png',
+    eyebrow: 'Nissan 350Z (Z33)',
+    fitment: 'Nissan',
+    isSale: true
+  },
+  {
+    id: 'ti_supra_bolt_kit_v2',
+    title: 'MKIV SUPRA TITANIUM FULL BOLT KIT',
+    price: 560,
+    image: '/images/prod_supra_bolt_kit.jpg',
+    eyebrow: 'Supra MK4 (JZA80) Stage 2',
+    fitment: 'Toyota'
+  },
+  {
+    id: 'ti_evo_manifold',
+    title: 'ETI EVO 9 4G63 TURBO MANIFOLD',
+    price: 2650,
+    image: '/images/prod_evo_manifold.jpg',
+    eyebrow: 'Mitsubishi Lancer Evo 9',
+    fitment: 'Mitsubishi',
+    isSale: true
+  },
+  {
+    id: 'ti_ek_strut_bar',
+    title: 'ETI EK CIVIC TITANIUM STRUT BAR',
+    price: 1100,
+    image: '/images/prod_ek_strut_bar.png',
+    eyebrow: 'Civic EK (96–00) B-Series',
+    fitment: 'Honda'
   }
 ];
 
@@ -141,7 +192,7 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
   const [sortBy, setSortBy] = useState<string>('Featured');
   const [filterDrawerOpen, setFilterDrawerOpen] = useState<boolean>(false);
 
-  const fitmentFilters = ['All', 'Toyota', 'Nissan', 'Honda', 'Mazda', 'Universal'];
+  const fitmentFilters = ['All', 'Toyota', 'Nissan', 'Honda', 'Mazda', 'Mitsubishi', 'Universal'];
 
   const filteredProducts = products
     .filter(p => {
@@ -166,27 +217,7 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
 
   const handleProductAction = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
-    const cartId = `titanium-${product.id}-${Date.now()}`;
-    const newCartItem: CartItem = {
-      id: cartId,
-      title: product.title,
-      subtitle: `${product.eyebrow} / TITANIUM`,
-      imageType: 'tier3',
-      qty: 1,
-      unitPrice: product.price,
-      totalPrice: product.price,
-      selectedOptions: [
-        { label: 'Fitment Spec', value: product.eyebrow.toUpperCase() },
-        { label: 'Material', value: 'GRADE 5 TITANIUM' }
-      ],
-      specDetails: [
-        `Fitment: ${product.eyebrow}`,
-        `Material: Grade 5 Titanium`
-      ]
-    };
-
-    onAddToCart(newCartItem);
-    triggerToast(`✨ Added ${product.title} to cart!`);
+    onNavigate(`/products/${product.id}`);
   };
 
   return (
@@ -208,17 +239,11 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
         <p className="eti-collection-subtitle">
           Exotic burned titanium manifolds, strut bars, key blanks, pulley kits, and exhaust systems. Race-engineered strength and weight reduction.
         </p>
-        <div className="eti-collection-meta" aria-label="Collection metadata">
-          <span>{products.length} pieces</span>
-          <span aria-hidden="true" className="eti-meta-dot">·</span>
-          <span>Made to Order</span>
-          <span aria-hidden="true" className="eti-meta-dot">·</span>
-          <span>6–8 Week Lead Time</span>
-        </div>
+
       </header>
 
       {/* Filter / Sort bar */}
-      <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12 py-4 border-t border-b border-neutral-900 flex justify-between items-center text-xs font-mono mb-8 bg-[#0a0a0b]/80 sticky top-[64px] z-20 backdrop-blur-md">
+      <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12 py-4 border-t border-b border-neutral-900 flex flex-col sm:flex-row gap-4 justify-between sm:items-center text-xs font-mono mb-8 bg-[#0a0a0b]/80 sticky top-[76px] z-20 backdrop-blur-md">
         
         {/* Left: Filter Trigger */}
         <div className="flex items-center gap-3">
@@ -232,14 +257,14 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
         </div>
 
         {/* Center/Right: Sort and Count */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <span className="text-neutral-500 uppercase">SORT BY:</span>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#030303] border border-neutral-900 text-white focus:outline-none pr-8 pl-2 py-1 appearance-none cursor-pointer font-bold"
+                className="bg-[#030303] border border-neutral-900 text-white focus:outline-none pr-8 pl-2 py-1 appearance-none cursor-pointer font-bold text-[10px]"
               >
                 <option value="Featured">FEATURED</option>
                 <option value="Alphabetically, A-Z">ALPHABETICALLY, A-Z</option>
@@ -250,7 +275,7 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
               <ChevronDown className="w-3.5 h-3.5 text-neutral-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
-          <span className="text-neutral-500 hidden md:inline">
+          <span className="text-neutral-500">
             {filteredProducts.length} PRODUCTS
           </span>
         </div>
@@ -258,7 +283,7 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
 
       {/* Filter Options Panel */}
       {filterDrawerOpen && (
-        <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12 py-6 border-b border-neutral-900 grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 text-xs font-mono animate-fadeIn">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12 py-6 border-b border-neutral-900 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-xs font-mono animate-fadeIn">
           <div>
             <h4 className="text-neutral-500 mb-3 uppercase tracking-wider">FILTER BY VEHICLE FITMENT:</h4>
             <div className="flex flex-wrap gap-2">
@@ -277,13 +302,13 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
               ))}
             </div>
           </div>
-          <div className="flex flex-col justify-between items-end">
+          <div className="flex flex-col justify-end items-start md:items-end gap-2">
             <button
               onClick={() => {
                 setSelectedFitment('All');
                 setFilterDrawerOpen(false);
               }}
-              className="text-neutral-500 hover:text-white underline cursor-pointer bg-transparent border-0"
+              className="text-neutral-500 hover:text-white underline cursor-pointer bg-transparent border-0 py-1"
             >
               RESET FILTERS
             </button>
@@ -293,7 +318,7 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
 
       {/* Products Grid */}
       <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {filteredProducts.map((p, index) => (
             <a 
               key={p.id}

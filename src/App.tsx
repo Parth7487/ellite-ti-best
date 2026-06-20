@@ -13,6 +13,9 @@ import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
 import { ModelFinder } from './components/ModelFinder';
 import { StoreMap } from './components/StoreMap';
 import { AboutUs } from './components/AboutUs';
+import TitaniumCatalog from './components/TitaniumCatalog';
+import ProductDetail from './components/ProductDetail';
+import ContactPage from './components/ContactPage';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -33,7 +36,10 @@ import {
   Layers,
   ArrowRight,
   User,
-  ShoppingCart
+  Car,
+  ShoppingCart,
+  Menu,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -318,6 +324,111 @@ const catalogProducts: CatalogProduct[] = [
     category: 'titanium',
     eyebrow: 'Nissan 350Z',
     isConfigurable: true
+  },
+
+  // Additional Body Kits
+  {
+    id: 'prod_gr86_pandem_kit',
+    title: 'GR86 PANDEM V1 WIDEBODY KIT',
+    price: 4750,
+    image: '/images/prod_gr86_pandem_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Toyota GR86 (ZN8)'
+  },
+  {
+    id: 'prod_370z_allure_widebody',
+    title: '370Z ETi ALLURE WIDEBODY W1 KIT',
+    price: 5750,
+    image: '/images/prod_370z_allure_widebody.jpg',
+    category: 'body-kits',
+    eyebrow: 'Nissan 370Z (Z34)',
+    isSale: true
+  },
+  {
+    id: 'prod_rx7_rocket_bunny',
+    title: 'RX-7 ROCKET BUNNY WIDE BODY KIT',
+    price: 5250,
+    image: '/images/prod_rx7_rocket_bunny.jpg',
+    category: 'body-kits',
+    eyebrow: 'Mazda RX-7 FD3S'
+  },
+  {
+    id: 'prod_rx8_pandem_kit',
+    title: 'RX-8 PANDEM BODY KIT',
+    price: 4200,
+    image: '/images/prod_rx8_pandem_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Mazda RX-8 SE3P'
+  },
+
+  // Additional Hoods
+  {
+    id: 'prod_supra_trd_hood',
+    title: 'SUPRA MKIV TRD CARBON FIBER HOOD',
+    price: 1650,
+    image: '/images/prod_supra_trd_hood.jpg',
+    category: 'hoods',
+    eyebrow: 'Toyota Supra MKIV (JZA80)'
+  },
+  {
+    id: 'prod_supra_veilside_hood',
+    title: 'SUPRA MKIV VEILSIDE CARBON FIBER HOOD',
+    price: 1750,
+    image: '/images/prod_supra_veilside_hood.jpg',
+    category: 'hoods',
+    eyebrow: 'Toyota Supra MKIV (JZA80)'
+  },
+  {
+    id: 'prod_supra_abflug_hood',
+    title: 'SUPRA MKIV AB FLUG CARBON FIBER HOOD',
+    price: 1850,
+    image: '/images/prod_supra_abflug_hood.jpg',
+    category: 'hoods',
+    eyebrow: 'Toyota Supra MKIV (JZA80)',
+    isSale: true
+  },
+  {
+    id: 'prod_370z_ts_hood',
+    title: '370Z TOP SECRET STYLE CARBON FIBER HOOD',
+    price: 1550,
+    image: '/images/prod_370z_ts_hood.jpg',
+    category: 'hoods',
+    eyebrow: 'Nissan 370Z (Z34)'
+  },
+  {
+    id: 'prod_350z_cf_roof',
+    title: '350Z CARBON FIBER ROOF REPLACEMENT',
+    price: 1950,
+    image: '/images/prod_350z_cf_roof.jpg',
+    category: 'hoods',
+    eyebrow: 'Nissan 350Z (Z33)'
+  },
+  {
+    id: 'prod_gt86_cf_roof',
+    title: 'GT86 / FT86 CARBON FIBER ROOF',
+    price: 1650,
+    image: '/images/prod_gt86_cf_roof.jpg',
+    category: 'hoods',
+    eyebrow: 'Toyota GT86 / Subaru BRZ'
+  },
+  {
+    id: 'prod_r35_cf_roof',
+    title: 'R35 GT-R CARBON FIBER ROOF',
+    price: 2250,
+    image: '/images/prod_r35_cf_roof.jpg',
+    category: 'hoods',
+    eyebrow: 'Nissan GT-R R35'
+  },
+
+  // Additional Aero
+  {
+    id: 'prod_s2000_js_hood',
+    title: 'S2000 J\'S RACING STYLE CARBON FIBER HOOD',
+    price: 1350,
+    image: '/images/prod_s2000_js_hood.jpg',
+    category: 'aero',
+    subCategory: 'detail',
+    eyebrow: 'Honda S2000 (AP1/AP2)'
   }
 ];
 
@@ -417,11 +528,91 @@ const matchSearchQuery = (product: CatalogProduct, query: string): boolean => {
   return false;
 };
 
+const ScrollDrifter = () => {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [rotation, setRotation] = useState(0);
+  const lastScrollY = useRef(0);
+  const timeoutRef = useRef<any>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight <= 0) return;
+      const progress = window.scrollY / totalHeight;
+      setScrollProgress(progress);
+
+      const currentScrollY = window.scrollY;
+      const diff = currentScrollY - lastScrollY.current;
+      lastScrollY.current = currentScrollY;
+
+      if (diff > 0) {
+        setRotation(20); // drift right
+      } else if (diff < 0) {
+        setRotation(-20); // drift left
+      }
+
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setRotation(0);
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  return (
+    <div className="fixed right-6 bottom-16 z-50 flex flex-col items-center select-none pointer-events-none hidden md:flex">
+      <div className="h-40 w-1 bg-neutral-900/60 rounded-full relative flex justify-center border-l border-dashed border-neutral-850">
+        <div 
+          className="absolute top-0 w-[2px] bg-[#c0f20c] rounded-full transition-all duration-100"
+          style={{ height: `${scrollProgress * 100}%` }}
+        />
+        <div 
+          className="absolute transition-all duration-75"
+          style={{ 
+            top: `calc(${scrollProgress * 100}% - 16px)`,
+            transform: `rotate(${rotation + 180}deg) scale(1.35)`,
+            transformOrigin: 'center center'
+          }}
+        >
+          <img 
+            src="/images/top_down_car_drifter.png" 
+            alt="Drifting Car" 
+            className="w-8 h-8 object-contain filter drop-shadow-[0_0_8px_rgba(192,242,12,0.6)]"
+          />
+        </div>
+      </div>
+      <span className="text-[8px] font-mono tracking-widest text-neutral-500 uppercase mt-4">DRIFT SCROLL</span>
+    </div>
+  );
+};
+
+const BrandLogos: Record<string, React.ReactNode> = {
+  'MAZDA': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mazda.png" className="w-6 h-6 object-contain shrink-0" alt="Mazda" />,
+  'TOYOTA': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/toyota.png" className="w-6 h-6 object-contain shrink-0" alt="Toyota" />,
+  'NISSAN': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/nissan.png" className="w-6 h-6 object-contain shrink-0" alt="Nissan" />,
+  'MITSUBISHI': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mitsubishi.png" className="w-6 h-6 object-contain shrink-0" alt="Mitsubishi" />,
+  'HONDA': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/honda.png" className="w-6 h-6 object-contain shrink-0" alt="Honda" />,
+  'SUBARU': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/subaru.png" className="w-6 h-6 object-contain shrink-0" alt="Subaru" />,
+  'BMW': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/bmw.png" className="w-6 h-6 object-contain shrink-0" alt="BMW" />,
+  'MERCEDES-BENZ': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mercedes-benz.png" className="w-6 h-6 object-contain shrink-0" alt="Mercedes-Benz" />,
+  'PORSCHE': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/porsche.png" className="w-6 h-6 object-contain shrink-0" alt="Porsche" />,
+  'LAMBORGHINI': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/lamborghini.png" className="w-6 h-6 object-contain shrink-0" alt="Lamborghini" />,
+  'CHEVROLET': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/chevrolet.png" className="w-6 h-6 object-contain shrink-0" alt="Chevrolet" />,
+  'FORD': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/ford.png" className="w-6 h-6 object-contain shrink-0" alt="Ford" />,
+  'TESLA': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/tesla.png" className="w-6 h-6 object-contain shrink-0" alt="Tesla" />
+};
+
 export default function App() {
   // --- Cart State ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [shopByCarOpen, setShopByCarOpen] = useState(false);
+  const [isHeroHidden, setIsHeroHidden] = useState(false);
   const [activeCar, setActiveCar] = useState('Nissan 350Z');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const productImages = [
@@ -688,8 +879,10 @@ export default function App() {
   };
 
   // Page state routing
-  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact'>('home');
+  const [selectedProductDetail, setSelectedProductDetail] = useState<any | null>(null);
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Custom Interactive states & datasets for newly added sections and pages
   const [activeSlide, setActiveSlide] = useState(0);
@@ -716,6 +909,7 @@ export default function App() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
+      setIsHeroHidden(window.scrollY > 1150);
       
       let currentSection = 'cat-body-kits';
       for (const id of ['cat-body-kits', 'cat-aero', 'cat-interior', 'cat-hoods', 'cat-engine', 'cat-titanium']) {
@@ -740,8 +934,8 @@ export default function App() {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '0px 0px -5% 0px',
-      threshold: 0.02
+      rootMargin: '0px 0px 300px 0px',
+      threshold: 0.01
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -789,28 +983,17 @@ export default function App() {
       return;
     }
 
-    const cartId = `catalog-${product.id}-${Date.now()}`;
-    const newCartItem: CartItem = {
-      id: cartId,
+    // Redirect directly to the product detail/preview page
+    const detailProduct = {
+      id: product.id,
       title: product.title,
-      subtitle: `${product.eyebrow} / ${product.category.toUpperCase()}`,
-      imageType: product.id.includes('350z') ? 'tier1' : 'tier3',
-      qty: 1,
-      unitPrice: product.price,
-      totalPrice: product.price,
-      selectedOptions: [
-        { label: 'Fitment Spec', value: product.eyebrow.toUpperCase() },
-        { label: 'Category', value: product.category.toUpperCase() }
-      ],
-      specDetails: [
-        `Fitment: ${product.eyebrow}`,
-        `Material/Type: ${product.category}`
-      ]
+      price: product.price,
+      image: product.image,
+      eyebrow: product.eyebrow,
+      fitment: product.eyebrow.split(' ')[0] || 'Universal',
     };
-
-    setCart((prev) => [...prev, newCartItem]);
-    setIsCartOpen(true);
-    triggerToast(`✨ Added ${product.title} to cart!`);
+    setSelectedProductDetail(detailProduct);
+    setCurrentPage('product-detail');
   };
 
   // Grouped products
@@ -1048,9 +1231,10 @@ export default function App() {
                           setCurrentPage('catalog');
                           setVehiclesMenuOpen(false);
                         }}
-                        className="hover:text-white transition-colors cursor-pointer text-left w-full uppercase bg-transparent border-0"
+                        className="hover:text-white transition-colors cursor-pointer text-left w-full uppercase bg-transparent border-0 flex items-center gap-3 py-1.5"
                       >
-                        {make}
+                        {BrandLogos[make]}
+                        <span>{make}</span>
                       </button>
                     ))}
                   </motion.div>
@@ -1062,7 +1246,7 @@ export default function App() {
             <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
             <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
-            <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">CONTACT</button>
+            <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
           </nav>
 
@@ -1080,9 +1264,7 @@ export default function App() {
                     : 'bg-[#111112] border-neutral-850 text-neutral-300 hover:border-neutral-700'
                 }`}
               >
-                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor">
-                  <path d="M2.5 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm11 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM1 7l1.5-4h11L15 7v4h-1.05a2 2 0 0 0-3.9 0H5.95a2 2 0 0 0-3.9 0H1V7z" />
-                </svg>
+                <Car className="w-3.5 h-3.5" />
                 <span>SHOP BY CAR</span>
                 <ChevronDown className="w-3 h-3" />
               </button>
@@ -1097,13 +1279,23 @@ export default function App() {
             </button>
 
             {/* Search */}
-            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-450 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer bg-transparent border-0">
+            <button 
+              aria-label="Search Catalog"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer bg-transparent border-0"
+            >
               <Search className="w-[18px] h-[18px]" />
             </button>
 
             {/* Account */}
-            <button className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer">
-              <User className="w-[18px] h-[18px]" />
+            <button 
+              aria-label="User Account"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a9 9 0 1 0-18 0c0 2 0 4 .5 5.5C4 18.5 5.5 21 8.5 21c2 0 2.5-1 3.5-1s1.5 1 3.5 1c3 0 4.5-2.5 5-4 .5-1.5.5-3.5.5-5.5z" />
+                <path d="M6.5 10.5h11a.5.5 0 0 1 .5.5v2.5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 13.5v-2.5a.5.5 0 0 1 .5-.5z" />
+                <path d="M11 18.5h2M10 20h4" />
+              </svg>
             </button>
 
             {/* Cart */}
@@ -1112,14 +1304,108 @@ export default function App() {
               id="cart-drawer-trigger"
               className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all relative cursor-pointer"
             >
-              <ShoppingCart className="w-[18px] h-[18px]" />
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="8" width="18" height="12" rx="1" />
+                <path d="M9 8V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+                <path d="M3 14h18" />
+                <path d="M8 11h2M14 11h2M11 17h2" />
+              </svg>
               {cart.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#c0f20c] text-black rounded-full text-[8px] font-mono font-bold flex items-center justify-center border-[1.5px] border-[#111111]">
                   {cart.reduce((sum, item) => sum + item.qty, 0)}
                 </span>
               )}
             </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all cursor-pointer lg:hidden bg-transparent border-0"
+              aria-label="Toggle Mobile Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
+
+          {/* Mobile Menu Drawer/Modal */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: '100%' }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed inset-y-0 right-0 w-full max-w-sm bg-[#0a0a0b]/98 border-l border-neutral-900 shadow-2xl z-50 flex flex-col p-6 backdrop-blur-md lg:hidden"
+              >
+                {/* Header in Drawer */}
+                <div className="flex justify-between items-center border-b border-neutral-900 pb-5 mb-8">
+                  <span className="font-mono text-[9px] text-[#c0f20c] tracking-[0.25em] font-bold">ETI MENU</span>
+                  <button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors bg-transparent border-0 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Navigation links */}
+                <nav className="flex flex-col gap-6 text-left">
+                  {[
+                    { name: 'HOME', page: 'home' },
+                    { name: 'CATALOG', page: 'catalog' },
+                    { name: 'TITANIUM HARDWARE', page: 'titanium' },
+                    { name: 'STORY', page: 'story' },
+                    { name: 'CONTACT', page: 'contact' },
+                    { name: 'SWAG', page: 'swag' }
+                  ].map((link) => (
+                    <button
+                      key={link.name}
+                      onClick={() => {
+                        setCurrentPage(link.page as any);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`text-lg font-display font-bold uppercase tracking-widest text-left py-1 cursor-pointer bg-transparent border-0 transition-colors ${
+                        currentPage === link.page ? 'text-[#c0f20c]' : 'text-neutral-300 hover:text-white'
+                      }`}
+                    >
+                      {link.name}
+                    </button>
+                  ))}
+                </nav>
+
+                {/* Divider */}
+                <div className="border-t border-neutral-900 my-8 pt-8">
+                  {/* SHOP BY CAR for mobile inside the menu */}
+                  <button
+                    onClick={() => {
+                      setShopByCarOpen(!shopByCarOpen);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-3 bg-[#111112] border border-neutral-850 hover:border-neutral-700 text-neutral-300 font-mono text-[10px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 17h2a2 2 0 0 1 4 0h8a2 2 0 0 1 4 0h2v-3c0-1.5-1.5-2.5-3-3h-2.5l-3-4h-4.5l-2.5 4h-2c-1.5 0-2.5 1-2.5 2.5z" />
+                      <circle cx="6" cy="17" r="1.5" />
+                      <circle cx="18" cy="17" r="1.5" />
+                    </svg>
+                    <span>SHOP BY CAR</span>
+                  </button>
+                </div>
+
+                {/* Footer Metadata in Drawer */}
+                <div className="mt-auto space-y-4 font-mono text-[9px] text-neutral-500 uppercase tracking-widest text-left">
+                  <div>
+                    <span className="block text-neutral-600">ESTABLISHED</span>
+                    <span className="text-neutral-400 font-bold">2022 &bull; HIGH PERFORMANCE</span>
+                  </div>
+                  <div>
+                    <span className="block text-neutral-600">DISTRIBUTION</span>
+                    <span className="text-neutral-400 font-bold">HK &bull; USA &bull; TH</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
       </header>
@@ -1147,9 +1433,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('MAZDA')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      MAZDA
+                      {BrandLogos['MAZDA']}
+                      <span>MAZDA</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1176,9 +1463,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('BMW')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      BMW
+                      {BrandLogos['BMW']}
+                      <span>BMW</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1231,9 +1519,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('TESLA')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      TESLA
+                      {BrandLogos['TESLA']}
+                      <span>TESLA</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1266,9 +1555,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('TOYOTA')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      TOYOTA
+                      {BrandLogos['TOYOTA']}
+                      <span>TOYOTA</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1308,9 +1598,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('MERCEDES-BENZ')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      MERCEDES-BENZ
+                      {BrandLogos['MERCEDES-BENZ']}
+                      <span>MERCEDES-BENZ</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1351,9 +1642,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('NISSAN')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      NISSAN
+                      {BrandLogos['NISSAN']}
+                      <span>NISSAN</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1423,9 +1715,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('PORSCHE')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      PORSCHE
+                      {BrandLogos['PORSCHE']}
+                      <span>PORSCHE</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1473,9 +1766,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('MITSUBISHI')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      MITSUBISHI
+                      {BrandLogos['MITSUBISHI']}
+                      <span>MITSUBISHI</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1507,9 +1801,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('LAMBORGHINI')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      LAMBORGHINI
+                      {BrandLogos['LAMBORGHINI']}
+                      <span>LAMBORGHINI</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1527,9 +1822,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('HONDA')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      HONDA
+                      {BrandLogos['HONDA']}
+                      <span>HONDA</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1556,9 +1852,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('CHEVROLET')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      CHEVROLET
+                      {BrandLogos['CHEVROLET']}
+                      <span>CHEVROLET</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1576,9 +1873,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('SUBARU')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      SUBARU
+                      {BrandLogos['SUBARU']}
+                      <span>SUBARU</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1593,9 +1891,10 @@ export default function App() {
                   <div>
                     <button
                       onClick={() => handleSelectChassis('FORD')}
-                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer"
+                      className="w-full text-left font-display font-bold text-sm uppercase text-[#fafaf7] hover:text-[#9cce00] border-b border-[#9cce00]/40 pb-2 mb-4 bg-transparent border-0 cursor-pointer flex items-center gap-2.5"
                     >
-                      FORD
+                      {BrandLogos['FORD']}
+                      <span>FORD</span>
                     </button>
                     <ul className="space-y-3 list-none p-0 m-0">
                       <li>
@@ -1638,7 +1937,7 @@ export default function App() {
       {currentPage === 'home' && (
         <div className="eti-page">
           {/* HERO SECTION */}
-          <section className="hero" aria-labelledby="heroTitle">
+          <section className={`hero ${isHeroHidden ? 'opacity-0 pointer-events-none' : ''}`} aria-labelledby="heroTitle">
             <div className="hero__media"></div>
             <div className="hero__veil"></div>
             <div className="container hero__inner">
@@ -1677,11 +1976,11 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="hero__scroll" aria-hidden="true">SCROLL</div>
           </section>
-
-          {/* BRAND SPEC STRIP (MARQUEE) */}
-          <div className="py-6 border-y border-neutral-900 bg-[#0a0a0b] overflow-hidden">
+          {/* OVERLAPPING HOME CONTENT CONTAINER */}
+          <div className="home-overlapping-content">
+            {/* BRAND SPEC STRIP (MARQUEE) */}
+            <div className="py-6 border-y border-neutral-900 bg-[#0a0a0b] overflow-hidden">
             <div className="flex whitespace-nowrap text-xs font-mono uppercase tracking-[0.2em] text-neutral-400">
               <div className="animate-marquee flex gap-8 items-center">
                 <span>NISSAN 350Z</span> <span className="text-[#9cce00]">•</span>
@@ -1710,7 +2009,7 @@ export default function App() {
                   <span className="kicker reveal">001 — CHASSIS</span>
                   <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle</h2>
                 </div>
-                <div className="ti-rule reveal-mask"></div>
+                <div className="ti-rule"></div>
                 <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>30+ chassis &nbsp;/&nbsp; bespoke fitment</span>
               </div>
 
@@ -1768,7 +2067,7 @@ export default function App() {
                     <span className="featured-section__chassis">{slidesData[activeSlide].chassis}</span>
                   </h2>
                 </div>
-                <div className="ti-rule reveal-mask"></div>
+                <div className="ti-rule"></div>
                 <button
                   onClick={() => setCurrentPage('catalog')}
                   className="text-link reveal featured-section__catalog bg-transparent border-0 border-b cursor-pointer text-white"
@@ -1842,7 +2141,7 @@ export default function App() {
                   <span className="kicker reveal">003 — STANDARD</span>
                   <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>The ETi Standard</h2>
                 </div>
-                <div className="ti-rule reveal-mask"></div>
+                <div className="ti-rule"></div>
                 <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>Engineered. Tested. Built to last.</span>
               </div>
 
@@ -2026,7 +2325,8 @@ export default function App() {
             </div>
           </section>
         </div>
-      )}
+      </div>
+    )}
 
       {/* CATALOG PAGE VIEW */}
       {currentPage === 'catalog' && (() => {
@@ -2118,13 +2418,7 @@ export default function App() {
               <p className="eti-collection-subtitle">
                 Precision fit. Real carbon & exotic titanium. Built for high performance standards.
               </p>
-              <div className="eti-collection-meta" aria-label="Collection metadata">
-                <span>{searchQuery ? `${totalFound} matching` : `${catalogProducts.length} pieces`}</span>
-                <span aria-hidden="true" className="eti-meta-dot">·</span>
-                <span>Made to Order</span>
-                <span aria-hidden="true" className="eti-meta-dot">·</span>
-                <span>6–8 Week Lead Time</span>
-              </div>
+
             </header>
 
             {/* ModelFinder Component */}
@@ -2464,101 +2758,202 @@ export default function App() {
 
       {/* TITANIUM PAGE VIEW */}
       {currentPage === 'titanium' && (
-        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1200px] mx-auto space-y-12 min-h-[75vh]">
-          {/* Header */}
-          <div className="border-b border-neutral-900 pb-6 text-center space-y-3">
-            <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">GRADE 5 MOTORSPORT ANCHORS</span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight uppercase">TITANIUM HARDWARE</h1>
-            <p className="text-xs font-mono text-neutral-400 max-w-xl mx-auto uppercase">
-              Bespoke race-ready hardware. 45% lighter than steel, immune to corrosion, tensile strength exceeding 950 MPa.
-            </p>
-          </div>
+        <TitaniumCatalog 
+          onAddToCart={(item) => {
+            setCart(prev => [...prev, item]);
+            setIsCartOpen(true);
+          }}
+          triggerToast={triggerToast}
+          onNavigate={(path) => {
+            if (path === '/') {
+              setCurrentPage('home');
+            } else if (path === '/collections/all') {
+              setCurrentPage('catalog');
+            } else if (path.startsWith('/products/')) {
+              const prodId = path.split('/products/')[1];
+              const titaniumProductsList = [
+                {
+                  id: 'ti_turbo_guard',
+                  title: 'ETI UNIVERSAL TITANIUM TURBO GUARD',
+                  price: 289,
+                  image: '/images/prod_ti_turbo_guard.jpg',
+                  eyebrow: 'Universal Fitment',
+                  fitment: 'Universal'
+                },
+                {
+                  id: 'ti_rb26_manifold',
+                  title: 'ETI RB25/RB26 TURBO MANIFOLD',
+                  price: 1250,
+                  image: '/images/prod_rb26_manifold.jpg',
+                  eyebrow: 'Skyline GTR R32/R33/R34',
+                  fitment: 'Nissan'
+                },
+                {
+                  id: 'ti_ek_manifold',
+                  title: 'ETI EK/EG TURBO MANIFOLD',
+                  price: 1350,
+                  image: '/images/prod_ek_manifold.jpg',
+                  eyebrow: 'Civic EG/EK B-Series',
+                  fitment: 'Honda'
+                },
+                {
+                  id: 'ti_1jz_ge_manifold',
+                  title: 'ETI 1JZ GE TURBO MANIFOLD',
+                  price: 1250,
+                  image: '/images/prod_1jz_ge_manifold.jpg',
+                  eyebrow: 'Chaser/Cresta/Mark II',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_1jz_gte_manifold',
+                  title: 'ETI 1JZ GTE TURBO MANIFOLD',
+                  price: 1250,
+                  image: '/images/prod_1jz_gte_manifold.jpg',
+                  eyebrow: 'Supra MK3 / Chaser R154',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_2jz_ge_mid_manifold',
+                  title: 'ETI 2JZ GE MID MOUNT TURBO MANIFOLD',
+                  price: 1250,
+                  image: '/images/prod_2jz_ge_mid_manifold.jpg',
+                  eyebrow: 'Supra MK4 / Altezza JJZ',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_2jz_ge_long_manifold',
+                  title: 'ETI 2JZ GE LONG RUNNER TURBO MANIFOLD',
+                  price: 1350,
+                  image: '/images/prod_2jz_ge_long_manifold.jpg',
+                  eyebrow: 'Supra MK4 / Aristo',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_rb20_manifold',
+                  title: 'ETI RB20/RB25/RB26 TURBO MANIFOLD',
+                  price: 1250,
+                  image: '/images/prod_rb20_manifold.jpg',
+                  eyebrow: 'Nissan Skyline R32/R33/R34',
+                  fitment: 'Nissan'
+                },
+                {
+                  id: 'ti_mr2_stud_kit',
+                  title: 'MR2 TITANIUM MANIFOLD STUD KIT',
+                  price: 85,
+                  image: '/images/prod_mr2_stud_kit.jpg',
+                  eyebrow: 'MR2 SW20 3S-GTE',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_supra_bolt_kit',
+                  title: 'MKIV SUPRA TITANIUM BOLT KIT',
+                  price: 189,
+                  image: '/images/prod_supra_bolt_kit.jpg',
+                  eyebrow: 'Supra MK4 (JZA80)',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_rx7_pulley_kit',
+                  title: 'ETI RX-7 TITANIUM PULLEY HARDWARE',
+                  price: 145,
+                  image: '/images/prod_rx7_pulley_kit.jpg',
+                  eyebrow: 'Mazda RX-7 FD3S',
+                  fitment: 'Mazda'
+                },
+                {
+                  id: 'ti_rx7_key',
+                  title: 'ETI RX-7 TITANIUM KEY',
+                  price: 125,
+                  image: '/images/prod_rx7_key.jpg',
+                  eyebrow: 'Mazda RX-7 FD3S',
+                  fitment: 'Mazda'
+                },
+                {
+                  id: 'ti_fk_exhaust',
+                  title: 'ETI TITANIUM FULL EXHAUST FK CIVIC',
+                  price: 2450,
+                  image: '/images/prod_fk_exhaust.jpg',
+                  eyebrow: 'Civic Type R FK8',
+                  fitment: 'Honda'
+                },
+                {
+                  id: 'ti_rx7_wheel_studs',
+                  title: 'ETI RX-7 TITANIUM WHEEL STUDS 55MM',
+                  price: 90,
+                  image: '/images/prod_rx7_wheel_studs.jpg',
+                  eyebrow: 'Mazda RX-7 FD3S',
+                  fitment: 'Mazda'
+                },
+                {
+                  id: 'ti_rx7_key_fd',
+                  title: 'ETI RX-7 TITANIUM KEY (FB/FC/FD)',
+                  price: 125,
+                  image: '/images/prod_rx7_ti_key.jpg',
+                  eyebrow: 'Mazda RX-7 All Generations',
+                  fitment: 'Mazda'
+                },
+                {
+                  id: 'ti_350z_hw_kit',
+                  title: 'ETI 350Z TITANIUM HARDWARE KIT',
+                  price: 250,
+                  image: '/images/prod_350z_ti_hardware_kit.png',
+                  eyebrow: 'Nissan 350Z (Z33)',
+                  fitment: 'Nissan'
+                },
+                {
+                  id: 'ti_supra_bolt_kit_v2',
+                  title: 'MKIV SUPRA TITANIUM FULL BOLT KIT',
+                  price: 560,
+                  image: '/images/prod_supra_bolt_kit.jpg',
+                  eyebrow: 'Supra MK4 (JZA80) Stage 2',
+                  fitment: 'Toyota'
+                },
+                {
+                  id: 'ti_evo_manifold',
+                  title: 'ETI EVO 9 4G63 TURBO MANIFOLD',
+                  price: 2650,
+                  image: '/images/prod_evo_manifold.jpg',
+                  eyebrow: 'Mitsubishi Lancer Evo 9',
+                  fitment: 'Mitsubishi'
+                },
+                {
+                  id: 'ti_ek_strut_bar',
+                  title: 'ETI EK CIVIC TITANIUM STRUT BAR',
+                  price: 1100,
+                  image: '/images/prod_ek_strut_bar.png',
+                  eyebrow: 'Civic EK (96–00) B-Series',
+                  fitment: 'Honda'
+                }
+              ];
+              const found = titaniumProductsList.find(p => p.id === prodId);
+              if (found) {
+                setSelectedProductDetail(found);
+                setCurrentPage('product-detail');
+              }
+            }
+          }}
+        />
+      )}
 
-          {/* Intro Panel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#080809] border border-neutral-900 rounded-lg p-8">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white uppercase tracking-tight">The Grade 5 Ti-6Al-4V Advantage</h2>
-              <p className="text-neutral-400 text-xs font-mono uppercase tracking-wide leading-relaxed">
-                Fasteners forged specifically for aggressive heat cycle blocks. Available in raw or burnt blue anodization options. Precision rolled threads for structural torque retention.
-              </p>
-
-              {/* Anodizing selection widget */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">SELECT ATELIER ANODIZATION STYLE:</span>
-                <div className="flex gap-2">
-                  {[
-                    { key: 'raw_ti', label: 'RAW TI' },
-                    { key: 'burnt_blue', label: 'BURNT BLUE' },
-                    { key: 'gold', label: 'ATELIER GOLD' },
-                    { key: 'purple', label: 'PURPLE ANODIZED' }
-                  ].map((fin) => (
-                    <button
-                      key={fin.key}
-                      onClick={() => {
-                        setTitaniumFinish(fin.key as any);
-                        triggerToast(`Titanium configuration finish set to ${fin.label}`);
-                      }}
-                      className={`px-3 py-1.5 border rounded font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer ${
-                        titaniumFinish === fin.key 
-                          ? 'bg-[#c0f20c] text-black border-[#c0f20c] font-bold' 
-                          : 'bg-neutral-950 border-neutral-850 text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {fin.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-850">
-              <img 
-                src="https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" 
-                alt="Titanium bolts process" 
-                className="w-full h-full object-cover filter contrast-125 saturate-50"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-4 text-[9px] font-mono text-white font-bold uppercase">
-                Active Fin: {titaniumFinish.replace('_', ' ').toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          {/* Titanium Products Grid */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-bold text-white uppercase tracking-wider border-b border-neutral-900 pb-2">PRE-PACKAGED KITS</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { id: "ti-m6-pack", title: "M6 BEAUTY WASHERS & BOLTS (10 PACK)", price: 45, desc: "Bespoke engine dress-up. High-grade rolled threads." },
-                { id: "ti-350z-bay", title: "350Z FULL ENGINE BAY HARDWARE KIT", price: 250, desc: "Replaces 68 structural fender, core support, and bracket bolts." },
-                { id: "ti-supra-bay", title: "SUPRA JZA80 2JZ TITANIUM HARDWARE KIT", price: 295, desc: "Full master dresser kit for block, manifolds and engine bay." },
-                { id: "ti-r34-bay", title: "BNR34 RB26 MASSIVE STAGED BAY KIT", price: 340, desc: "Premium grade 5 anchors for structural components." },
-                { id: "ti-lug-nuts", title: "ATELIER TITANIUM LUG NUTS (20 PACK)", price: 320, desc: "M12x1.25 open-ended hex drive race lugs." }
-              ].map((p) => (
-                <div key={p.id} className="bg-neutral-950 border border-neutral-900 rounded-lg p-5 flex flex-col justify-between hover:border-neutral-800 transition-colors">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight">{p.title}</h4>
-                      <span className="text-xs font-mono font-bold text-[#c0f20c]">${p.price}</span>
-                    </div>
-                    <p className="text-[10px] font-mono text-neutral-400 uppercase leading-snug">{p.desc}</p>
-                    <span className="inline-block text-[8px] font-mono text-neutral-500 uppercase mt-2">
-                      Finish: {titaniumFinish.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => handleAddSimpleProductToCart({ id: p.id, title: `${p.title} (${titaniumFinish.toUpperCase()})`, price: p.price, category: 'titanium', imageType: 'tier3' })}
-                    className="mt-6 w-full py-2 bg-neutral-900 border border-neutral-850 hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-colors rounded text-[10px] font-mono uppercase tracking-widest cursor-pointer text-white"
-                  >
-                    + ADD TO CART
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* DETAILED PRODUCT PAGE VIEW */}
+      {currentPage === 'product-detail' && selectedProductDetail && (
+        <ProductDetail 
+          product={selectedProductDetail}
+          onAddToCart={(item) => {
+            setCart(prev => [...prev, item]);
+            setIsCartOpen(true);
+          }}
+          onNavigate={(path) => {
+            if (path === '/') {
+              setCurrentPage('home');
+            } else if (path === '/collections/all') {
+              setCurrentPage('titanium');
+            } else {
+              setCurrentPage('titanium');
+            }
+          }}
+          triggerToast={triggerToast}
+        />
       )}
 
       {/* SWAG PAGE VIEW */}
@@ -3488,6 +3883,10 @@ export default function App() {
 
       {currentPage === 'story' && (
         <AboutUs />
+      )}
+
+      {currentPage === 'contact' && (
+        <ContactPage triggerToast={triggerToast} setCurrentPage={setCurrentPage} />
       )}
 
       {/* Slide Drawer Cart */}
