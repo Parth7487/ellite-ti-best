@@ -1215,9 +1215,9 @@ export default function App() {
   };
 
   return (
-    <div className={`w-full ${figmaMode ? 'bg-[#1e1e1e] min-h-screen overflow-hidden flex flex-col font-sans' : ''}`}>
+    <div className="w-full">
       {figmaMode && (
-        <div className="w-full bg-[#2c2c2c] h-12 flex items-center justify-between px-4 border-b border-[#151515] text-white select-none z-50 shrink-0 font-sans">
+        <div className="fixed top-0 left-0 w-full bg-[#2c2c2c] h-12 flex items-center justify-between px-4 border-b border-[#151515] text-white select-none z-50 font-sans">
           {/* Left section */}
           <div className="flex items-center gap-3">
             {/* Figma Multi-colored Logo Icon */}
@@ -1251,7 +1251,7 @@ export default function App() {
             <div className="relative">
               <button 
                 onClick={() => setZoomMode(prev => prev === 'fit' ? '100%' : 'fit')}
-                className="flex items-center gap-1.5 text-[12px] font-medium hover:bg-neutral-800 px-2 py-1 rounded text-neutral-300"
+                className="flex items-center gap-1.5 text-[12px] font-medium hover:bg-neutral-850 px-2 py-1 rounded text-neutral-300"
               >
                 <span>{zoomMode === 'fit' ? 'Fit to width' : '100%'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
@@ -1287,7 +1287,7 @@ export default function App() {
 
       {/* Main content wrapper */}
       <div 
-        className={`${figmaMode ? 'flex-1 overflow-y-auto w-full flex justify-center bg-[#0d0d0d]' : ''}`}
+        className={`w-full flex justify-center bg-[#0d0d0d] ${figmaMode ? 'pt-12' : ''}`}
       >
         <div 
           className={`${figmaMode ? 'w-full shadow-2xl relative transition-all duration-300' : ''}`}
