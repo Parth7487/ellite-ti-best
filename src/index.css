@@ -1961,3 +1961,41 @@
     left: 8px;
   }
 }
+
+@media (max-width: 768px) {
+  .hero {
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  
+  .hero__media {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    order: -1 !important;
+    background-position: center center !important;
+  }
+  
+  .hero__inner {
+    position: relative !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 32px 20px !important;
+  }
+  
+  .hero__copy {
+    margin-bottom: 24px !important;
+  }
+  
+  .hero__scroll {
+    display: none !important;
+  }
+}
