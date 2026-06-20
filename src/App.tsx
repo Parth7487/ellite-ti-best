@@ -11,7 +11,7 @@ import CarVisualizer from './components/CarVisualizer';
 import CartDrawer from './components/CartDrawer';
 import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
 import { ModelFinder } from './components/ModelFinder';
-import TitaniumCatalog from './components/TitaniumCatalog';
+import { StoreMap } from './components/StoreMap';
 import { AboutUs } from './components/AboutUs';
 import { 
   ShieldCheck,
@@ -433,6 +433,7 @@ export default function App() {
 
   // Toasts / alerts
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeProductTab, setActiveProductTab] = useState<'overview' | 'panels' | 'features' | 'materials' | 'leadtime'>('overview');
 
   // --- Tier 1 State ---
   const [tier1Components, setTier1Components] = useState<KitComponent[]>(initialTier1Components);
@@ -2463,20 +2464,101 @@ export default function App() {
 
       {/* TITANIUM PAGE VIEW */}
       {currentPage === 'titanium' && (
-        <TitaniumCatalog 
-          onAddToCart={(item) => {
-            setCart(prev => [...prev, item]);
-            setIsCartOpen(true);
-          }}
-          triggerToast={triggerToast}
-          onNavigate={(path) => {
-            if (path === '/') {
-              setCurrentPage('home');
-            } else if (path === '/collections/all') {
-              setCurrentPage('catalog');
-            }
-          }}
-        />
+        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1200px] mx-auto space-y-12 min-h-[75vh]">
+          {/* Header */}
+          <div className="border-b border-neutral-900 pb-6 text-center space-y-3">
+            <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">GRADE 5 MOTORSPORT ANCHORS</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight uppercase">TITANIUM HARDWARE</h1>
+            <p className="text-xs font-mono text-neutral-400 max-w-xl mx-auto uppercase">
+              Bespoke race-ready hardware. 45% lighter than steel, immune to corrosion, tensile strength exceeding 950 MPa.
+            </p>
+          </div>
+
+          {/* Intro Panel */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#080809] border border-neutral-900 rounded-lg p-8">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white uppercase tracking-tight">The Grade 5 Ti-6Al-4V Advantage</h2>
+              <p className="text-neutral-400 text-xs font-mono uppercase tracking-wide leading-relaxed">
+                Fasteners forged specifically for aggressive heat cycle blocks. Available in raw or burnt blue anodization options. Precision rolled threads for structural torque retention.
+              </p>
+
+              {/* Anodizing selection widget */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">SELECT ATELIER ANODIZATION STYLE:</span>
+                <div className="flex gap-2">
+                  {[
+                    { key: 'raw_ti', label: 'RAW TI' },
+                    { key: 'burnt_blue', label: 'BURNT BLUE' },
+                    { key: 'gold', label: 'ATELIER GOLD' },
+                    { key: 'purple', label: 'PURPLE ANODIZED' }
+                  ].map((fin) => (
+                    <button
+                      key={fin.key}
+                      onClick={() => {
+                        setTitaniumFinish(fin.key as any);
+                        triggerToast(`Titanium configuration finish set to ${fin.label}`);
+                      }}
+                      className={`px-3 py-1.5 border rounded font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer ${
+                        titaniumFinish === fin.key 
+                          ? 'bg-[#c0f20c] text-black border-[#c0f20c] font-bold' 
+                          : 'bg-neutral-950 border-neutral-850 text-neutral-400 hover:text-white'
+                      }`}
+                    >
+                      {fin.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-850">
+              <img 
+                src="https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" 
+                alt="Titanium bolts process" 
+                className="w-full h-full object-cover filter contrast-125 saturate-50"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-4 text-[9px] font-mono text-white font-bold uppercase">
+                Active Fin: {titaniumFinish.replace('_', ' ').toUpperCase()}
+              </div>
+            </div>
+          </div>
+
+          {/* Titanium Products Grid */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider border-b border-neutral-900 pb-2">PRE-PACKAGED KITS</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { id: "ti-m6-pack", title: "M6 BEAUTY WASHERS & BOLTS (10 PACK)", price: 45, desc: "Bespoke engine dress-up. High-grade rolled threads." },
+                { id: "ti-350z-bay", title: "350Z FULL ENGINE BAY HARDWARE KIT", price: 250, desc: "Replaces 68 structural fender, core support, and bracket bolts." },
+                { id: "ti-supra-bay", title: "SUPRA JZA80 2JZ TITANIUM HARDWARE KIT", price: 295, desc: "Full master dresser kit for block, manifolds and engine bay." },
+                { id: "ti-r34-bay", title: "BNR34 RB26 MASSIVE STAGED BAY KIT", price: 340, desc: "Premium grade 5 anchors for structural components." },
+                { id: "ti-lug-nuts", title: "ATELIER TITANIUM LUG NUTS (20 PACK)", price: 320, desc: "M12x1.25 open-ended hex drive race lugs." }
+              ].map((p) => (
+                <div key={p.id} className="bg-neutral-950 border border-neutral-900 rounded-lg p-5 flex flex-col justify-between hover:border-neutral-800 transition-colors">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight">{p.title}</h4>
+                      <span className="text-xs font-mono font-bold text-[#c0f20c]">${p.price}</span>
+                    </div>
+                    <p className="text-[10px] font-mono text-neutral-400 uppercase leading-snug">{p.desc}</p>
+                    <span className="inline-block text-[8px] font-mono text-neutral-500 uppercase mt-2">
+                      Finish: {titaniumFinish.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddSimpleProductToCart({ id: p.id, title: `${p.title} (${titaniumFinish.toUpperCase()})`, price: p.price, category: 'titanium', imageType: 'tier3' })}
+                    className="mt-6 w-full py-2 bg-neutral-900 border border-neutral-850 hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-colors rounded text-[10px] font-mono uppercase tracking-widest cursor-pointer text-white"
+                  >
+                    + ADD TO CART
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* SWAG PAGE VIEW */}
@@ -3003,175 +3085,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* =========================================================================
-              TIER 2 SECTION — CONFIGURABLE COMPONENT (RE Amemiya GT Carbon Hood)
-              ========================================================================= */}
-          <section className="pt-8 border-t border-neutral-950 space-y-6">
-            <div className="text-[10px] font-mono tracking-widest text-[#c0f20c] uppercase">
-              TIER 2 — CONFIGURABLE COMPONENT (SAME CHASSIS, SCALED DOWN TO ONE PART)
-            </div>
 
-            <div className="bg-[#050505] rounded border border-neutral-900 overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0">
-              
-              {/* Left Box */}
-              <div className="md:col-span-4 p-8 bg-neutral-950 border-b md:border-b-0 md:border-r border-neutral-900 flex flex-col justify-between items-start min-h-[300px]">
-                
-                <div className="w-full">
-                  <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">NISSAN / 350Z / HOODS</span>
-                  <h3 className="font-display font-bold text-xl text-white tracking-tight uppercase mt-1">
-                    RE AMEMIYA GT CARBON HOOD
-                  </h3>
-                  <span className="text-xl font-mono font-bold text-[#c0f20c] block mt-1">
-                    $1,450
-                  </span>
-                </div>
-
-                <div className="w-full aspect-video md:aspect-square rounded border border-neutral-900 bg-[#030303] flex flex-col items-center justify-center p-4 relative overflow-hidden my-4 group">
-                  <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:10px_10px]"></div>
-                  
-                  <svg viewBox="0 0 100 80" className="w-2/3 h-auto opacity-50 group-hover:opacity-80 transition-opacity">
-                    <path d="M 20,10 L 80,10 L 75,70 L 25,70 Z" fill="none" stroke="#c0f20c" strokeWidth="1.5" />
-                    <path d="M 33,25 L 43,25 L 41,35 L 34,35 Z" fill="#c0f20c" fillOpacity="0.3" />
-                    <path d="M 67,25 L 57,25 L 59,35 L 66,35 Z" fill="#c0f20c" fillOpacity="0.3" />
-                    <path d="M 35,45 L 65,45 L 61,58 L 39,58 Z" fill="#c0f20c" fillOpacity="0.2" />
-                  </svg>
-
-                  <div className="mt-2 text-[9px] font-mono tracking-widest text-neutral-500 uppercase">
-                    PRODUCT PHOTO
-                  </div>
-                </div>
-
-                <div className="px-3 py-1 bg-black rounded border border-neutral-900 text-[10px] font-mono uppercase tracking-widest text-[#c0f20c]">
-                  • FITMENT: FD3S
-                </div>
-
-              </div>
-
-              {/* Right Box */}
-              <div className="md:col-span-8 p-8 space-y-6 flex flex-col justify-between">
-                
-                <div className="space-y-6">
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
-                        <span className="text-[#c0f20c] font-bold mr-1">01</span> FINISH
-                      </span>
-                      <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase font-bold bg-[#c0f20c]/5 border border-[#c0f20c]/15 px-1.5 rounded">{tier2.finish}</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {[
-                        { id: 'matte', name: 'MATTE', info: 'Base finish', extra: 0 },
-                        { id: 'gloss', name: 'GLOSS', info: 'Epoxy weaved', extra: 0 },
-                        { id: 'forged', name: 'FORGED', info: 'Matrix', extra: 145 },
-                        { id: 'kevlar', name: 'KEVLAR', info: 'Argrid dynamic', extra: 170 },
-                      ].map((fin) => (
-                        <button
-                          key={fin.id}
-                          onClick={() => {
-                            setTier2(prev => ({ ...prev, finish: fin.id as FinishType }));
-                            triggerToast(`Hood Finish changed to ${fin.name}`);
-                          }}
-                          className={`p-2.5 rounded border text-left flex flex-col justify-between h-20 transition-all cursor-pointer ${
-                            tier2.finish === fin.id
-                              ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
-                              : 'bg-black border-neutral-900 hover:border-neutral-800'
-                          }`}
-                        >
-                          <span className="font-display font-bold text-[10px] text-white tracking-widest">{fin.name}</span>
-                          <div className="text-[9px] font-mono text-[#c0f20c]">
-                            {fin.extra > 0 ? `+$${fin.extra}` : 'STANDARD'}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-widest">
-                        <span className="text-[#c0f20c] font-bold mr-1">02</span> INNER SHELL
-                      </span>
-                      <span className="text-[9.5px] font-mono text-neutral-400 uppercase">
-                        Underside reinforcement layout
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      
-                      <button
-                        onClick={() => setTier2(prev => ({ ...prev, innerShell: 'standard' }))}
-                        className={`p-4 rounded border text-left flex justify-between items-center transition-all cursor-pointer ${
-                          tier2.innerShell === 'standard'
-                            ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
-                            : 'bg-black border-neutral-900 hover:border-neutral-800'
-                        }`}
-                      >
-                        <div>
-                          <span className="font-display font-bold text-xs text-white tracking-wider block">STANDARD</span>
-                          <span className="text-[9.5px] font-mono text-neutral-500 uppercase mt-0.5 block">Fiberglass backing frame</span>
-                        </div>
-                        <span className="text-xs font-mono font-bold text-neutral-400">INCLUDED</span>
-                      </button>
-
-                      <button
-                        onClick={() => setTier2(prev => ({ ...prev, innerShell: 'carbon_underside' }))}
-                        className={`p-4 rounded border text-left flex justify-between items-center transition-all cursor-pointer ${
-                          tier2.innerShell === 'carbon_underside'
-                            ? 'bg-[#c0f20c]/5 border-[#c0f20c]'
-                            : 'bg-black border-neutral-900 hover:border-neutral-800'
-                        }`}
-                      >
-                        <div>
-                          <span className="font-display font-bold text-xs text-white tracking-wider block">CARBON UNDERSIDE</span>
-                          <span className="text-[9.5px] font-mono text-[#c0f20c] uppercase mt-0.5 block">Full reinforcement structure</span>
-                        </div>
-                        <span className="text-xs font-mono font-bold text-[#c0f20c]">+$550</span>
-                      </button>
-
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <label 
-                      onClick={() => setTier2(prev => ({ ...prev, addTitaniumHardware: !prev.addTitaniumHardware }))}
-                      className="p-3.5 rounded border border-neutral-900 bg-black hover:border-neutral-800 flex items-center justify-between cursor-pointer select-none transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                          tier2.addTitaniumHardware ? 'border-[#c0f20c] bg-[#c0f20c]' : 'border-neutral-800 bg-neutral-950'
-                        }`}>
-                          {tier2.addTitaniumHardware && <Check className="w-3 h-3 text-black stroke-[3.5]" />}
-                        </div>
-                        <span className="font-display font-medium text-xs text-white uppercase tracking-wider">
-                          ADD TITANIUM HARDWARE KIT
-                        </span>
-                      </div>
-                      <span className="font-mono text-xs font-bold text-[#c0f20c]">+$95</span>
-                    </label>
-                  </div>
-
-                </div>
-
-                <div className="border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-center sm:text-left">
-                    <span className="text-[9.5px] font-mono text-neutral-500 uppercase tracking-widest block">CONFIGURED PRICE</span>
-                    <span className="font-mono text-2xl font-bold text-white">${tier2Total.toLocaleString()}</span>
-                  </div>
-                  <button
-                    onClick={handleAddTier2ToCart}
-                    id="tier2-add-to-cart"
-                    className="w-full sm:w-auto px-8 py-3 bg-[#c0f20c] text-black hover:bg-[#aacc00] font-display font-bold text-xs uppercase tracking-widest rounded transition-all shadow-[0_4px_15px_rgba(192,242,12,0.1)] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <ShoppingBag className="w-4 h-4 stroke-[2]" /> ADD TO CART
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-          </section>
 
           {/* =========================================================================
               TIER 3 SECTION — SIMPLE PART (ETI TITANIUM HARDWARE KIT)
@@ -3273,6 +3187,302 @@ export default function App() {
             </div>
           </section>
 
+          {/* Animated Description Section */}
+          <section className="pt-16 border-t border-neutral-900 space-y-10">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-neutral-900 pb-6">
+              <div>
+                <span className="font-mono text-[9px] tracking-[0.3em] text-[#c0f20c] uppercase font-bold block mb-1">ATELIER ARCHIVES</span>
+                <h2 className="font-display font-bold text-2xl uppercase tracking-wider text-white">Product Description</h2>
+              </div>
+              <span className="font-mono text-[9px] text-neutral-500 uppercase tracking-widest">SPECIFICATION SPEC-ID: TS-350Z-01</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left sidebar: Tab List Triggers */}
+              <div className="lg:col-span-4 flex flex-col gap-2 font-mono text-[10px] tracking-widest uppercase">
+                {[
+                  { id: 'overview', label: '01 / OVERVIEW' },
+                  { id: 'panels', label: '02 / INCLUDED PANELS' },
+                  { id: 'features', label: '03 / KEY FEATURES' },
+                  { id: 'materials', label: '04 / MATERIALS AVAILABLE' },
+                  { id: 'leadtime', label: '05 / LEAD TIME & DISPATCH' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveProductTab(tab.id as any)}
+                    className={`h-11 px-4 text-left border flex items-center justify-between transition-all duration-300 cursor-pointer ${
+                      activeProductTab === tab.id
+                        ? 'bg-[#c0f20c] border-[#c0f20c] text-black font-extrabold shadow-[0_0_12px_rgba(192,242,12,0.1)]'
+                        : 'border-neutral-900 hover:border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-950/40'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform ${activeProductTab === tab.id ? 'translate-x-1' : 'opacity-0'}`} />
+                  </button>
+                ))}
+              </div>
+
+              {/* Right area: Tab Content Details */}
+              <div className="lg:col-span-8 bg-neutral-950/50 border border-neutral-900 p-6 md:p-8 min-h-[260px] relative overflow-hidden backdrop-blur-sm">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#c0f20c]/60 to-transparent" />
+                
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeProductTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-4 text-left"
+                  >
+                    {activeProductTab === 'overview' && (
+                      <div className="space-y-4">
+                        <span className="font-mono text-[9px] tracking-widest text-[#c0f20c] uppercase font-bold block">CHASSIS OUTLINE</span>
+                        <h3 className="font-display font-bold text-lg text-white uppercase tracking-wider">NISSAN 350Z TOP SECRET WIDEBODY BODY KIT</h3>
+                        <p className="text-neutral-300 text-xs leading-relaxed font-sans">
+                          The TOP SECRET wide body kit for the Nissan 350Z is a complete exterior conversion engineered for maximum stance, wide-fender presence, and aggressive aerodynamic styling. Each panel is precision designed to fit factory mounting points for a seamless OEM+ transformation.
+                        </p>
+                        <div className="pt-2">
+                          <span className="text-[10px] font-mono text-neutral-500 uppercase block">VEHICLE COMPATIBILITY</span>
+                          <span className="text-white text-xs font-mono font-bold uppercase mt-0.5 inline-block bg-neutral-900 border border-neutral-800 px-2 py-0.5">NISSAN 350Z (Z33 CHASSIS)</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeProductTab === 'panels' && (
+                      <div className="space-y-4">
+                        <span className="font-mono text-[9px] tracking-widest text-[#c0f20c] uppercase font-bold block">CHASSIS INVENTORY</span>
+                        <h3 className="font-display font-bold text-lg text-white uppercase tracking-wider">PARTS INCLUDED IN SPEC</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 font-mono text-[11px] text-neutral-400">
+                          {[
+                            'FRONT BUMPER', 'FRONT FENDER (+50MM)', 'FUEL COVER', 
+                            'LOWER WING TOP LEGS (CARBON)', 'REAR BUMPER', 
+                            'REAR FENDER (+60MM)', 'SIDE SKIRT'
+                          ].map((part, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 bg-[#c0f20c] rounded-full" />
+                              <span>{part}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-neutral-500 text-[10px] italic font-sans pt-2 border-t border-neutral-900">
+                          *Complete Body Kit option includes all of the above panels at a bundled, discounted package price.
+                        </p>
+                      </div>
+                    )}
+
+                    {activeProductTab === 'features' && (
+                      <div className="space-y-4">
+                        <span className="font-mono text-[9px] tracking-widest text-[#c0f20c] uppercase font-bold block">ENGINEERING SPECIFICATIONS</span>
+                        <h3 className="font-display font-bold text-lg text-white uppercase tracking-wider">KEY AERODYNAMIC FEATURES</h3>
+                        <div className="space-y-3 font-mono text-[11px] text-neutral-400">
+                          {[
+                            { title: 'WIDEBODY STANCE', desc: 'Lower, wider, and meaner posture optimizing general vehicle track widths.' },
+                            { title: 'FENDER CLEARANCE', desc: 'Extended fender flares permitting wider performance wheel/tire compounds.' },
+                            { title: 'FLOW CONGRUENCE', desc: 'Designed meticulously to glide seamlessly with natural Nissan 350Z profile lines.' },
+                            { title: 'DOWNFORCE PROFILE', desc: 'Drag-reduction profiles optimized for track, drift, and high-performance setups.' }
+                          ].map((feat, i) => (
+                            <div key={i} className="flex items-start gap-3">
+                              <span className="text-[#c0f20c] font-bold">✔️</span>
+                              <div>
+                                <span className="text-white block font-bold uppercase">{feat.title}</span>
+                                <span className="text-neutral-400 block text-[10px] font-sans mt-0.5 leading-relaxed">{feat.desc}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeProductTab === 'materials' && (
+                      <div className="space-y-4">
+                        <span className="font-mono text-[9px] tracking-widest text-[#c0f20c] uppercase font-bold block">COMPOSITE COMPOSITIONS</span>
+                        <h3 className="font-display font-bold text-lg text-white uppercase tracking-wider">MATERIALS AVAILABLE</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {[
+                            { name: 'FIBERGLASS (FRP)', desc: 'Lightweight structural composite base, shipped ready to paint to any color.' },
+                            { name: 'MATTE / GLOSS CARBON', desc: 'Premium vacuum-infused autoclave carbon fiber. Ready to bolt-on, no paint needed.' },
+                            { name: 'FORGED CARBON', desc: 'High-rigidity marbled carbon layout giving a premium structured finish.' },
+                            { name: 'KEVLAR COMPOSITE', desc: 'Ultra-lightweight aramid-weave core featuring maximum impact resistance.' }
+                          ].map((mat, i) => (
+                            <div key={i} className="p-3.5 bg-neutral-900/60 border border-neutral-900 rounded-sm space-y-1">
+                              <span className="text-white text-[10px] font-mono font-bold tracking-widest block">{mat.name}</span>
+                              <span className="text-neutral-400 text-[10.5px] font-sans leading-relaxed block">{mat.desc}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeProductTab === 'leadtime' && (
+                      <div className="space-y-4">
+                        <span className="font-mono text-[9px] tracking-widest text-[#c0f20c] uppercase font-bold block">PRODUCTION CALENDAR</span>
+                        <h3 className="font-display font-bold text-lg text-white uppercase tracking-wider">LEAD TIME & SHIPMENT</h3>
+                        <p className="text-neutral-300 text-xs leading-relaxed font-sans">
+                          Most ETI components are built to order to ensure weave consistency and quality. Estimated production timeline is 3–5 weeks depending on your selected configuration, chassis spec, and weave finish.
+                        </p>
+                        <div className="p-4 bg-[#c0f20c]/5 border border-[#c0f20c]/25 rounded-md">
+                          <p className="text-white text-xs font-sans leading-relaxed">
+                            🔥 Transform your Nissan 350Z into a true showstopper with the ETi TOP SECRET Wide Body Kit — built for those who demand maximum presence on the street and the track. Order today and take your Nissan 350Z to the next level!
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </section>
+
+          {/* Verified Customer Reviews Section */}
+          <section className="pt-16 border-t border-neutral-900 space-y-10">
+            <div className="flex justify-between items-end border-b border-neutral-900 pb-6">
+              <div>
+                <span className="font-mono text-[9px] tracking-[0.3em] text-[#c0f20c] uppercase font-bold block mb-1">ATELIER PROOFS</span>
+                <h2 className="font-display font-bold text-2xl uppercase tracking-wider text-white">THE FEEDBACK SYNDICATE</h2>
+              </div>
+              <span className="font-mono text-[9px] text-neutral-500 uppercase tracking-widest">VERIFIED CHASSIS OWNERS</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  name: 'MARCUS V. (JAPAN)',
+                  chassis: 'NISSAN 350Z (Z33)',
+                  review: 'The carbon weave alignment on the rear flares is absolute perfection. Bolted directly onto OEM mounts with 0.5mm tolerance. The gloss finish catches streetlights beautifully.',
+                  stars: 5
+                },
+                {
+                  name: 'NATE K. (UNITED STATES)',
+                  chassis: 'TOYOTA SUPRA (A90)',
+                  review: 'Tested at Road America at 240km/h. Downforce is real, chassis feels rock solid. The autoclave prepreg holds up under track heat.',
+                  stars: 5
+                },
+                {
+                  name: 'SOMCHAI P. (THAILAND)',
+                  chassis: 'NISSAN 350Z (Z33)',
+                  review: 'Wide fenders allowed me to run 11J -25 offsets in the back. Best widebody quality on the market, hands down. Forged carbon finish gets compliments everywhere.',
+                  stars: 5
+                }
+              ].map((rev, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="bg-neutral-950/40 border border-neutral-900 hover:border-neutral-800 p-6 flex flex-col justify-between space-y-6 text-left relative overflow-hidden group transition-all"
+                >
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-1">
+                        {[...Array(rev.stars)].map((_, s) => (
+                          <span key={s} className="text-[#c0f20c] font-bold text-xs tracking-tighter">★</span>
+                        ))}
+                      </div>
+                      <span className="text-[8px] font-mono tracking-widest text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded uppercase">VERIFIED</span>
+                    </div>
+                    
+                    <p className="text-neutral-400 font-mono text-[11px] leading-relaxed italic">
+                      "{rev.review}"
+                    </p>
+                  </div>
+
+                  <div className="border-t border-neutral-900/60 pt-4 space-y-1">
+                    <span className="text-white text-[10px] font-mono tracking-wider font-bold block">{rev.name}</span>
+                    <span className="text-[#c0f20c] text-[8.5px] font-mono tracking-widest block">{rev.chassis}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* Related Products Carousel Upgrades */}
+          <section className="pt-16 border-t border-neutral-900 space-y-10 pb-12">
+            <div className="flex justify-between items-end border-b border-neutral-900 pb-6">
+              <div>
+                <span className="font-mono text-[9px] tracking-[0.3em] text-[#c0f20c] uppercase font-bold block mb-1">ATELIER PLUGS</span>
+                <h2 className="font-display font-bold text-2xl uppercase tracking-wider text-white">RECOMMENDED CHASSIS UPGRADES</h2>
+              </div>
+              <span className="font-mono text-[9px] text-neutral-500 uppercase tracking-widest">COMPATIBLE CHASSIS ADDITIONS</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  id: 'mirrors-350z',
+                  title: 'AUTOCLAVE CARBON GANADOR STYLE MIRRORS',
+                  price: 895,
+                  image: '/images/NK7_5352.jpg',
+                  chassis: 'NISSAN 350Z / GENERAL'
+                },
+                {
+                  id: 'exhaust-ti-tips',
+                  title: 'ELITE TITANIUM EXHAUST CATBACK SYSTEM',
+                  price: 2495,
+                  image: '/images/Supra Grey5.jpg',
+                  chassis: 'NISSAN 350Z (Z33)'
+                },
+                {
+                  id: 'bolts-spec-ti',
+                  title: 'BURNT TITANIUM LOCK BOLTS SET (AEROSPACE GRADE 5)',
+                  price: 185,
+                  image: '/images/world-map.svg', 
+                  chassis: 'GENERAL JDM FITTINGS'
+                }
+              ].map((prod) => (
+                <div
+                  key={prod.id}
+                  className="bg-neutral-950/40 border border-neutral-900 hover:border-[#c0f20c]/40 p-4 flex flex-col justify-between text-left relative overflow-hidden group transition-all rounded-none"
+                >
+                  <div className="space-y-4">
+                    {/* Visual Photo Block */}
+                    <div className="aspect-video relative overflow-hidden bg-neutral-900 border border-neutral-900/60 rounded-none">
+                      {prod.image.endsWith('.svg') ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+                          <svg viewBox="0 0 100 80" className="w-16 h-auto text-neutral-800 opacity-60">
+                            <rect x="10" y="10" width="80" height="60" fill="none" stroke="currentColor" strokeWidth="1" />
+                            <circle cx="50" cy="40" r="10" fill="none" stroke="currentColor" strokeWidth="1" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <img 
+                          src={prod.image} 
+                          alt={prod.title} 
+                          className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
+                        />
+                      )}
+                      
+                      <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm border border-neutral-850 text-neutral-500 font-mono text-[7px] tracking-widest uppercase">
+                        {prod.chassis}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <h4 className="text-[11px] font-mono tracking-wider font-bold text-white uppercase group-hover:text-[#c0f20c] transition-colors leading-snug h-8 overflow-hidden">
+                        {prod.title}
+                      </h4>
+                      <span className="text-[12px] font-mono font-bold text-[#c0f20c] block">
+                        ${prod.price.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      handleAddSimpleProductToCart({ id: prod.id, title: prod.title, price: prod.price, category: 'upgrade' });
+                      triggerToast(`Added ${prod.title.substring(0, 20)}... to Cart!`);
+                    }}
+                    className="w-full h-9 bg-neutral-900 border border-neutral-850 hover:bg-[#c0f20c] text-neutral-350 hover:text-black font-mono text-[9px] tracking-widest uppercase transition-all duration-300 font-bold mt-4 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" /> QUICK ALLOCATE
+                  </button>
+
+                </div>
+              ))}
+            </div>
+          </section>
+
         </main>
       )}
 
@@ -3289,6 +3499,9 @@ export default function App() {
         onRemoveItem={handleRemoveCartItem}
         onClearCart={() => setCart([])}
       />
+
+      {/* Global Interactive Store Map */}
+      <StoreMap />
 
       {/* DETAILED STORE FOOTER — Styled identically to the theme export */}
       <footer className="mt-20 border-t border-neutral-900 bg-[#070708] pt-16 pb-8 text-neutral-400">
