@@ -6,6 +6,63 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Figma</title>
     <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
+
+      // Disable developer tools and save shortcuts
+      document.addEventListener('keydown', function(e) {
+        // Prevent F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Prevent Ctrl+Shift+I or Cmd+Opt+I (Inspect)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.keyCode === 73)) {
+          e.preventDefault();
+          return false;
+        }
+        if (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'I' || e.keyCode === 73)) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Prevent Ctrl+Shift+C or Cmd+Opt+C (Element Selector)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'c' || e.key === 'C' || e.keyCode === 67)) {
+          e.preventDefault();
+          return false;
+        }
+        if (e.metaKey && e.altKey && (e.key === 'c' || e.key === 'C' || e.keyCode === 67)) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Prevent Ctrl+Shift+J or Cmd+Opt+J (Console)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'j' || e.key === 'J' || e.keyCode === 74)) {
+          e.preventDefault();
+          return false;
+        }
+        if (e.metaKey && e.altKey && (e.key === 'j' || e.key === 'J' || e.keyCode === 74)) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Prevent Ctrl+U or Cmd+U (View Source)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Prevent Ctrl+S or Cmd+S (Save Page)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.keyCode === 83)) {
+          e.preventDefault();
+          return false;
+        }
+      });
+    </script>
+    <script>
       (function() {
         try {
           var originalFetch = window.fetch;
