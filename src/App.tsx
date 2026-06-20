@@ -617,6 +617,21 @@ export default function App() {
   const [zoomMode, setZoomMode] = useState<'fit' | '100%'>('fit');
   const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
 
+  // Automatically toggle figma mode based on screen width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setFigmaMode(false);
+      } else {
+        // Only set to true if they are on a desktop screen
+        setFigmaMode(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // run initially
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // --- Anti-Inspect & DevTools Protection ---
   useEffect(() => {
     const preventDefault = (e: Event) => e.preventDefault();
@@ -1325,12 +1340,38 @@ export default function App() {
           {/* Mobile phone mockup sticky hardware overlays */}
           {figmaMode && viewportMode === 'mobile' && (
             <>
-              {/* Dynamic Island / Notch */}
-              <div className="sticky top-2 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-center pointer-events-none shadow-md mb-[-24px]">
-                <div className="w-2.5 h-2.5 rounded-full bg-neutral-950 absolute right-4"></div>
+              {/* Simulated iOS Status Bar */}
+              <div className="sticky top-0 left-0 w-full h-9 bg-[#030303] flex items-center justify-between px-6 z-50 select-none pointer-events-none text-white text-[11px] font-sans">
+                {/* Left: Time */}
+                <span className="font-semibold tracking-tight">9:41</span>
+                
+                {/* Middle: Dynamic Island / Notch */}
+                <div className="absolute left-1/2 -translate-x-1/2 w-26 h-5.5 bg-black rounded-full flex items-center justify-center pointer-events-none">
+                  <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 absolute right-3.5"></div>
+                </div>
+                
+                {/* Right: Icons (Signal, Wifi, Battery) */}
+                <div className="flex items-center gap-1.5 opacity-80">
+                  {/* Signal */}
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M2 17h2v3H2zm4-4h2v7H6zm4-4h2v11h-2zm4-4h2v15h-2zm4-4h2v19h-2z"/>
+                  </svg>
+                  {/* Wifi */}
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21l-12-12c4.4-4.4 11.6-4.4 16 0z" />
+                  </svg>
+                  {/* Battery */}
+                  <div className="w-5 h-2.5 border border-white rounded-[4px] p-[1px] flex items-center">
+                    <div className="w-[13px] h-[6px] bg-white rounded-[2px]"></div>
+                    <div className="w-[1.5px] h-[3px] bg-white rounded-r-[1px] ml-[1px]"></div>
+                  </div>
+                </div>
               </div>
-              {/* Home Indicator Bar */}
-              <div className="sticky bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-neutral-700/80 rounded-full z-50 pointer-events-none mt-[-6px]"></div>
+              
+              {/* Home Indicator Bar Sticky Overlay */}
+              <div className="sticky bottom-0 left-0 w-full bg-[#030303] py-2.5 z-50 pointer-events-none border-t border-neutral-950">
+                <div className="mx-auto w-32 h-1.5 bg-neutral-850 rounded-full"></div>
+              </div>
             </>
           )}
 
