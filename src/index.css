@@ -1888,11 +1888,10 @@
   margin: 0 0 5px;
   min-height: 0;
 }
-
 .eti-card-title {
   font-family: var(--eti-display) !important;
   font-size: 1.7rem;
-  line-height: 1.1;
+  line-height: 1.25;
   color: var(--eti-paper);
   margin: 0 0 7px;
   font-weight: 400;
@@ -1937,11 +1936,17 @@
   .eti-card-eyebrow {
     font-size: 0.65rem;
     margin-bottom: 2px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
   }
   .eti-card-title {
     font-size: 0.9rem;
+    line-height: 1.25;
     margin-bottom: 4px;
+  }
+  .eti-card-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
   .eti-card-price {
     font-size: 0.75rem;

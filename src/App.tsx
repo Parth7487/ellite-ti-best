@@ -1421,9 +1421,18 @@ export default function App() {
             className="fixed left-0 right-0 top-[76px] bg-[#0a0a0b]/98 border-t border-neutral-900/50 shadow-2xl z-40 overflow-y-auto max-h-[calc(100vh-76px)]"
           >
             <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-10">
-              <div className="flex justify-between items-baseline border-b border-neutral-900 pb-4 mb-8">
-                <h3 className="font-display font-bold text-xs uppercase tracking-[0.2em] text-[#fafaf7]">SELECT YOUR CHASSIS</h3>
-                <span className="font-mono text-[9px] uppercase tracking-wider text-neutral-400">30+ CHASSIS &nbsp;/&nbsp; MADE-TO-ORDER FITMENT</span>
+              <div className="flex justify-between items-center border-b border-neutral-900 pb-4 mb-8">
+                <div>
+                  <h3 className="font-display font-bold text-xs uppercase tracking-[0.2em] text-[#fafaf7]">SELECT YOUR CHASSIS</h3>
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-neutral-400 block mt-1 md:inline md:mt-0">30+ CHASSIS &nbsp;/&nbsp; MADE-TO-ORDER FITMENT</span>
+                </div>
+                <button 
+                  onClick={() => setShopByCarOpen(false)}
+                  className="p-2 -mr-2 bg-transparent border-0 text-neutral-400 hover:text-white cursor-pointer transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-12 text-left">
