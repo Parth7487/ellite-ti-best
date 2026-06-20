@@ -1998,4 +1998,10 @@
   .hero__scroll {
     display: none !important;
   }
+  
+  .featured-slide__hero {
+    min-height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    width: 100% !important;
+  }
 }
