@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   FinishType, 
   KitComponent, 
@@ -13,6 +13,7 @@ import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
 import { ModelFinder } from './components/ModelFinder';
 import { AboutUs } from './components/AboutUs';
 import { 
+  ShieldCheck,
   ShoppingBag, 
   Search, 
   ChevronDown, 
@@ -131,6 +132,193 @@ export const getComponentPrice = (item: KitComponent) => {
   // Fallback to base price
   return item.price;
 };
+
+interface CatalogProduct {
+  id: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  eyebrow: string;
+  category: 'body-kits' | 'aero' | 'interior' | 'hoods' | 'engine' | 'titanium';
+  subCategory?: 'front-bumper' | 'rear-bumper' | 'fender' | 'side-skirt' | 'diffuser' | 'canard' | 'wing' | 'lip' | 'detail';
+  isSale?: boolean;
+  isConfigurable?: boolean;
+  isIcon?: boolean;
+  iconName?: 'insurance' | 'chair';
+}
+
+const catalogProducts: CatalogProduct[] = [
+  // Body Kits
+  {
+    id: 'prod_350z_body_kit',
+    title: 'TOP SECRET STYLE WIDEBODY BODY KIT',
+    price: 5845,
+    image: '/images/prod_350z_body_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Nissan 350Z',
+    isConfigurable: true
+  },
+  {
+    id: 'prod_r32_pandem_kit',
+    title: 'R32 GTR PANDEM STYLE WIDEBODY KIT',
+    price: 4900,
+    image: '/images/prod_r32_pandem_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Skyline GTR R32'
+  },
+  {
+    id: 'prod_370z_allure_kit',
+    title: '370Z ETi ALLURE WIDE BODY KIT',
+    price: 5450,
+    image: '/images/prod_370z_allure_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Nissan 370Z'
+  },
+
+  // Aero & Body Panels
+  {
+    id: 'prod_a90_pro_lip',
+    title: 'A90 PRO LIP',
+    price: 925,
+    image: '/images/prod_a90_pro_lip.png',
+    category: 'aero',
+    subCategory: 'lip',
+    eyebrow: 'Supra MK5'
+  },
+  {
+    id: 'prod_a90_rear_splitter',
+    title: 'A90 REAR BUMPER SPLITTER',
+    price: 250,
+    image: '/images/prod_a90_rear_splitter.png',
+    category: 'aero',
+    subCategory: 'lip',
+    eyebrow: 'Supra MK5'
+  },
+  {
+    id: 'prod_r34_gtt_front_bumper',
+    title: 'R34 GTT Z-TUNE STYLE FRONT BUMPER',
+    price: 1150,
+    image: '/images/prod_fk_exhaust.jpg',
+    category: 'aero',
+    subCategory: 'front-bumper',
+    eyebrow: 'Skyline R34 GTT'
+  },
+  {
+    id: 'prod_r32_doluck_rear',
+    title: 'R32 GTR DO-LUCK STYLE REAR BUMPER',
+    price: 950,
+    image: '/images/prod_fk_exhaust.jpg',
+    category: 'aero',
+    subCategory: 'rear-bumper',
+    eyebrow: 'Skyline GTR R32'
+  },
+  {
+    id: 'prod_r35_wald_covers',
+    title: 'R35 GTR WALD STYLE BUMPER SIDE COVER',
+    price: 350,
+    image: '/images/prod_rx7_pulley_kit.jpg',
+    category: 'aero',
+    subCategory: 'detail',
+    eyebrow: 'GT-R R35'
+  },
+  {
+    id: 'prod_370z_kaze_skirts',
+    title: '370Z KAZE STYLE SIDE SKIRTS',
+    price: 650,
+    image: '/images/prod_fk_exhaust.jpg',
+    category: 'aero',
+    subCategory: 'side-skirt',
+    eyebrow: 'Nissan 370Z'
+  },
+
+  // Interior
+  {
+    id: 'prod_carbon_interior',
+    title: '8PCS CARBON FIBER INTERIOR SET',
+    price: 499,
+    originalPrice: 650,
+    image: '/images/prod_carbon_interior_set.png',
+    category: 'interior',
+    eyebrow: 'Universal / Tesla',
+    isSale: true
+  },
+  {
+    id: 'prod_alcantara_armrest',
+    title: 'ALCANTARA CAR ARMREST BOX',
+    price: 29.99,
+    originalPrice: 45,
+    image: '/images/prod_alcantara_armrest.png',
+    category: 'interior',
+    eyebrow: 'Universal / Tesla',
+    isSale: true
+  },
+  {
+    id: 'prod_valtari_chair',
+    title: 'VALTARI RACING SEAT',
+    price: 450,
+    image: '',
+    category: 'interior',
+    eyebrow: 'Universal',
+    isIcon: true,
+    iconName: 'chair'
+  },
+
+  // Hoods, Trunks & Cowls
+  {
+    id: 'prod_r32_nismo_hood',
+    title: 'R32 GTR NISMO STYLE CARBON HOOD',
+    price: 1450,
+    image: '/images/prod_350z_body_kit.jpg',
+    category: 'hoods',
+    eyebrow: 'Skyline GTR R32'
+  },
+  {
+    id: 'prod_r32_topsecret_hood',
+    title: 'R32 GTR TOP SECRET STYLE HOOD',
+    price: 1650,
+    image: '/images/prod_r32_pandem_kit.jpg',
+    category: 'hoods',
+    eyebrow: 'Skyline GTR R32'
+  },
+  {
+    id: 'prod_r32_roof_spoiler',
+    title: 'R32 GTR DX CARBON ROOF SPOILER',
+    price: 350,
+    image: '/images/prod_370z_allure_kit.jpg',
+    category: 'hoods',
+    eyebrow: 'Skyline GTR R32'
+  },
+
+  // Engine Bay
+  {
+    id: 'prod_2jz_swap_kit',
+    title: '2JZ SWAP KIT',
+    price: 445,
+    image: '/images/prod_2jz_swap_kit.png',
+    category: 'engine',
+    eyebrow: 'Universal / Toyota'
+  },
+  {
+    id: 'prod_2jz_intake',
+    title: '2JZ-GTE/GE CARBON INTAKE MANIFOLD',
+    price: 2450,
+    image: '/images/prod_2jz_intake_manifold.png',
+    category: 'engine',
+    eyebrow: 'Supra MK4 / 2JZ'
+  },
+
+  // Titanium
+  {
+    id: 'prod_350z_ti_kit',
+    title: '350Z TITANIUM HARDWARE KIT',
+    price: 189,
+    image: '/images/prod_350z_ti_hardware_kit.png',
+    category: 'titanium',
+    eyebrow: 'Nissan 350Z',
+    isConfigurable: true
+  }
+];
 
 export default function App() {
   // --- Cart State ---
@@ -413,6 +601,106 @@ export default function App() {
   const [titaniumFinish, setTitaniumFinish] = useState<'raw_ti' | 'burnt_blue' | 'gold' | 'purple'>('burnt_blue');
   const [swagSize, setSwagSize] = useState<'S' | 'M' | 'L' | 'XL'>('M');
 
+  // --- Catalog Restructure States ---
+  const [aeroSubFilter, setAeroSubFilter] = useState<string>('all');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    'body-kits': false,
+    'aero': false,
+    'interior': false,
+    'hoods': false,
+    'engine': false,
+    'titanium': false,
+  });
+  const [activeNav, setActiveNav] = useState<string>('cat-body-kits');
+  
+  const sectionsRef = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200;
+      
+      let currentSection = 'cat-body-kits';
+      for (const id of ['cat-body-kits', 'cat-aero', 'cat-interior', 'cat-hoods', 'cat-engine', 'cat-titanium']) {
+        const el = sectionsRef.current[id];
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            currentSection = id;
+            break;
+          }
+        }
+      }
+      setActiveNav(currentSection);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      const top = el.offsetTop - 120;
+      window.scrollTo({ top, behavior: 'smooth' });
+      setActiveNav(id);
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const handleProductAction = (e: React.MouseEvent, product: CatalogProduct) => {
+    e.preventDefault();
+    if (product.isConfigurable) {
+      triggerToast(`Redirecting to interactive custom builder spec for ${product.title}...`);
+      setCurrentPage('product');
+      return;
+    }
+
+    const cartId = `catalog-${product.id}-${Date.now()}`;
+    const newCartItem: CartItem = {
+      id: cartId,
+      title: product.title,
+      subtitle: `${product.eyebrow} / ${product.category.toUpperCase()}`,
+      imageType: product.id.includes('350z') ? 'tier1' : 'tier3',
+      qty: 1,
+      unitPrice: product.price,
+      totalPrice: product.price,
+      selectedOptions: [
+        { label: 'Fitment Spec', value: product.eyebrow.toUpperCase() },
+        { label: 'Category', value: product.category.toUpperCase() }
+      ],
+      specDetails: [
+        `Fitment: ${product.eyebrow}`,
+        `Material/Type: ${product.category}`
+      ]
+    };
+
+    setCart((prev) => [...prev, newCartItem]);
+    setIsCartOpen(true);
+    triggerToast(`✨ Added ${product.title} to cart!`);
+  };
+
+  // Grouped products
+  const bodyKits = catalogProducts.filter(p => p.category === 'body-kits');
+  
+  const aeroFiltered = catalogProducts.filter(p => {
+    if (p.category !== 'aero') return false;
+    if (aeroSubFilter === 'all') return true;
+    return p.subCategory === aeroSubFilter;
+  });
+
+  const interior = catalogProducts.filter(p => p.category === 'interior');
+  const hoods = catalogProducts.filter(p => p.category === 'hoods');
+  const engine = catalogProducts.filter(p => p.category === 'engine');
+  const titanium = catalogProducts.filter(p => p.category === 'titanium');
+
   // --- Slides Data for Featured Chassis Slider ---
   const slidesData = [
     {
@@ -492,532 +780,6 @@ export default function App() {
         { id: "370z-mirror", title: "Z34 CARBON MIRROR COVERS", price: 180, type: "tier1" as const },
         { id: "370z-bay", title: "Z34 VQ37 TITANIUM BAY FASTENERS", price: 189, type: "tier3" as const }
       ]
-    }
-  ];
-
-  const catalogProducts = [
-    {
-      id: "cat-2jz-swap",
-      title: "TOYOTA SUPRA JZA80 2JZ SWAP KIT",
-      category: "carbon" as const,
-      price: 560,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Untitled_design_59.png?v=1769703290",
-      badge: "BESTSELLER",
-      chassis: "JZA80"
-    },
-    {
-      id: "cat-2jz-manifold",
-      title: "TOYOTA SUPRA JZA80 2JZ-GTE/GE CARBON INTAKE MANIFOLD",
-      category: "carbon" as const,
-      price: 2195,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      badge: "PRE-ORDER",
-      chassis: "JZA80"
-    },
-    {
-      id: "cat-350z-ti-kit",
-      title: "NISSAN 350Z Z33 TITANIUM HARDWARE KIT",
-      category: "titanium" as const,
-      price: 250,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      badge: "MADE TO ORDER",
-      chassis: "Z33"
-    },
-    {
-      id: "cat-8pcs-interior",
-      title: "NISSAN 350Z Z33 8PCS CARBON FIBER INTERIOR SET",
-      category: "carbon" as const,
-      price: 18.01,
-      originalPrice: 30.00,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      badge: "SALE",
-      chassis: "Z33"
-    },
-    {
-      id: "cat-add-insurance",
-      title: "ADD INSURANCE",
-      category: "titanium" as const,
-      price: 8.50,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      badge: "OPTIONAL",
-      chassis: "ALL"
-    },
-    {
-      id: "cat-tesla-armrest",
-      title: "FOR TESLA MODEL Y/3 CAR ARMREST BOX COVER",
-      category: "carbon" as const,
-      price: 18.01,
-      originalPrice: 30.00,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      badge: "SALE",
-      chassis: "MODEL Y"
-    },
-    {
-      id: "cat-eti-tee",
-      title: "ETI OFFICIAL ATELIER LOGO TEE",
-      category: "swag" as const,
-      price: 35.00,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group.png?v=1760445002",
-      badge: "APPAREL",
-      chassis: "ALL"
-    },
-    {
-      id: "cat-eti-hoodie",
-      title: "ETI TRACK ZIP HOODIE",
-      category: "swag" as const,
-      price: 65.00,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group_2.png?v=1760683834",
-      badge: "APPAREL",
-      chassis: "ALL"
-    },
-
-    // --- Added from slidesData and other chassis options ---
-    // MAZDA
-    {
-      id: "rx7-hood",
-      title: "MAZDA RX-7 FD3S RE AMEMIYA CARBON HOOD",
-      category: "carbon" as const,
-      price: 1450,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      badge: "BESPOKE",
-      chassis: "FD3S"
-    },
-    {
-      id: "rx7-lip",
-      title: "MAZDA RX-7 FD3S FEED-STYLE CARBON FRONT LIP",
-      category: "carbon" as const,
-      price: 680,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      badge: "AUTOCLAVE",
-      chassis: "FD3S"
-    },
-    {
-      id: "rx7-skirt",
-      title: "MAZDA RX-7 FD3S CARBON SIDE SKIRTS",
-      category: "carbon" as const,
-      price: 580,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "FD3S"
-    },
-    {
-      id: "rx7-bolts",
-      title: "MAZDA RX-7 FD3S TITANIUM BAY FASTENERS",
-      category: "titanium" as const,
-      price: 189,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "FD3S"
-    },
-    {
-      id: "rx8-lip",
-      title: "MAZDA RX-8 SE3P CARBON FRONT LIP",
-      category: "carbon" as const,
-      price: 520,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "SE3P"
-    },
-
-    // TOYOTA
-    {
-      id: "supra4-lip",
-      title: "TOYOTA SUPRA JZA80 R-RIDERS CARBON FRONT LIP",
-      category: "carbon" as const,
-      price: 720,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "JZA80"
-    },
-    {
-      id: "supra4-plug",
-      title: "TOYOTA SUPRA JZA80 2JZ CARBON SPARK PLUG COVER",
-      category: "carbon" as const,
-      price: 340,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "JZA80"
-    },
-    {
-      id: "supra4-wing",
-      title: "TOYOTA SUPRA JZA80 TRD-STYLE CARBON WING",
-      category: "carbon" as const,
-      price: 890,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "JZA80"
-    },
-    {
-      id: "supra4-ti",
-      title: "TOYOTA SUPRA JZA80 TITANIUM ENGINE BAY KIT",
-      category: "titanium" as const,
-      price: 295,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "JZA80"
-    },
-    {
-      id: "supra5-spoiler",
-      title: "TOYOTA SUPRA A90 HKS-STYLE CARBON DUCKTAIL",
-      category: "carbon" as const,
-      price: 540,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "A90"
-    },
-    {
-      id: "supra5-fender",
-      title: "TOYOTA SUPRA A90 CARBON FENDER GARNISH",
-      category: "carbon" as const,
-      price: 280,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "A90"
-    },
-    {
-      id: "supra5-diffuser",
-      title: "TOYOTA SUPRA A90 CARBON REAR DIFFUSER",
-      category: "carbon" as const,
-      price: 980,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "A90"
-    },
-    {
-      id: "supra5-hardware",
-      title: "TOYOTA SUPRA A90 GRADE 5 TITANIUM BOLTS",
-      category: "titanium" as const,
-      price: 145,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "A90"
-    },
-    {
-      id: "toyota-zn6-hood",
-      title: "TOYOTA GT86 / FT86 ZN6 CARBON VENTED HOOD",
-      category: "carbon" as const,
-      price: 1250,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "ZN6"
-    },
-    {
-      id: "toyota-zn8-wing",
-      title: "TOYOTA GR86 ZN8 CARBON REAR SPOILER",
-      category: "carbon" as const,
-      price: 490,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "ZN8"
-    },
-    {
-      id: "toyota-mr2-skirt",
-      title: "TOYOTA MR2 SW20 CARBON SIDE SHARDS",
-      category: "carbon" as const,
-      price: 420,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "SW20"
-    },
-
-    // NISSAN
-    {
-      id: "r34-diffuser",
-      title: "NISSAN SKYLINE BNR34 V-SPEC CARBON REAR DIFFUSER",
-      category: "carbon" as const,
-      price: 1850,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "BNR34"
-    },
-    {
-      id: "r34-splitter",
-      title: "NISSAN SKYLINE BNR34 CARBON FRONT SPLITTER",
-      category: "carbon" as const,
-      price: 790,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "BNR34"
-    },
-    {
-      id: "r34-wing",
-      title: "NISSAN SKYLINE BNR34 CARBON WING BLADE EXTS",
-      category: "carbon" as const,
-      price: 420,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "BNR34"
-    },
-    {
-      id: "r34-fasteners",
-      title: "NISSAN SKYLINE BNR34 RB26 TITANIUM BOLTS KIT",
-      category: "titanium" as const,
-      price: 280,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "BNR34"
-    },
-    {
-      id: "r35-hood",
-      title: "NISSAN GT-R R35 N-STYLE VENTED CARBON HOOD",
-      category: "carbon" as const,
-      price: 2195,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "R35"
-    },
-    {
-      id: "r35-trunk",
-      title: "NISSAN GT-R R35 OEM CARBON TRUNK LID",
-      category: "carbon" as const,
-      price: 1150,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "R35"
-    },
-    {
-      id: "r35-fenders",
-      title: "NISSAN GT-R R35 VENTED CARBON FENDERS",
-      category: "carbon" as const,
-      price: 1550,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "R35"
-    },
-    {
-      id: "r35-lugs",
-      title: "NISSAN GT-R R35 TITANIUM WHEEL LUG NUTS",
-      category: "titanium" as const,
-      price: 320,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "R35"
-    },
-    {
-      id: "nissan-r32-lip",
-      title: "NISSAN SKYLINE BNR32 N1-STYLE CARBON LIP",
-      category: "carbon" as const,
-      price: 495,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "R32"
-    },
-    {
-      id: "nissan-r33-wing",
-      title: "NISSAN SKYLINE BCNR33 CARBON WING BLADE",
-      category: "carbon" as const,
-      price: 430,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      chassis: "R33"
-    },
-    {
-      id: "370z-wing",
-      title: "NISSAN 370Z Z34 NIS-STYLE CARBON REAR WING",
-      category: "carbon" as const,
-      price: 850,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "Z34"
-    },
-    {
-      id: "370z-lip",
-      title: "NISSAN 370Z Z34 CARBON FRONT LIP SPLITTER",
-      category: "carbon" as const,
-      price: 590,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "Z34"
-    },
-    {
-      id: "370z-mirror",
-      title: "NISSAN 370Z Z34 CARBON MIRROR COVERS",
-      category: "carbon" as const,
-      price: 180,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "Z34"
-    },
-    {
-      id: "370z-bay",
-      title: "NISSAN 370Z Z34 VQ37 TITANIUM BAY FASTENERS",
-      category: "titanium" as const,
-      price: 189,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "Z34"
-    },
-    {
-      id: "nissan-s15-hood",
-      title: "NISSAN SILVIA S15 D-MAX STYLE CARBON HOOD",
-      category: "carbon" as const,
-      price: 1195,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "S15"
-    },
-    {
-      id: "nissan-s14-lip",
-      title: "NISSAN SILVIA S14 KOUKI CARBON FRONT LIP",
-      category: "carbon" as const,
-      price: 380,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "S14"
-    },
-    {
-      id: "nissan-s13-hatch",
-      title: "NISSAN 180SX S13 CARBON REAR HATCH COVER",
-      category: "carbon" as const,
-      price: 640,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "S13"
-    },
-    {
-      id: "nissan-g35-pillar",
-      title: "NISSAN G35 V35 CARBON FIBER PILLAR POSTS",
-      category: "carbon" as const,
-      price: 85,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "V35"
-    },
-
-    // MITSUBISHI
-    {
-      id: "mitsu-evo9-lip",
-      title: "MITSUBISHI LANCER EVO 8 / 9 CARBON FRONT LIP",
-      category: "carbon" as const,
-      price: 450,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "8 / 9"
-    },
-    {
-      id: "mitsu-evox-hood",
-      title: "MITSUBISHI LANCER EVO X VENTED CARBON HOOD",
-      category: "carbon" as const,
-      price: 1350,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "X"
-    },
-    {
-      id: "mitsu-gto-exhaust",
-      title: "MITSUBISHI GTO / 3000GT TITANIUM EXHAUST DRESS-UP",
-      category: "titanium" as const,
-      price: 180,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      chassis: "3000GT"
-    },
-    {
-      id: "mitsu-fto-splitter",
-      title: "MITSUBISHI FTO CARBON FRONT SPLITTER",
-      category: "carbon" as const,
-      price: 360,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "FTO"
-    },
-
-    // HONDA
-    {
-      id: "honda-civic-fk8-wing",
-      title: "HONDA CIVIC FC / FK TYPE R CARBON REAR WING",
-      category: "carbon" as const,
-      price: 680,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "FC / FK"
-    },
-    {
-      id: "honda-civic-eg-mirrors",
-      title: "HONDA CIVIC EG / EK SPOON-STYLE CARBON MIRRORS",
-      category: "carbon" as const,
-      price: 195,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "EG / EK"
-    },
-    {
-      id: "honda-jazz-wing",
-      title: "HONDA JAZZ / FIT RS CARBON REAR WING",
-      category: "carbon" as const,
-      price: 290,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      chassis: "JAZZ / FIT"
-    },
-
-    // SUBARU
-    {
-      id: "subaru-wrx-diffuser",
-      title: "SUBARU iMPREZA / WRX VARIS-STYLE CARBON DIFFUSER",
-      category: "carbon" as const,
-      price: 890,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "iMPREZA / WRX"
-    },
-
-    // BMW
-    {
-      id: "bmw-m2-splitter",
-      title: "BMW M2 F87 M-PERFORMANCE CARBON SPLITTER",
-      category: "carbon" as const,
-      price: 740,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "F87"
-    },
-    {
-      id: "bmw-e46-trunk",
-      title: "BMW E46 M3 CSL-STYLE FULL CARBON TRUNK LID",
-      category: "carbon" as const,
-      price: 895,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "E46"
-    },
-    {
-      id: "bmw-e92-hood",
-      title: "BMW 3-SERIES E90-E93 M3 CARBON VENTED HOOD",
-      category: "carbon" as const,
-      price: 1450,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "E90-E93"
-    },
-    {
-      id: "bmw-f32-splitter",
-      title: "BMW 4-SERIES F32 &middot; M4 CARBON FRONT SPOILER",
-      category: "carbon" as const,
-      price: 650,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "F32 &middot; M4"
-    },
-    {
-      id: "bmw-e60-fenders",
-      title: "BMW 5-SERIES E60-G30 CARBON FRONT FENDERS",
-      category: "carbon" as const,
-      price: 980,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "E60-G30"
-    },
-    {
-      id: "bmw-z4-grilles",
-      title: "BMW Z4 E89 CARBON SIDE MIRRORS & GRILLES",
-      category: "carbon" as const,
-      price: 240,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "E89"
-    },
-
-    // PORSCHE
-    {
-      id: "porsche-gt3-wing",
-      title: "PORSCHE 911 GT3 CARBON REAR WING BLADE",
-      category: "carbon" as const,
-      price: 2350,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "911"
-    },
-    {
-      id: "porsche-cayman-ducts",
-      title: "PORSCHE 981 CAYMAN / BOXSTER CARBON SIDE AIR INTAKES",
-      category: "carbon" as const,
-      price: 380,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "981 CAYMAN / BOXSTER"
-    },
-
-    // LAMBORGHINI
-    {
-      id: "lambo-lugs",
-      title: "LAMBORGHINI HURACAN/AVENTADOR TITANIUM WHEEL BOLTS",
-      category: "titanium" as const,
-      price: 450,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      chassis: "LAMBORGHINI"
-    },
-
-    // CHEVROLET
-    {
-      id: "chevy-corvette-lip",
-      title: "CHEVROLET C8 CORVETTE CARBON FRONT LIP SPLITTER",
-      category: "carbon" as const,
-      price: 695,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      chassis: "C8 CORVETTE"
-    },
-
-    // FORD
-    {
-      id: "ford-ranger-flares",
-      title: "FORD RANGER CARBON FLARED WHEEL ARCHES",
-      category: "carbon" as const,
-      price: 580,
-      image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      chassis: "RANGER"
     }
   ];
 
@@ -2124,165 +1886,396 @@ export default function App() {
       )}
 
       {/* CATALOG PAGE VIEW */}
-      {currentPage === 'catalog' && (
-        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1400px] mx-auto space-y-10 min-h-[75vh]">
-          {/* Page Title */}
-          <div className="border-b border-neutral-900 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">ETI ATELIER DIRECTORY</span>
-              <h1 className="text-4xl font-bold text-white tracking-tight uppercase mt-1">PRODUCTS</h1>
-              <p className="text-xs font-mono text-neutral-500 uppercase mt-2">
-                Curated custom JDM collections &bull; Autoclave carbon molds &bull; Titanium hardware
+      {currentPage === 'catalog' && (() => {
+        const renderProductCard = (p: CatalogProduct) => {
+          return (
+            <a 
+              key={p.id}
+              href={`/products/${p.id}`}
+              onClick={(e) => {
+                if (p.isConfigurable) {
+                  e.preventDefault();
+                  setCurrentPage('product');
+                } else {
+                  handleProductAction(e, p);
+                }
+              }}
+              className="eti-card"
+            >
+              <div className="eti-card-img">
+                {p.isIcon ? (
+                  <div className="w-full h-full bg-neutral-950 flex flex-col items-center justify-center p-6 space-y-3">
+                    {p.iconName === 'insurance' ? (
+                      <div className="w-16 h-16 rounded-full border border-neutral-800 bg-neutral-900/60 flex items-center justify-center text-[#9cce00] shadow-[0_0_15px_rgba(156,206,0,0.1)]">
+                        <ShieldCheck className="w-8 h-8" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full border border-neutral-800 bg-neutral-900/60 flex items-center justify-center text-white">
+                        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M7 3h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+                          <path d="M5 10h14" />
+                          <path d="M8 17v4" />
+                          <path d="M16 17v4" />
+                        </svg>
+                      </div>
+                    )}
+                    <span className="text-[8px] font-mono tracking-widest text-neutral-500 uppercase">
+                      VALTARI RACING GLYPH
+                    </span>
+                  </div>
+                ) : (
+                  <img 
+                    src={p.image} 
+                    alt={p.title} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/350z-hero-0.jpg';
+                    }}
+                  />
+                )}
+                
+                {p.isSale && <span className="eti-card-tag">Sale</span>}
+                
+                <div className="eti-card-ov">
+                  <p className="eti-card-eyebrow">
+                    {p.eyebrow}
+                  </p>
+                  <h3 className="eti-card-title">{p.title}</h3>
+                  <div className="eti-card-foot">
+                    <span className="eti-card-price">
+                      ${p.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {p.isConfigurable && (
+                      <span className="eti-card-options">Configurable</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </a>
+          );
+        };
+
+        return (
+          <div className="eti-collection eti-surface select-none">
+            
+            {/* 1. Breadcrumb navigation */}
+            <nav className="eti-breadcrumb" aria-label="Breadcrumb">
+              <a href="/" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Home</a>
+              <span aria-hidden="true" className="mx-2">/</span>
+              <a href="/collections/all" onClick={(e) => { e.preventDefault(); setCurrentPage('catalog'); }}>Catalog</a>
+              <span aria-hidden="true" className="mx-2">/</span>
+              <span aria-current="page">All Products</span>
+            </nav>
+
+            {/* 2. Collection Hero Section */}
+            <header className="eti-collection-hero">
+              <p className="eti-eyebrow">Made to Order · Bespoke Carbon · Titanium</p>
+              <h1 className="eti-collection-title">All Products</h1>
+              <p className="eti-collection-subtitle">
+                Precision fit. Real carbon & exotic titanium. Built for high performance standards.
               </p>
-            </div>
-
-            {/* Global Search inside Catalog */}
-            <div className="relative">
-              <input 
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full md:w-64 bg-neutral-950 border border-neutral-850 rounded px-4 py-2 text-xs font-mono text-white placeholder:text-neutral-600 uppercase focus:outline-none focus:border-neutral-700"
-              />
-            </div>
-          </div>
-
-          {/* Model Finder search panel */}
-          <ModelFinder 
-            onSearch={(query, message) => {
-              setSearchQuery(query);
-              triggerToast(message);
-            }} 
-          />
-
-          {/* Filtering and Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-            {/* Left Filter Sidebar */}
-            <div className="space-y-6 bg-[#080809] border border-neutral-900 rounded p-6">
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-850 pb-2">CATEGORIES</h4>
-                <div className="flex flex-col gap-2 font-mono text-xs">
-                  {[
-                    { key: 'all', label: 'ALL PRODUCTS' },
-                    { key: 'carbon', label: 'CARBON FIBER' },
-                    { key: 'titanium', label: 'TITANIUM HARDWARE' },
-                    { key: 'swag', label: 'SWAG / APPAREL' }
-                  ].map((cat) => (
-                    <button
-                      key={cat.key}
-                      onClick={() => setCatalogFilter(cat.key as any)}
-                      className={`text-left uppercase font-bold py-1 transition-colors cursor-pointer bg-transparent border-0 ${
-                        catalogFilter === cat.key ? 'text-[#c0f20c]' : 'text-neutral-450 hover:text-white'
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="eti-collection-meta" aria-label="Collection metadata">
+                <span>{catalogProducts.length} pieces</span>
+                <span aria-hidden="true" className="eti-meta-dot">·</span>
+                <span>Made to Order</span>
+                <span aria-hidden="true" className="eti-meta-dot">·</span>
+                <span>6–8 Week Lead Time</span>
               </div>
+            </header>
 
-              <div className="space-y-3 pt-4 border-t border-neutral-900">
-                <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-850 pb-2">CHASSIS FITMENT</h4>
-                <div className="flex flex-col gap-1.5 font-mono text-[10px] text-neutral-400">
-                  <button onClick={() => { setSearchQuery('Z33'); triggerToast("Filtered to 350Z chassis"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">350Z / Z33</button>
-                  <button onClick={() => { setSearchQuery('JZA80'); triggerToast("Filtered to Supra MK4"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SUPRA MK4 JZA80</button>
-                  <button onClick={() => { setSearchQuery('A90'); triggerToast("Filtered to Supra MK5"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SUPRA MK5 A90</button>
-                  <button onClick={() => { setSearchQuery('FD3S'); triggerToast("Filtered to RX-7"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">MAZDA RX-7 FD3S</button>
-                  <button onClick={() => { setSearchQuery('BNR34'); triggerToast("Filtered to GT-R R34"); }} className="text-left hover:text-white uppercase bg-transparent border-0 cursor-pointer">SKYLINE BNR34</button>
-                </div>
+            {/* 3. Sticky Category Navigation Bar */}
+            <nav className="eti-cat-nav" aria-label="Shop by category">
+              <div className="eti-cat-nav-inner">
+                <a 
+                  href="#cat-body-kits" 
+                  onClick={(e) => handleNavClick(e, 'cat-body-kits')}
+                  className={activeNav === 'cat-body-kits' ? 'is-active' : ''}
+                >
+                  Body Kits
+                </a>
+                <a 
+                  href="#cat-aero" 
+                  onClick={(e) => handleNavClick(e, 'cat-aero')}
+                  className={activeNav === 'cat-aero' ? 'is-active' : ''}
+                >
+                  Aero &amp; Body Panels
+                </a>
+                <a 
+                  href="#cat-interior" 
+                  onClick={(e) => handleNavClick(e, 'cat-interior')}
+                  className={activeNav === 'cat-interior' ? 'is-active' : ''}
+                >
+                  Interior
+                </a>
+                <a 
+                  href="#cat-hoods" 
+                  onClick={(e) => handleNavClick(e, 'cat-hoods')}
+                  className={activeNav === 'cat-hoods' ? 'is-active' : ''}
+                >
+                  Hoods, Trunks &amp; Cowls
+                </a>
+                <a 
+                  href="#cat-engine" 
+                  onClick={(e) => handleNavClick(e, 'cat-engine')}
+                  className={activeNav === 'cat-engine' ? 'is-active' : ''}
+                >
+                  Engine Bay
+                </a>
+                <a 
+                  href="#cat-titanium" 
+                  onClick={(e) => handleNavClick(e, 'cat-titanium')}
+                  className={activeNav === 'cat-titanium' ? 'is-active' : ''}
+                >
+                  Titanium
+                </a>
               </div>
-            </div>
+            </nav>
 
-            {/* Right Main Grid */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Toolbar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs text-neutral-400 bg-[#080809] border border-neutral-900 p-4 rounded">
-                <div className="uppercase">
-                  FILTERING: <span className="text-[#c0f20c] font-bold">{catalogFilter.toUpperCase()}</span>
+            {/* 4. Grouped Sections */}
+            
+            {/* Category Section: Body Kits */}
+            {bodyKits.length > 0 && (
+              <section 
+                id="cat-body-kits" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-body-kits'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow">Featured Style</p>
+                  <h2 className="eti-cat-title">Body Kits</h2>
+                  <p className="eti-cat-desc">
+                    Full widebody programmes — Top Secret, Ridox, Tamon, TRD 3000GT, Akuma. Buy the kit complete or shop a single panel.
+                  </p>
+                </header>
+                <div className="eti-cat-grid">
+                  {bodyKits.slice(0, expandedSections['body-kits'] ? undefined : 8).map(renderProductCard)}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="uppercase">SORT BY:</span>
-                  <select 
-                    value={catalogSort}
-                    onChange={(e) => setCatalogSort(e.target.value as any)}
-                    className="bg-neutral-950 border border-neutral-850 text-white rounded px-2.5 py-1 text-xs uppercase focus:outline-none"
+                {bodyKits.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['body-kits'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('body-kits')}
                   >
-                    <option value="alpha-asc">ALPHABETICALLY, A-Z</option>
-                    <option value="alpha-desc">ALPHABETICALLY, Z-A</option>
-                    <option value="price-asc">PRICE, LOW TO HIGH</option>
-                    <option value="price-desc">PRICE, HIGH TO LOW</option>
-                  </select>
-                </div>
-              </div>
+                    <span>{expandedSections['body-kits'] ? 'View Less' : `View All ${bodyKits.length} Body Kits`}</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform" style={{ transform: expandedSections['body-kits'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
 
-              {/* Products List Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {catalogProducts
-                  .filter((p) => catalogFilter === 'all' || p.category === catalogFilter)
-                  .filter((p) => p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.chassis.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .sort((a, b) => {
-                    if (catalogSort === 'alpha-asc') return a.title.localeCompare(b.title);
-                    if (catalogSort === 'alpha-desc') return b.title.localeCompare(a.title);
-                    if (catalogSort === 'price-asc') return a.price - b.price;
-                    if (catalogSort === 'price-desc') return b.price - a.price;
-                    return 0;
-                  })
-                  .map((p) => (
-                    <div 
-                      key={p.id}
-                      className="bg-neutral-950 border border-neutral-900 rounded-lg overflow-hidden group hover:border-neutral-850 transition-all flex flex-col justify-between"
+            {/* Category Section: Aero & Body Panels */}
+            {aeroFiltered.length > 0 && (
+              <section 
+                id="cat-aero" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-aero'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow">Individual Pieces</p>
+                  <h2 className="eti-cat-title">Aero &amp; Body Panels</h2>
+                  <p className="eti-cat-desc">
+                    Front bumpers, rear bumpers, fenders, side skirts, diffusers, canards, wings, spoilers, lips — each available in your finish.
+                  </p>
+                  
+                  {/* Aero Sub-filter matrix */}
+                  <div className="eti-subfilter" role="group" aria-label="Filter by part type">
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'all' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('all')}
                     >
-                      {/* Product image */}
-                      <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
-                        <img 
-                          src={p.image} 
-                          alt={p.title} 
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-95 group-hover:scale-105 transition-all duration-500" 
-                        />
-                        {p.badge && (
-                          <span className="absolute top-3 right-3 text-[8px] font-mono font-bold bg-[#c0f20c] text-black px-2 py-0.5 rounded uppercase">
-                            {p.badge}
-                          </span>
-                        )}
-                      </div>
+                      All
+                    </button>
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'front-bumper' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('front-bumper')}
+                    >
+                      Front Bumpers
+                    </button>
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'rear-bumper' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('rear-bumper')}
+                    >
+                      Rear Bumpers
+                    </button>
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'side-skirt' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('side-skirt')}
+                    >
+                      Side Skirts
+                    </button>
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'lip' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('lip')}
+                    >
+                      Lips &amp; Splitters
+                    </button>
+                    <button 
+                      type="button" 
+                      className={aeroSubFilter === 'detail' ? 'is-active' : ''} 
+                      onClick={() => setAeroSubFilter('detail')}
+                    >
+                      Details
+                    </button>
+                  </div>
+                </header>
+                
+                <div className="eti-cat-grid">
+                  {aeroFiltered.slice(0, expandedSections['aero'] ? undefined : 8).map(renderProductCard)}
+                </div>
+                {aeroFiltered.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['aero'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('aero')}
+                  >
+                    <span>{expandedSections['aero'] ? 'View Less' : `View All ${aeroFiltered.length} Aero Pieces`}</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform" style={{ transform: expandedSections['aero'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
 
-                      {/* Info & Cart add */}
-                      <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-                        <div className="space-y-1">
-                          <div className="flex justify-between items-start gap-1">
-                            <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight group-hover:text-[#c0f20c] transition-colors">
-                              {p.title}
-                            </h3>
-                          </div>
-                          <div className="text-[10px] font-mono text-neutral-500 uppercase">
-                            Chassis fitment: {p.chassis}
-                          </div>
-                        </div>
+            {/* Category Section: Interior */}
+            {interior.length > 0 && (
+              <section 
+                id="cat-interior" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-interior'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow">Cabin</p>
+                  <h2 className="eti-cat-title">Interior</h2>
+                  <p className="eti-cat-desc">
+                    Center consoles, dash panels, gauge pods, armrests, door cards, shift frames — finished in carbon, Kevlar, or your spec.
+                  </p>
+                </header>
+                <div className="eti-cat-grid">
+                  {interior.slice(0, expandedSections['interior'] ? undefined : 8).map(renderProductCard)}
+                </div>
+                {interior.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['interior'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('interior')}
+                  >
+                    <span>{expandedSections['interior'] ? 'View Less' : `View All ${interior.length} Interior Pieces`}</span>
+                    <ArrowRight className="w-3.5 h-3.5" style={{ transform: expandedSections['interior'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
 
-                        <div className="space-y-3">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-sm font-mono font-bold text-[#c0f20c]">${p.price.toFixed(2)} USD</span>
-                            {p.originalPrice && (
-                              <span className="text-xs font-mono text-neutral-600 line-through">${p.originalPrice.toFixed(2)}</span>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => handleAddSimpleProductToCart(p)}
-                            className="w-full py-2 bg-neutral-900 border border-neutral-800 text-white rounded text-[10px] font-mono uppercase tracking-widest hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-all cursor-pointer"
-                          >
-                            + ADD TO CART
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+            {/* Category Section: Hoods, Trunks & Cowls */}
+            {hoods.length > 0 && (
+              <section 
+                id="cat-hoods" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-hoods'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow">Large Panels</p>
+                  <h2 className="eti-cat-title">Hoods, Trunks &amp; Cowls</h2>
+                  <p className="eti-cat-desc">
+                    Carbon hoods (Top Secret, Varis, V8 swap), rear hatches, cowl panels — the panels that change the silhouette.
+                  </p>
+                </header>
+                <div className="eti-cat-grid">
+                  {hoods.slice(0, expandedSections['hoods'] ? undefined : 8).map(renderProductCard)}
+                </div>
+                {hoods.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['hoods'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('hoods')}
+                  >
+                    <span>{expandedSections['hoods'] ? 'View Less' : `View All ${hoods.length} Large Panels`}</span>
+                    <ArrowRight className="w-3.5 h-3.5" style={{ transform: expandedSections['hoods'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* Category Section: Engine Bay */}
+            {engine.length > 0 && (
+              <section 
+                id="cat-engine" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-engine'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow">Under the Hood</p>
+                  <h2 className="eti-cat-title">Engine Bay</h2>
+                  <p className="eti-cat-desc">
+                    Cooling panels, coil pack covers, fuse box covers, manifold covers — dress-up that earns its place beside a forged 2JZ.
+                  </p>
+                </header>
+                <div className="eti-cat-grid">
+                  {engine.slice(0, expandedSections['engine'] ? undefined : 8).map(renderProductCard)}
+                </div>
+                {engine.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['engine'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('engine')}
+                  >
+                    <span>{expandedSections['engine'] ? 'View Less' : `View All ${engine.length} Engine Bay Accessories`}</span>
+                    <ArrowRight className="w-3.5 h-3.5" style={{ transform: expandedSections['engine'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* Category Section: Titanium */}
+            {titanium.length > 0 && (
+              <section 
+                id="cat-titanium" 
+                className="eti-cat"
+                ref={el => { sectionsRef.current['cat-titanium'] = el; }}
+              >
+                <header className="eti-cat-head">
+                  <p className="eti-eyebrow eti-eyebrow-luxury">ETi Signature</p>
+                  <h2 className="eti-cat-title">Titanium</h2>
+                  <p className="eti-cat-desc">
+                    Gr5 Ti hardware, manifolds, dress fasteners — the ETi original line.
+                  </p>
+                </header>
+                <div className="eti-cat-grid">
+                  {titanium.slice(0, expandedSections['titanium'] ? undefined : 8).map(renderProductCard)}
+                </div>
+                {titanium.length > 8 && (
+                  <button 
+                    type="button" 
+                    className={`eti-view-all ${expandedSections['titanium'] ? 'is-expanded' : ''}`}
+                    onClick={() => toggleSection('titanium')}
+                  >
+                    <span>{expandedSections['titanium'] ? 'View Less' : `View All ${titanium.length} Titanium Fasteners`}</span>
+                    <ArrowRight className="w-3.5 h-3.5" style={{ transform: expandedSections['titanium'] ? 'rotate(-90deg)' : 'none' }} />
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* 5. Editorial description at bottom */}
+            <section className="eti-story" aria-labelledby="eti-story-heading">
+              <h2 id="eti-story-heading" className="eti-story-heading">About the All Products catalogue</h2>
+              <div className="eti-story-body">
+                <p>
+                  Welcome to the official Elite Ti atelier parts catalogue. Each panel, lip, splitter, and fastener represented here is designed, built, and finished to high performance standards. 
+                </p>
+                <p>
+                  We run a complete made-to-order manufacturing process. Orders are queued immediately upon check-out. Raw carbon fiber layout, autoclave curing, ultraviolet-resistant clearcoat application, and precision CNC hardware finishing take between six to eight weeks.
+                </p>
               </div>
-            </div>
+            </section>
+
           </div>
-        </section>
-      )}
+        );
+      })()}
 
       {/* TITANIUM PAGE VIEW */}
       {currentPage === 'titanium' && (
