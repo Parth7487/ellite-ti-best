@@ -536,14 +536,18 @@ const ScrollDrifter = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const mobileEl = document.getElementById('figma-viewport-wrapper');
+      const scrollTop = mobileEl ? mobileEl.scrollTop : window.scrollY;
+      const totalHeight = mobileEl 
+        ? mobileEl.scrollHeight - mobileEl.clientHeight 
+        : document.documentElement.scrollHeight - window.innerHeight;
+
       if (totalHeight <= 0) return;
-      const progress = window.scrollY / totalHeight;
+      const progress = scrollTop / totalHeight;
       setScrollProgress(progress);
 
-      const currentScrollY = window.scrollY;
-      const diff = currentScrollY - lastScrollY.current;
-      lastScrollY.current = currentScrollY;
+      const diff = scrollTop - lastScrollY.current;
+      lastScrollY.current = scrollTop;
 
       if (diff > 0) {
         setRotation(20); // drift right
@@ -557,9 +561,9 @@ const ScrollDrifter = () => {
       }, 150);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
@@ -611,6 +615,7 @@ export default function App() {
   // --- Figma Preview & Anti-Inspect State ---
   const [figmaMode, setFigmaMode] = useState(true);
   const [zoomMode, setZoomMode] = useState<'fit' | '100%'>('fit');
+  const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
 
   // --- Anti-Inspect & DevTools Protection ---
   useEffect(() => {
@@ -987,8 +992,11 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
-      setIsHeroHidden(window.scrollY > 1150);
+      const mobileEl = document.getElementById('figma-viewport-wrapper');
+      const scrollTop = mobileEl ? mobileEl.scrollTop : window.scrollY;
+      
+      const scrollPosition = scrollTop + 200;
+      setIsHeroHidden(scrollTop > 1150);
       
       let currentSection = 'cat-body-kits';
       for (const id of ['cat-body-kits', 'cat-aero', 'cat-interior', 'cat-hoods', 'cat-engine', 'cat-titanium']) {
@@ -1005,8 +1013,8 @@ export default function App() {
       setActiveNav(currentSection);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
   }, []);
 
   // Intersection Observer for scroll reveal animations
@@ -1246,8 +1254,19 @@ export default function App() {
           </div>
 
           {/* Middle section */}
-          <div className="hidden lg:flex items-center gap-2 text-[12px] text-neutral-400 font-sans">
-            <span className="bg-neutral-800 px-3 py-1 rounded border border-neutral-700/50">Desktop - 1440px</span>
+          <div className="hidden lg:flex items-center gap-1 text-[11px] font-sans">
+            <button 
+              onClick={() => setViewportMode('desktop')}
+              className={`px-3 py-1 rounded-l border border-neutral-750 transition-colors uppercase font-mono tracking-wider ${viewportMode === 'desktop' ? 'bg-neutral-800 text-white font-bold' : 'bg-neutral-900 text-neutral-400 hover:text-neutral-200'}`}
+            >
+              Desktop - 1440px
+            </button>
+            <button 
+              onClick={() => setViewportMode('mobile')}
+              className={`px-3 py-1 rounded-r border-t border-b border-r border-neutral-750 transition-colors uppercase font-mono tracking-wider ${viewportMode === 'mobile' ? 'bg-neutral-800 text-white font-bold' : 'bg-neutral-900 text-neutral-400 hover:text-neutral-200'}`}
+            >
+              Mobile - 390px
+            </button>
           </div>
 
           {/* Right section */}
@@ -1292,12 +1311,29 @@ export default function App() {
 
       {/* Main content wrapper */}
       <div 
-        className={`w-full flex justify-center bg-[#0d0d0d] ${figmaMode ? 'pt-12' : ''}`}
+        className={`w-full flex justify-center bg-[#0d0d0d] ${figmaMode ? 'pt-12' : ''} ${figmaMode && viewportMode === 'mobile' ? 'py-8 bg-[#1e1e1e]' : ''}`}
       >
         <div 
-          className={`${figmaMode ? 'w-full shadow-2xl relative transition-all duration-300' : ''}`}
-          style={figmaMode ? { maxWidth: zoomMode === 'fit' ? '100%' : '1440px', minHeight: '100%' } : undefined}
+          id="figma-viewport-wrapper"
+          className={`relative transition-all duration-300 ${
+            figmaMode && viewportMode === 'mobile' 
+              ? 'w-[390px] h-[780px] border-[12px] border-neutral-900 rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] bg-[#030303] overflow-y-auto overflow-x-hidden scrollbar-none relative' 
+              : figmaMode ? 'w-full shadow-2xl' : 'w-full'
+          }`}
+          style={figmaMode && viewportMode === 'desktop' ? { maxWidth: zoomMode === 'fit' ? '100%' : '1440px', minHeight: '100%' } : undefined}
         >
+          {/* Mobile phone mockup sticky hardware overlays */}
+          {figmaMode && viewportMode === 'mobile' && (
+            <>
+              {/* Dynamic Island / Notch */}
+              <div className="sticky top-2 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-center pointer-events-none shadow-md mb-[-24px]">
+                <div className="w-2.5 h-2.5 rounded-full bg-neutral-950 absolute right-4"></div>
+              </div>
+              {/* Home Indicator Bar */}
+              <div className="sticky bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-neutral-700/80 rounded-full z-50 pointer-events-none mt-[-6px]"></div>
+            </>
+          )}
+
           {/* Rest of the application starts here */}
           <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
       
