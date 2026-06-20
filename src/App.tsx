@@ -4013,6 +4013,7 @@ export default function App() {
               <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">GOOGLE PAY</span>
             </div>
           </div>
+        </div>
       </footer>
 
       {/* WATERMARK */}
