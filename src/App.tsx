@@ -958,6 +958,11 @@ export default function App() {
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [currentPage]);
+
   // Custom Interactive states & datasets for newly added sections and pages
   const [activeSlide, setActiveSlide] = useState(0);
   const [catalogFilter, setCatalogFilter] = useState<'all' | 'carbon' | 'titanium' | 'swag'>('all');
