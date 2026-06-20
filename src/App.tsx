@@ -1317,7 +1317,7 @@ export default function App() {
           id="figma-viewport-wrapper"
           className={`relative transition-all duration-300 ${
             figmaMode && viewportMode === 'mobile' 
-              ? 'w-[390px] h-[780px] border-[12px] border-neutral-900 rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] bg-[#030303] overflow-y-auto overflow-x-hidden scrollbar-none relative' 
+              ? 'figma-mobile-view w-[390px] h-[780px] border-[12px] border-neutral-900 rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] bg-[#030303] overflow-y-auto overflow-x-hidden scrollbar-none relative' 
               : figmaMode ? 'w-full shadow-2xl' : 'w-full'
           }`}
           style={figmaMode && viewportMode === 'desktop' ? { maxWidth: zoomMode === 'fit' ? '100%' : '1440px', minHeight: '100%' } : undefined}

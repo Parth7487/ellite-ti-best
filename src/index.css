@@ -1936,3 +1936,113 @@
   background-color: #030303;
   width: 100%;
 }
+
+/* ============================================================
+   FIGMA MOBILE VIEWPORT OVERRIDES
+   ============================================================ */
+.figma-mobile-view {
+  /* Hide all desktop-only elements */
+  .lg\:flex,
+  .lg\:grid,
+  .lg\:block,
+  .md\:flex,
+  .md\:grid,
+  .md\:block,
+  .hidden.md\:block,
+  .hidden.lg\:flex,
+  .hidden.md\:flex {
+    display: none !important;
+  }
+
+  /* Force display of mobile elements */
+  .lg\:hidden,
+  .md\:hidden {
+    display: block !important;
+  }
+  
+  /* Flex variant for hidden elements */
+  button.lg\:hidden,
+  div.lg\:hidden.flex,
+  div.md\:hidden.flex,
+  button.md\:hidden {
+    display: flex !important;
+  }
+
+  /* Responsive layout adjustments - grid columns */
+  .md\:grid-cols-2,
+  .lg\:grid-cols-3,
+  .lg\:grid-cols-4,
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Responsive padding & container adjustments */
+  .md\:px-8,
+  .lg\:px-12,
+  .lg\:px-24,
+  .px-8,
+  .px-12 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .md\:py-16,
+  .lg\:py-24,
+  .py-16,
+  .py-24 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Hide custom elements like scroll drifters */
+  .hidden.md\:flex {
+    display: none !important;
+  }
+
+  /* Hero Section Mobile Adjustments */
+  .hero {
+    height: 520px !important;
+  }
+  
+  .hero__media {
+    background-position: 55% center !important;
+  }
+
+  .hero__ctas {
+    position: static !important;
+    margin-top: 1.5rem !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+  
+  .hero__ctas button,
+  .hero__ctas a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .hero__meta {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  /* Keep absolute drawers inside the phone simulator frame instead of screen frame */
+  .fixed.inset-y-0.right-0 {
+    position: absolute !important;
+  }
+
+  /* Footer adjustments */
+  footer .grid-cols-5 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+  
+  footer .md\:flex-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
