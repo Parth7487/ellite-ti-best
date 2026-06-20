@@ -735,6 +735,34 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Intersection Observer for scroll reveal animations
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -5% 0px',
+      threshold: 0.02
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.reveal, .reveal-mask');
+      elements.forEach(el => observer.observe(el));
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [currentPage, searchQuery, aeroSubFilter]);
+
   const handleNavClick = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -1681,7 +1709,7 @@ export default function App() {
                   <span className="kicker reveal">001 — CHASSIS</span>
                   <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle</h2>
                 </div>
-                <div className="ti-rule reveal-mask in"></div>
+                <div className="ti-rule reveal-mask"></div>
                 <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>30+ chassis &nbsp;/&nbsp; bespoke fitment</span>
               </div>
 
@@ -1739,7 +1767,7 @@ export default function App() {
                     <span className="featured-section__chassis">{slidesData[activeSlide].chassis}</span>
                   </h2>
                 </div>
-                <div className="ti-rule reveal-mask in"></div>
+                <div className="ti-rule reveal-mask"></div>
                 <button
                   onClick={() => setCurrentPage('catalog')}
                   className="text-link reveal featured-section__catalog bg-transparent border-0 border-b cursor-pointer text-white"
@@ -1813,7 +1841,7 @@ export default function App() {
                   <span className="kicker reveal">003 — STANDARD</span>
                   <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>The ETi Standard</h2>
                 </div>
-                <div className="ti-rule reveal-mask in"></div>
+                <div className="ti-rule reveal-mask"></div>
                 <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>Engineered. Tested. Built to last.</span>
               </div>
 
@@ -2001,7 +2029,7 @@ export default function App() {
 
       {/* CATALOG PAGE VIEW */}
       {currentPage === 'catalog' && (() => {
-        const renderProductCard = (p: CatalogProduct) => {
+        const renderProductCard = (p: CatalogProduct, index: number) => {
           return (
             <a 
               key={p.id}
@@ -2014,7 +2042,8 @@ export default function App() {
                   handleProductAction(e, p);
                 }
               }}
-              className="eti-card"
+              className="eti-card reveal"
+              style={{ '--reveal-delay': `${(index % 8) * 60}ms` } as React.CSSProperties}
             >
               <div className="eti-card-img">
                 {p.isIcon ? (
@@ -2188,7 +2217,7 @@ export default function App() {
                   </p>
                 </header>
                 <div className="eti-cat-grid">
-                  {bodyKits.slice(0, expandedSections['body-kits'] ? undefined : 8).map(renderProductCard)}
+                  {bodyKits.slice(0, expandedSections['body-kits'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {bodyKits.length > 8 && (
                   <button 
@@ -2265,7 +2294,7 @@ export default function App() {
                 </header>
                 
                 <div className="eti-cat-grid">
-                  {aeroFiltered.slice(0, expandedSections['aero'] ? undefined : 8).map(renderProductCard)}
+                  {aeroFiltered.slice(0, expandedSections['aero'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {aeroFiltered.length > 8 && (
                   <button 
@@ -2295,7 +2324,7 @@ export default function App() {
                   </p>
                 </header>
                 <div className="eti-cat-grid">
-                  {interior.slice(0, expandedSections['interior'] ? undefined : 8).map(renderProductCard)}
+                  {interior.slice(0, expandedSections['interior'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {interior.length > 8 && (
                   <button 
@@ -2325,7 +2354,7 @@ export default function App() {
                   </p>
                 </header>
                 <div className="eti-cat-grid">
-                  {hoods.slice(0, expandedSections['hoods'] ? undefined : 8).map(renderProductCard)}
+                  {hoods.slice(0, expandedSections['hoods'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {hoods.length > 8 && (
                   <button 
@@ -2355,7 +2384,7 @@ export default function App() {
                   </p>
                 </header>
                 <div className="eti-cat-grid">
-                  {engine.slice(0, expandedSections['engine'] ? undefined : 8).map(renderProductCard)}
+                  {engine.slice(0, expandedSections['engine'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {engine.length > 8 && (
                   <button 
@@ -2385,7 +2414,7 @@ export default function App() {
                   </p>
                 </header>
                 <div className="eti-cat-grid">
-                  {titanium.slice(0, expandedSections['titanium'] ? undefined : 8).map(renderProductCard)}
+                  {titanium.slice(0, expandedSections['titanium'] ? undefined : 8).map((p, idx) => renderProductCard(p, idx))}
                 </div>
                 {titanium.length > 8 && (
                   <button 

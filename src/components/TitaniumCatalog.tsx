@@ -294,12 +294,13 @@ export default function TitaniumCatalog({ onAddToCart, triggerToast, onNavigate 
       {/* Products Grid */}
       <div className="max-w-[1500px] mx-auto px-6 md:px-10 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map(p => (
+          {filteredProducts.map((p, index) => (
             <a 
               key={p.id}
               href={`/products/${p.id}`}
               onClick={(e) => handleProductAction(e, p)}
-              className="eti-card"
+              className="eti-card reveal"
+              style={{ '--reveal-delay': `${(index % 8) * 60}ms` } as React.CSSProperties}
             >
               <div className="eti-card-img">
                 <img 
