@@ -4013,8 +4013,14 @@ export default function App() {
               <span className="px-2 py-0.5 border border-neutral-900 rounded bg-neutral-950 text-neutral-500 text-[8px] font-bold">GOOGLE PAY</span>
             </div>
           </div>
-        </div>
       </footer>
+
+      {/* WATERMARK */}
+      <div className="bg-[#030303] py-6 border-t border-neutral-950 text-center select-none pointer-events-none">
+        <span className="text-[9px] font-mono tracking-[0.25em] uppercase text-neutral-800">
+          designed by <a href="https://shopifydevstudio.com" target="_blank" rel="noopener noreferrer" className="text-neutral-750 hover:text-[#9cce00] transition-colors pointer-events-auto">shopifydevstudio.com</a> &mdash; copying is restricted
+        </span>
+      </div>
 
     </div>
   );
