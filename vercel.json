@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://www.figma.com/design/Uw5SjjYxbHrlt8XSgMcbO0/Elliteshopifudevstudio?node-id=0-1&t=S0knbFOC4jHQoWwk-1",
+      "permanent": false
+    }
+  ]
+}
