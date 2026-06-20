@@ -11,6 +11,7 @@ import CarVisualizer from './components/CarVisualizer';
 import CartDrawer from './components/CartDrawer';
 import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
 import { ModelFinder } from './components/ModelFinder';
+import TitaniumCatalog from './components/TitaniumCatalog';
 import { AboutUs } from './components/AboutUs';
 import { 
   ShieldCheck,
@@ -2433,101 +2434,20 @@ export default function App() {
 
       {/* TITANIUM PAGE VIEW */}
       {currentPage === 'titanium' && (
-        <section className="px-6 md:px-12 lg:px-20 py-12 max-w-[1200px] mx-auto space-y-12 min-h-[75vh]">
-          {/* Header */}
-          <div className="border-b border-neutral-900 pb-6 text-center space-y-3">
-            <span className="text-xs font-mono text-[#c0f20c] uppercase tracking-widest font-bold">GRADE 5 MOTORSPORT ANCHORS</span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight uppercase">TITANIUM HARDWARE</h1>
-            <p className="text-xs font-mono text-neutral-400 max-w-xl mx-auto uppercase">
-              Bespoke race-ready hardware. 45% lighter than steel, immune to corrosion, tensile strength exceeding 950 MPa.
-            </p>
-          </div>
-
-          {/* Intro Panel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#080809] border border-neutral-900 rounded-lg p-8">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white uppercase tracking-tight">The Grade 5 Ti-6Al-4V Advantage</h2>
-              <p className="text-neutral-400 text-xs font-mono uppercase tracking-wide leading-relaxed">
-                Fasteners forged specifically for aggressive heat cycle blocks. Available in raw or burnt blue anodization options. Precision rolled threads for structural torque retention.
-              </p>
-
-              {/* Anodizing selection widget */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block">SELECT ATELIER ANODIZATION STYLE:</span>
-                <div className="flex gap-2">
-                  {[
-                    { key: 'raw_ti', label: 'RAW TI' },
-                    { key: 'burnt_blue', label: 'BURNT BLUE' },
-                    { key: 'gold', label: 'ATELIER GOLD' },
-                    { key: 'purple', label: 'PURPLE ANODIZED' }
-                  ].map((fin) => (
-                    <button
-                      key={fin.key}
-                      onClick={() => {
-                        setTitaniumFinish(fin.key as any);
-                        triggerToast(`Titanium configuration finish set to ${fin.label}`);
-                      }}
-                      className={`px-3 py-1.5 border rounded font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer ${
-                        titaniumFinish === fin.key 
-                          ? 'bg-[#c0f20c] text-black border-[#c0f20c] font-bold' 
-                          : 'bg-neutral-950 border-neutral-850 text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {fin.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-850">
-              <img 
-                src="https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" 
-                alt="Titanium bolts process" 
-                className="w-full h-full object-cover filter contrast-125 saturate-50"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-4 text-[9px] font-mono text-white font-bold uppercase">
-                Active Fin: {titaniumFinish.replace('_', ' ').toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          {/* Titanium Products Grid */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-bold text-white uppercase tracking-wider border-b border-neutral-900 pb-2">PRE-PACKAGED KITS</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { id: "ti-m6-pack", title: "M6 BEAUTY WASHERS & BOLTS (10 PACK)", price: 45, desc: "Bespoke engine dress-up. High-grade rolled threads." },
-                { id: "ti-350z-bay", title: "350Z FULL ENGINE BAY HARDWARE KIT", price: 250, desc: "Replaces 68 structural fender, core support, and bracket bolts." },
-                { id: "ti-supra-bay", title: "SUPRA JZA80 2JZ TITANIUM HARDWARE KIT", price: 295, desc: "Full master dresser kit for block, manifolds and engine bay." },
-                { id: "ti-r34-bay", title: "BNR34 RB26 MASSIVE STAGED BAY KIT", price: 340, desc: "Premium grade 5 anchors for structural components." },
-                { id: "ti-lug-nuts", title: "ATELIER TITANIUM LUG NUTS (20 PACK)", price: 320, desc: "M12x1.25 open-ended hex drive race lugs." }
-              ].map((p) => (
-                <div key={p.id} className="bg-neutral-950 border border-neutral-900 rounded-lg p-5 flex flex-col justify-between hover:border-neutral-800 transition-colors">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wide leading-tight">{p.title}</h4>
-                      <span className="text-xs font-mono font-bold text-[#c0f20c]">${p.price}</span>
-                    </div>
-                    <p className="text-[10px] font-mono text-neutral-450 uppercase leading-snug">{p.desc}</p>
-                    <span className="inline-block text-[8px] font-mono text-neutral-500 uppercase mt-2">
-                      Finish: {titaniumFinish.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => handleAddSimpleProductToCart({ id: p.id, title: `${p.title} (${titaniumFinish.toUpperCase()})`, price: p.price, category: 'titanium', imageType: 'tier3' })}
-                    className="mt-6 w-full py-2 bg-neutral-900 border border-neutral-850 hover:bg-[#c0f20c] hover:text-black hover:border-[#c0f20c] transition-colors rounded text-[10px] font-mono uppercase tracking-widest cursor-pointer text-white"
-                  >
-                    + ADD TO CART
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TitaniumCatalog 
+          onAddToCart={(item) => {
+            setCart(prev => [...prev, item]);
+            setIsCartOpen(true);
+          }}
+          triggerToast={triggerToast}
+          onNavigate={(path) => {
+            if (path === '/') {
+              setCurrentPage('home');
+            } else if (path === '/collections/all') {
+              setCurrentPage('catalog');
+            }
+          }}
+        />
       )}
 
       {/* SWAG PAGE VIEW */}
