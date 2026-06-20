@@ -110,10 +110,271 @@
         }
       })();
     </script>
+    <style>
+      .preloader-skipped #preloader {
+        display: none !important;
+      }
+      
+      .eti-preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #030303;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-family: 'JetBrains Mono', monospace;
+        color: #fff;
+        user-select: none;
+      }
+
+      .preloader-bg-noise {
+        position: absolute;
+        inset: 0;
+        background: 
+          radial-gradient(circle at 50% 50%, rgba(156, 206, 0, 0.1) 0%, rgba(0, 0, 0, 0) 80%),
+          linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+        background-size: 100% 100%, 20px 20px, 20px 20px;
+        opacity: 0.8;
+        z-index: 1;
+      }
+
+      .preloader-main {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        width: 100%;
+        max-width: 340px;
+        padding: 20px;
+      }
+
+      .telemetry-header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .hud-rpm-numeric {
+        color: #9cce00;
+        font-weight: bold;
+      }
+
+      .logo-viewport {
+        position: relative;
+        width: 190px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .preloader-logo-main {
+        width: 100%;
+        height: auto;
+        opacity: 0;
+        z-index: 2;
+      }
+
+      .preloader-logo-glow {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        opacity: 0;
+        filter: drop-shadow(0 0 15px rgba(156, 206, 0, 0.6)) brightness(1.2);
+        z-index: 1;
+      }
+
+      .headlight-beam {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(156, 206, 0, 0.8), #fff, rgba(156, 206, 0, 0.8), transparent);
+        box-shadow: 0 0 30px rgba(156, 206, 0, 0.5);
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      .f1-rev-counter {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .led-bar {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .led {
+        width: 18px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.02);
+        transition: background 0.05s, box-shadow 0.05s;
+        transform: skewX(-15deg);
+      }
+
+      .led.active-green {
+        background: #00ff66;
+        box-shadow: 0 0 8px #00ff66;
+      }
+
+      .led.active-yellow {
+        background: #ffcc00;
+        box-shadow: 0 0 8px #ffcc00;
+      }
+
+      .led.active-red {
+        background: #ff0055;
+        box-shadow: 0 0 8px #ff0055;
+      }
+
+      .hud-status {
+        font-size: 8px;
+        letter-spacing: 0.3em;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+      }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+      (function() {
+        if (sessionStorage.getItem('eti_preloader_seen')) {
+          document.documentElement.classList.add('preloader-skipped');
+          return;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+          var tl = gsap.timeline();
+
+          tl.to('.headlight-beam', {
+            left: '200%',
+            duration: 1.4,
+            ease: 'power2.inOut',
+            onUpdate: function() {
+              var progress = this.progress();
+              if (progress > 0.15) {
+                gsap.to('.preloader-logo-main', { opacity: 0.85, duration: 0.3 });
+              }
+            }
+          });
+
+          var rpmObj = { val: 800 };
+          var rpmText = document.querySelector('.hud-rpm-numeric');
+          var hudStatus = document.querySelector('.hud-status');
+          var leds = document.querySelectorAll('.led');
+          
+          tl.to(rpmObj, {
+            val: 9200,
+            duration: 2.5,
+            ease: 'power2.in',
+            onUpdate: function() {
+              var currentRPM = Math.floor(rpmObj.val);
+              if (rpmText) rpmText.textContent = currentRPM + " RPM";
+
+              var activeLedsCount = Math.floor((currentRPM - 800) / 840);
+              
+              leds.forEach(function(led, index) {
+                if (index < activeLedsCount) {
+                  if (index < 4) {
+                    led.className = 'led active-green';
+                  } else if (index < 7) {
+                    led.className = 'led active-yellow';
+                  } else {
+                    led.className = 'led active-red';
+                  }
+                } else {
+                  led.className = 'led';
+                }
+              });
+
+              if (currentRPM > 8000) {
+                if (hudStatus) hudStatus.textContent = 'LIMITER_REDLINE_BOOST';
+              } else if (currentRPM > 5000) {
+                if (hudStatus) hudStatus.textContent = 'VALVE_SPOOL_ENGAGED';
+              } else if (currentRPM > 3000) {
+                if (hudStatus) hudStatus.textContent = 'WARMING_EXHAUST_TI';
+              }
+            },
+            onComplete: function() {
+              var blinkTimeline = gsap.timeline({ repeat: 4 });
+              blinkTimeline.to('.led.active-red, .led.active-yellow', { opacity: 0, duration: 0.05 })
+                           .to('.led.active-red, .led.active-yellow', { opacity: 1, duration: 0.05 });
+              
+              if (hudStatus) hudStatus.textContent = 'LAUNCH_IGNITION_READY';
+
+              gsap.to('.preloader-logo-glow', {
+                opacity: 1,
+                scale: 1.05,
+                duration: 0.1,
+                repeat: 3,
+                yoyo: true
+              });
+
+              gsap.to('#preloader', {
+                opacity: 0,
+                scale: 1.05,
+                duration: 0.6,
+                ease: 'power2.inOut',
+                delay: 0.5,
+                onComplete: function() {
+                  var preloader = document.getElementById('preloader');
+                  if (preloader) preloader.style.display = 'none';
+                  sessionStorage.setItem('eti_preloader_seen', 'true');
+                }
+              });
+            }
+          });
+        });
+      })();
+    </script>
   </head>
   <body>
+    <div id="preloader" class="eti-preloader">
+      <div class="preloader-bg-noise"></div>
+      <div class="preloader-main">
+        <div class="telemetry-header">
+          <span class="hud-tag">[ HUD_MODE_INIT ]</span>
+          <span class="hud-rpm-numeric">0000 RPM</span>
+        </div>
+        <div class="logo-viewport">
+          <img src="/logo.avif" alt="Elite Ti" class="preloader-logo-glow" />
+          <img src="/logo.avif" alt="Elite Ti" class="preloader-logo-main" />
+          <div class="headlight-beam"></div>
+        </div>
+        <div class="f1-rev-counter">
+          <div class="led-bar">
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+            <span class="led"></span>
+          </div>
+          <div class="hud-status">STAGE_BOOST_READY</div>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
