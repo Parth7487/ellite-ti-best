@@ -320,6 +320,102 @@ const catalogProducts: CatalogProduct[] = [
   }
 ];
 
+const matchSearchQuery = (product: CatalogProduct, query: string): boolean => {
+  if (!query) return true;
+  const q = query.toLowerCase();
+  
+  // Direct matches in title or eyebrow
+  const title = product.title.toLowerCase();
+  const eyebrow = product.eyebrow ? product.eyebrow.toLowerCase() : '';
+  if (title.includes(q) || eyebrow.includes(q)) return true;
+
+  // Custom mapping for ModelFinder codes to product terms
+  const mappings: { [key: string]: string[] } = {
+    // Mazda
+    mazda: ['fd3s', 'rx7', 'rx-7', 'se3p', 'rx8', 'rx-8', 'mazda'],
+    fd3s: ['fd3s', 'rx7', 'rx-7'],
+    se3p: ['se3p', 'rx8', 'rx-8'],
+    'mazda 2 / 3': ['mazda 2', 'mazda 3', 'mazda'],
+    // Toyota
+    toyota: ['toyota', 'supra', '2jz', 'jza80', 'a90', 'zn6', 'zn8', 'mr2', 'sw20'],
+    jza80: ['jza80', 'supra', 'mkiv', 'mk4', '2jz'],
+    a90: ['a90', 'supra', 'mkv', 'mk5'],
+    zn6: ['zn6', 'gt86', 'ft86', '86'],
+    zn8: ['zn8', 'gr86', '86'],
+    sw20: ['sw20', 'mr2'],
+    // Nissan
+    nissan: ['nissan', '350z', '370z', 'r32', 'r33', 'r34', 'r35', 'skyline', 'gtr', 'gtt', 'z33', 'z34', 's13', 's14', 's15'],
+    r32: ['r32', 'skyline', 'gtr'],
+    r33: ['r33', 'skyline', 'gtr'],
+    r34: ['r34', 'skyline', 'gtt', 'gtr'],
+    r35: ['r35', 'gtr', 'gt-r'],
+    z33: ['350z', 'z33'],
+    z34: ['370z', 'z34'],
+    s15: ['s15', 'silvia'],
+    s14: ['s14', 'silvia'],
+    s13: ['s13', '180sx', 'silvia'],
+    v35: ['v35', 'g35'],
+    // Mitsubishi
+    mitsubishi: ['mitsubishi', 'lancer', 'evo', 'evolution', 'gto', '3000gt', 'fto'],
+    '8 / 9': ['evo', 'lancer', 'evolution'],
+    x: ['evo x', 'lancer', 'evolution'],
+    '3000gt': ['3000gt', 'gto'],
+    fto: ['fto'],
+    // Honda
+    honda: ['honda', 'civic', 'fit', 'jazz'],
+    'fc / fk': ['civic', 'fc', 'fk'],
+    'eg / ek': ['civic', 'eg', 'ek'],
+    'jazz / fit': ['jazz', 'fit'],
+    // Subaru
+    subaru: ['subaru', 'impreza', 'wrx'],
+    'impreza / wrx': ['impreza', 'wrx'],
+    // BMW
+    bmw: ['bmw', 'm2', 'f87', 'e46', '3-series', '4-series', 'm4', '5-series', 'z4'],
+    f87: ['f87', 'm2'],
+    e46: ['e46'],
+    'e90-e93': ['e90', 'e91', 'e92', 'e93', '3-series'],
+    'f32 · m4': ['f32', 'm4', '4-series'],
+    'e60-g30': ['e60', 'g30', '5-series'],
+    e89: ['e89', 'z4'],
+    'heritage & gt': ['heritage', 'gt'],
+    // Mercedes-Benz
+    'mercedes-benz': ['mercedes', 'benz', 'w140', 'w220', 'r129', 'slr'],
+    w140: ['w140', 's-class'],
+    w220: ['w220', 's-class'],
+    r129: ['r129', 'sl'],
+    'slr mclaren': ['slr', 'mclaren'],
+    'more mercedes': ['mercedes', 'benz'],
+    // Porsche
+    porsche: ['porsche', '718', '911', 'cayman', 'boxster', 'cayenne', 'panamera', 'taycan'],
+    '718': ['718'],
+    '981 cayman / boxster': ['981', 'cayman', 'boxster'],
+    '986 / 987': ['986', '987', 'cayman', 'boxster'],
+    '911': ['911'],
+    cayenne: ['cayenne'],
+    panamera: ['panamera'],
+    taycan: ['taycan'],
+    // Others
+    lamborghini: ['lamborghini'],
+    chevrolet: ['chevrolet', 'c8', 'corvette'],
+    'c8 corvette': ['c8', 'corvette'],
+    ford: ['ford', 'ranger'],
+    ranger: ['ranger'],
+    // Tesla
+    tesla: ['tesla', 'model y', 'model s', 'model x', 'model 3'],
+    'model y': ['model y'],
+    'model s': ['model s'],
+    'model x': ['model x'],
+    'model 3': ['model 3'],
+  };
+
+  const terms = mappings[q];
+  if (terms) {
+    return terms.some(term => title.includes(term) || eyebrow.includes(term));
+  }
+
+  return false;
+};
+
 export default function App() {
   // --- Cart State ---
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -688,18 +784,35 @@ export default function App() {
   };
 
   // Grouped products
-  const bodyKits = catalogProducts.filter(p => p.category === 'body-kits');
+  const bodyKits = catalogProducts
+    .filter(p => p.category === 'body-kits')
+    .filter(p => matchSearchQuery(p, searchQuery));
   
-  const aeroFiltered = catalogProducts.filter(p => {
-    if (p.category !== 'aero') return false;
-    if (aeroSubFilter === 'all') return true;
-    return p.subCategory === aeroSubFilter;
-  });
+  const aeroFiltered = catalogProducts
+    .filter(p => {
+      if (p.category !== 'aero') return false;
+      if (aeroSubFilter === 'all') return true;
+      return p.subCategory === aeroSubFilter;
+    })
+    .filter(p => matchSearchQuery(p, searchQuery));
 
-  const interior = catalogProducts.filter(p => p.category === 'interior');
-  const hoods = catalogProducts.filter(p => p.category === 'hoods');
-  const engine = catalogProducts.filter(p => p.category === 'engine');
-  const titanium = catalogProducts.filter(p => p.category === 'titanium');
+  const interior = catalogProducts
+    .filter(p => p.category === 'interior')
+    .filter(p => matchSearchQuery(p, searchQuery));
+
+  const hoods = catalogProducts
+    .filter(p => p.category === 'hoods')
+    .filter(p => matchSearchQuery(p, searchQuery));
+
+  const engine = catalogProducts
+    .filter(p => p.category === 'engine')
+    .filter(p => matchSearchQuery(p, searchQuery));
+
+  const titanium = catalogProducts
+    .filter(p => p.category === 'titanium')
+    .filter(p => matchSearchQuery(p, searchQuery));
+
+  const totalFound = bodyKits.length + aeroFiltered.length + interior.length + hoods.length + engine.length + titanium.length;
 
   // --- Slides Data for Featured Chassis Slider ---
   const slidesData = [
@@ -1975,7 +2088,7 @@ export default function App() {
                 Precision fit. Real carbon & exotic titanium. Built for high performance standards.
               </p>
               <div className="eti-collection-meta" aria-label="Collection metadata">
-                <span>{catalogProducts.length} pieces</span>
+                <span>{searchQuery ? `${totalFound} matching` : `${catalogProducts.length} pieces`}</span>
                 <span aria-hidden="true" className="eti-meta-dot">·</span>
                 <span>Made to Order</span>
                 <span aria-hidden="true" className="eti-meta-dot">·</span>
@@ -1983,53 +2096,79 @@ export default function App() {
               </div>
             </header>
 
+            {/* ModelFinder Component */}
+            <div style={{ maxWidth: 'var(--eti-page-max, 1500px)', margin: '0 auto', padding: '0 var(--eti-page-gutter, 40px) 24px' }}>
+              <ModelFinder 
+                onSearch={(query, message) => {
+                  setSearchQuery(query);
+                  if (message) {
+                    triggerToast(message);
+                  }
+                }} 
+              />
+            </div>
+
             {/* 3. Sticky Category Navigation Bar */}
-            <nav className="eti-cat-nav" aria-label="Shop by category">
-              <div className="eti-cat-nav-inner">
-                <a 
-                  href="#cat-body-kits" 
-                  onClick={(e) => handleNavClick(e, 'cat-body-kits')}
-                  className={activeNav === 'cat-body-kits' ? 'is-active' : ''}
-                >
-                  Body Kits
-                </a>
-                <a 
-                  href="#cat-aero" 
-                  onClick={(e) => handleNavClick(e, 'cat-aero')}
-                  className={activeNav === 'cat-aero' ? 'is-active' : ''}
-                >
-                  Aero &amp; Body Panels
-                </a>
-                <a 
-                  href="#cat-interior" 
-                  onClick={(e) => handleNavClick(e, 'cat-interior')}
-                  className={activeNav === 'cat-interior' ? 'is-active' : ''}
-                >
-                  Interior
-                </a>
-                <a 
-                  href="#cat-hoods" 
-                  onClick={(e) => handleNavClick(e, 'cat-hoods')}
-                  className={activeNav === 'cat-hoods' ? 'is-active' : ''}
-                >
-                  Hoods, Trunks &amp; Cowls
-                </a>
-                <a 
-                  href="#cat-engine" 
-                  onClick={(e) => handleNavClick(e, 'cat-engine')}
-                  className={activeNav === 'cat-engine' ? 'is-active' : ''}
-                >
-                  Engine Bay
-                </a>
-                <a 
-                  href="#cat-titanium" 
-                  onClick={(e) => handleNavClick(e, 'cat-titanium')}
-                  className={activeNav === 'cat-titanium' ? 'is-active' : ''}
-                >
-                  Titanium
-                </a>
-              </div>
-            </nav>
+            {totalFound > 0 && (
+              <nav className="eti-cat-nav" aria-label="Shop by category">
+                <div className="eti-cat-nav-inner">
+                  {bodyKits.length > 0 && (
+                    <a 
+                      href="#cat-body-kits" 
+                      onClick={(e) => handleNavClick(e, 'cat-body-kits')}
+                      className={activeNav === 'cat-body-kits' ? 'is-active' : ''}
+                    >
+                      Body Kits
+                    </a>
+                  )}
+                  {aeroFiltered.length > 0 && (
+                    <a 
+                      href="#cat-aero" 
+                      onClick={(e) => handleNavClick(e, 'cat-aero')}
+                      className={activeNav === 'cat-aero' ? 'is-active' : ''}
+                    >
+                      Aero &amp; Body Panels
+                    </a>
+                  )}
+                  {interior.length > 0 && (
+                    <a 
+                      href="#cat-interior" 
+                      onClick={(e) => handleNavClick(e, 'cat-interior')}
+                      className={activeNav === 'cat-interior' ? 'is-active' : ''}
+                    >
+                      Interior
+                    </a>
+                  )}
+                  {hoods.length > 0 && (
+                    <a 
+                      href="#cat-hoods" 
+                      onClick={(e) => handleNavClick(e, 'cat-hoods')}
+                      className={activeNav === 'cat-hoods' ? 'is-active' : ''}
+                    >
+                      Hoods, Trunks &amp; Cowls
+                    </a>
+                  )}
+                  {engine.length > 0 && (
+                    <a 
+                      href="#cat-engine" 
+                      onClick={(e) => handleNavClick(e, 'cat-engine')}
+                      className={activeNav === 'cat-engine' ? 'is-active' : ''}
+                    >
+                      Engine Bay
+                    </a>
+                  )}
+                  {titanium.length > 0 && (
+                    <a 
+                      href="#cat-titanium" 
+                      onClick={(e) => handleNavClick(e, 'cat-titanium')}
+                      className={activeNav === 'cat-titanium' ? 'is-active' : ''}
+                    >
+                      Titanium
+                    </a>
+                  )}
+                </div>
+              </nav>
+            )}
 
             {/* 4. Grouped Sections */}
             
@@ -2258,6 +2397,21 @@ export default function App() {
                   </button>
                 )}
               </section>
+            )}
+
+            {totalFound === 0 && (
+              <div className="text-center py-20 px-6 border border-neutral-900 bg-neutral-950/40 my-8 max-w-[1500px] mx-auto">
+                <p className="text-neutral-400 font-mono text-xs uppercase tracking-widest mb-6">
+                  No products found matching your customization query "{searchQuery}"
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="px-8 py-4 bg-[#c0f20c] hover:bg-[#aacc00] text-black font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-none cursor-pointer border border-[#c0f20c]"
+                >
+                  Clear Filter
+                </button>
+              </div>
             )}
 
             {/* 5. Editorial description at bottom */}
