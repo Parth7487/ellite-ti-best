@@ -66,6 +66,15 @@
     color: #e5e5e5;
     font-family: var(--font-sans);
     overflow-x: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
   }
 }
 

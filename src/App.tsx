@@ -608,6 +608,80 @@ const BrandLogos: Record<string, React.ReactNode> = {
 };
 
 export default function App() {
+  // --- Figma Preview & Anti-Inspect State ---
+  const [figmaMode, setFigmaMode] = useState(true);
+  const [zoomMode, setZoomMode] = useState<'fit' | '100%'>('fit');
+
+  // --- Anti-Inspect & DevTools Protection ---
+  useEffect(() => {
+    const preventDefault = (e: Event) => e.preventDefault();
+    document.addEventListener('contextmenu', preventDefault);
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable F12
+      if (e.key === 'F12') {
+        e.preventDefault();
+      }
+      // Disable Ctrl+Shift+I / Cmd+Opt+I (Inspect)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'i') {
+        e.preventDefault();
+      }
+      // Disable Cmd+Opt+I on mac
+      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'i') {
+        e.preventDefault();
+      }
+      // Disable Ctrl+Shift+C / Cmd+Opt+C (Inspect element)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+      }
+      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+      }
+      // Disable Ctrl+Shift+J / Cmd+Opt+J (Console)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+      }
+      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+      }
+      // Disable Ctrl+U / Cmd+Opt+U (View Source)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+      }
+      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+      }
+      // Disable Ctrl+S / Cmd+S (Save)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Infinite debugger to block devtools
+    const debugInterval = setInterval(() => {
+      (function() {
+        try {
+          (function a(i) {
+            if (("" + i / i).length !== 1 || i % 20 === 0) {
+              (function() {}).constructor("debugger")();
+            } else {
+              debugger;
+            }
+            a(++i);
+          })(0);
+        } catch (e) {}
+      })();
+    }, 1000);
+
+    return () => {
+      document.removeEventListener('contextmenu', preventDefault);
+      window.removeEventListener('keydown', handleKeyDown);
+      clearInterval(debugInterval);
+    };
+  }, []);
+
   // --- Cart State ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -1141,7 +1215,86 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
+    <div className={`w-full ${figmaMode ? 'bg-[#1e1e1e] min-h-screen overflow-hidden flex flex-col font-sans' : ''}`}>
+      {figmaMode && (
+        <div className="w-full bg-[#2c2c2c] h-12 flex items-center justify-between px-4 border-b border-[#151515] text-white select-none z-50 shrink-0 font-sans">
+          {/* Left section */}
+          <div className="flex items-center gap-3">
+            {/* Figma Multi-colored Logo Icon */}
+            <div className="flex flex-col gap-[2px] items-center justify-center w-6 h-6 hover:opacity-80 cursor-pointer">
+              <svg viewBox="0 0 36 36" fill="none" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9C12 5.68629 14.6863 3 18 3C21.3137 3 24 5.68629 24 9C24 12.3137 21.3137 15 18 15C14.6863 15 12 12.3137 12 9Z" fill="#F24E1E"/>
+                <path d="M6 18C6 14.6863 8.68629 12 12 12C15.3137 12 18 14.6863 18 18C18 21.3137 15.3137 24 12 24C8.68629 24 6 21.3137 6 18Z" fill="#A259FF"/>
+                <path d="M6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9Z" fill="#F24E1E"/>
+                <path d="M12 27C12 23.6863 14.6863 21 18 21L24 21C24 24.3137 21.3137 27 18 27C14.6863 27 12 23.6863 12 27Z" fill="#0ACF83"/>
+                <path d="M18 18C18 14.6863 20.6863 12 24 12C27.3137 12 30 14.6863 30 18C30 21.3137 27.3137 24 24 24L18 24C18 21.3137 18 18 18 18Z" fill="#1ABC9C"/>
+              </svg>
+            </div>
+            <div className="w-[1px] h-4 bg-neutral-700"></div>
+            <div className="flex items-center gap-1.5 cursor-pointer hover:bg-neutral-800 px-2 py-1 rounded">
+              <span className="text-[12px] font-medium tracking-wide">Elite Ti - Mockup v4</span>
+              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+            </div>
+            <div className="hidden md:flex items-center gap-1 bg-neutral-800 px-2 py-0.5 rounded text-[11px] text-neutral-400">
+              <span>Prototype</span>
+            </div>
+          </div>
+
+          {/* Middle section */}
+          <div className="hidden lg:flex items-center gap-2 text-[12px] text-neutral-400 font-sans">
+            <span className="bg-neutral-800 px-3 py-1 rounded border border-neutral-700/50">Desktop - 1440px</span>
+          </div>
+
+          {/* Right section */}
+          <div className="flex items-center gap-3">
+            {/* Zoom Selector */}
+            <div className="relative">
+              <button 
+                onClick={() => setZoomMode(prev => prev === 'fit' ? '100%' : 'fit')}
+                className="flex items-center gap-1.5 text-[12px] font-medium hover:bg-neutral-800 px-2 py-1 rounded text-neutral-300"
+              >
+                <span>{zoomMode === 'fit' ? 'Fit to width' : '100%'}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Share Button */}
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                triggerToast("🔗 Prototype share link copied to clipboard!");
+              }}
+              className="bg-[#0C8CE9] hover:bg-[#0b7ec1] text-white px-3.5 py-1.5 rounded text-[12px] font-medium tracking-wide transition-colors flex items-center gap-1.5"
+            >
+              <span>Share</span>
+            </button>
+
+            {/* Exit/Hide prototype button */}
+            <button 
+              onClick={() => setFigmaMode(false)}
+              className="border border-neutral-700 hover:bg-neutral-800 text-neutral-300 px-2.5 py-1.5 rounded text-[12px] font-medium transition-colors"
+            >
+              Live Site
+            </button>
+
+            {/* Profile Avatar */}
+            <div className="w-6 h-6 rounded-full bg-purple-650 text-white font-bold text-[11px] flex items-center justify-center shadow-inner cursor-pointer select-none">
+              P
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main content wrapper */}
+      <div 
+        className={`${figmaMode ? 'flex-1 overflow-y-auto w-full flex justify-center bg-[#0d0d0d]' : ''}`}
+      >
+        <div 
+          className={`${figmaMode ? 'w-full shadow-2xl relative transition-all duration-300' : ''}`}
+          style={figmaMode ? { maxWidth: zoomMode === 'fit' ? '100%' : '1440px', minHeight: '100%' } : undefined}
+        >
+          {/* Rest of the application starts here */}
+          <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
       
       {/* 1. Announcement Marquee Bar */}
       <div className="w-full bg-[#0a0a0a] border-b border-neutral-900/50 py-2 overflow-hidden relative z-40">
@@ -4007,6 +4160,9 @@ export default function App() {
         </div>
       </footer>
 
+    </div>
+        </div>
+      </div>
     </div>
   );
 }
