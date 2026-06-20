@@ -536,18 +536,14 @@ const ScrollDrifter = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const mobileEl = document.getElementById('figma-viewport-wrapper');
-      const scrollTop = mobileEl ? mobileEl.scrollTop : window.scrollY;
-      const totalHeight = mobileEl 
-        ? mobileEl.scrollHeight - mobileEl.clientHeight 
-        : document.documentElement.scrollHeight - window.innerHeight;
-
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (totalHeight <= 0) return;
-      const progress = scrollTop / totalHeight;
+      const progress = window.scrollY / totalHeight;
       setScrollProgress(progress);
 
-      const diff = scrollTop - lastScrollY.current;
-      lastScrollY.current = scrollTop;
+      const currentScrollY = window.scrollY;
+      const diff = currentScrollY - lastScrollY.current;
+      lastScrollY.current = currentScrollY;
 
       if (diff > 0) {
         setRotation(20); // drift right
@@ -561,9 +557,9 @@ const ScrollDrifter = () => {
       }, 150);
     };
 
-    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll, { capture: true });
+      window.removeEventListener('scroll', handleScroll);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
@@ -612,96 +608,6 @@ const BrandLogos: Record<string, React.ReactNode> = {
 };
 
 export default function App() {
-  // --- Figma Preview & Anti-Inspect State ---
-  const [figmaMode, setFigmaMode] = useState(true);
-  const [zoomMode, setZoomMode] = useState<'fit' | '100%'>('fit');
-  const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
-
-  // Automatically toggle figma mode based on screen width
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setFigmaMode(false);
-      } else {
-        // Only set to true if they are on a desktop screen
-        setFigmaMode(true);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize(); // run initially
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // --- Anti-Inspect & DevTools Protection ---
-  useEffect(() => {
-    const preventDefault = (e: Event) => e.preventDefault();
-    document.addEventListener('contextmenu', preventDefault);
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Disable F12
-      if (e.key === 'F12') {
-        e.preventDefault();
-      }
-      // Disable Ctrl+Shift+I / Cmd+Opt+I (Inspect)
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'i') {
-        e.preventDefault();
-      }
-      // Disable Cmd+Opt+I on mac
-      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'i') {
-        e.preventDefault();
-      }
-      // Disable Ctrl+Shift+C / Cmd+Opt+C (Inspect element)
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
-        e.preventDefault();
-      }
-      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'c') {
-        e.preventDefault();
-      }
-      // Disable Ctrl+Shift+J / Cmd+Opt+J (Console)
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'j') {
-        e.preventDefault();
-      }
-      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'j') {
-        e.preventDefault();
-      }
-      // Disable Ctrl+U / Cmd+Opt+U (View Source)
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
-        e.preventDefault();
-      }
-      if (e.metaKey && e.altKey && e.key.toLowerCase() === 'u') {
-        e.preventDefault();
-      }
-      // Disable Ctrl+S / Cmd+S (Save)
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    
-    // Infinite debugger to block devtools
-    const debugInterval = setInterval(() => {
-      (function() {
-        try {
-          (function a(i) {
-            if (("" + i / i).length !== 1 || i % 20 === 0) {
-              (function() {}).constructor("debugger")();
-            } else {
-              debugger;
-            }
-            a(++i);
-          })(0);
-        } catch (e) {}
-      })();
-    }, 1000);
-
-    return () => {
-      document.removeEventListener('contextmenu', preventDefault);
-      window.removeEventListener('keydown', handleKeyDown);
-      clearInterval(debugInterval);
-    };
-  }, []);
-
   // --- Cart State ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -978,11 +884,6 @@ export default function App() {
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Scroll to top when page changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [currentPage]);
-
   // Custom Interactive states & datasets for newly added sections and pages
   const [activeSlide, setActiveSlide] = useState(0);
   const [catalogFilter, setCatalogFilter] = useState<'all' | 'carbon' | 'titanium' | 'swag'>('all');
@@ -1007,11 +908,8 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const mobileEl = document.getElementById('figma-viewport-wrapper');
-      const scrollTop = mobileEl ? mobileEl.scrollTop : window.scrollY;
-      
-      const scrollPosition = scrollTop + 200;
-      setIsHeroHidden(scrollTop > 1150);
+      const scrollPosition = window.scrollY + 200;
+      setIsHeroHidden(window.scrollY > 1150);
       
       let currentSection = 'cat-body-kits';
       for (const id of ['cat-body-kits', 'cat-aero', 'cat-interior', 'cat-hoods', 'cat-engine', 'cat-titanium']) {
@@ -1028,8 +926,8 @@ export default function App() {
       setActiveNav(currentSection);
     };
 
-    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Intersection Observer for scroll reveal animations
@@ -1243,140 +1141,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-full">
-      {figmaMode && (
-        <div className="fixed top-0 left-0 w-full bg-[#2c2c2c] h-12 flex items-center justify-between px-4 border-b border-[#151515] text-white select-none z-50 font-sans">
-          {/* Left section */}
-          <div className="flex items-center gap-3">
-            {/* Figma Multi-colored Logo Icon */}
-            <div className="flex flex-col gap-[2px] items-center justify-center w-6 h-6 hover:opacity-80 cursor-pointer">
-              <svg viewBox="0 0 36 36" fill="none" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 9C12 5.68629 14.6863 3 18 3C21.3137 3 24 5.68629 24 9C24 12.3137 21.3137 15 18 15C14.6863 15 12 12.3137 12 9Z" fill="#F24E1E"/>
-                <path d="M6 18C6 14.6863 8.68629 12 12 12C15.3137 12 18 14.6863 18 18C18 21.3137 15.3137 24 12 24C8.68629 24 6 21.3137 6 18Z" fill="#A259FF"/>
-                <path d="M6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9Z" fill="#F24E1E"/>
-                <path d="M12 27C12 23.6863 14.6863 21 18 21L24 21C24 24.3137 21.3137 27 18 27C14.6863 27 12 23.6863 12 27Z" fill="#0ACF83"/>
-                <path d="M18 18C18 14.6863 20.6863 12 24 12C27.3137 12 30 14.6863 30 18C30 21.3137 27.3137 24 24 24L18 24C18 21.3137 18 18 18 18Z" fill="#1ABC9C"/>
-              </svg>
-            </div>
-            <div className="w-[1px] h-4 bg-neutral-700"></div>
-            <div className="flex items-center gap-1.5 cursor-pointer hover:bg-neutral-800 px-2 py-1 rounded">
-              <span className="text-[12px] font-medium tracking-wide">Elite Ti - Mockup v4</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-            </div>
-            <div className="hidden md:flex items-center gap-1 bg-neutral-800 px-2 py-0.5 rounded text-[11px] text-neutral-400">
-              <span>Prototype</span>
-            </div>
-          </div>
-
-          {/* Middle section */}
-          <div className="hidden lg:flex items-center gap-1 text-[11px] font-sans">
-            <button 
-              onClick={() => setViewportMode('desktop')}
-              className={`px-3 py-1 rounded-l border border-neutral-750 transition-colors uppercase font-mono tracking-wider ${viewportMode === 'desktop' ? 'bg-neutral-800 text-white font-bold' : 'bg-neutral-900 text-neutral-400 hover:text-neutral-200'}`}
-            >
-              Desktop - 1440px
-            </button>
-            <button 
-              onClick={() => setViewportMode('mobile')}
-              className={`px-3 py-1 rounded-r border-t border-b border-r border-neutral-750 transition-colors uppercase font-mono tracking-wider ${viewportMode === 'mobile' ? 'bg-neutral-800 text-white font-bold' : 'bg-neutral-900 text-neutral-400 hover:text-neutral-200'}`}
-            >
-              Mobile - 390px
-            </button>
-          </div>
-
-          {/* Right section */}
-          <div className="flex items-center gap-3">
-            {/* Zoom Selector */}
-            <div className="relative">
-              <button 
-                onClick={() => setZoomMode(prev => prev === 'fit' ? '100%' : 'fit')}
-                className="flex items-center gap-1.5 text-[12px] font-medium hover:bg-neutral-850 px-2 py-1 rounded text-neutral-300"
-              >
-                <span>{zoomMode === 'fit' ? 'Fit to width' : '100%'}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-              </button>
-            </div>
-
-            {/* Share Button */}
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                triggerToast("🔗 Prototype share link copied to clipboard!");
-              }}
-              className="bg-[#0C8CE9] hover:bg-[#0b7ec1] text-white px-3.5 py-1.5 rounded text-[12px] font-medium tracking-wide transition-colors flex items-center gap-1.5"
-            >
-              <span>Share</span>
-            </button>
-
-            {/* Exit/Hide prototype button */}
-            <button 
-              onClick={() => setFigmaMode(false)}
-              className="border border-neutral-700 hover:bg-neutral-800 text-neutral-300 px-2.5 py-1.5 rounded text-[12px] font-medium transition-colors"
-            >
-              Live Site
-            </button>
-
-            {/* Profile Avatar */}
-            <div className="w-6 h-6 rounded-full bg-purple-650 text-white font-bold text-[11px] flex items-center justify-center shadow-inner cursor-pointer select-none">
-              P
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main content wrapper */}
-      <div 
-        className={`w-full flex justify-center bg-[#0d0d0d] ${figmaMode ? 'pt-12' : ''} ${figmaMode && viewportMode === 'mobile' ? 'py-8 bg-[#1e1e1e]' : ''}`}
-      >
-        <div 
-          id="figma-viewport-wrapper"
-          className={`relative transition-all duration-300 ${
-            figmaMode && viewportMode === 'mobile' 
-              ? 'figma-mobile-view w-[390px] h-[780px] border-[12px] border-neutral-900 rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] bg-[#030303] overflow-y-auto overflow-x-hidden scrollbar-none relative' 
-              : figmaMode ? 'w-full shadow-2xl' : 'w-full'
-          }`}
-          style={figmaMode && viewportMode === 'desktop' ? { maxWidth: zoomMode === 'fit' ? '100%' : '1440px', minHeight: '100%' } : undefined}
-        >
-          {/* Mobile phone mockup sticky hardware overlays */}
-          {figmaMode && viewportMode === 'mobile' && (
-            <>
-              {/* Simulated iOS Status Bar */}
-              <div className="sticky top-0 left-0 w-full h-9 bg-[#030303] flex items-center justify-between px-6 z-50 select-none pointer-events-none text-white text-[11px] font-sans">
-                {/* Left: Time */}
-                <span className="font-semibold tracking-tight">9:41</span>
-                
-                {/* Middle: Dynamic Island / Notch */}
-                <div className="absolute left-1/2 -translate-x-1/2 w-26 h-5.5 bg-black rounded-full flex items-center justify-center pointer-events-none">
-                  <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 absolute right-3.5"></div>
-                </div>
-                
-                {/* Right: Icons (Signal, Wifi, Battery) */}
-                <div className="flex items-center gap-1.5 opacity-80">
-                  {/* Signal */}
-                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
-                    <path d="M2 17h2v3H2zm4-4h2v7H6zm4-4h2v11h-2zm4-4h2v15h-2zm4-4h2v19h-2z"/>
-                  </svg>
-                  {/* Wifi */}
-                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 21l-12-12c4.4-4.4 11.6-4.4 16 0z" />
-                  </svg>
-                  {/* Battery */}
-                  <div className="w-5 h-2.5 border border-white rounded-[4px] p-[1px] flex items-center">
-                    <div className="w-[13px] h-[6px] bg-white rounded-[2px]"></div>
-                    <div className="w-[1.5px] h-[3px] bg-white rounded-r-[1px] ml-[1px]"></div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Home Indicator Bar Sticky Overlay */}
-              <div className="sticky bottom-0 left-0 w-full bg-[#030303] py-2.5 z-50 pointer-events-none border-t border-neutral-950">
-                <div className="mx-auto w-32 h-1.5 bg-neutral-850 rounded-full"></div>
-              </div>
-            </>
-          )}
-
-          {/* Rest of the application starts here */}
-          <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
+    <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
       
       {/* 1. Announcement Marquee Bar */}
       <div className="w-full bg-[#0a0a0a] border-b border-neutral-900/50 py-2 overflow-hidden relative z-40">
@@ -4242,9 +4007,6 @@ export default function App() {
         </div>
       </footer>
 
-    </div>
-        </div>
-      </div>
     </div>
   );
 }

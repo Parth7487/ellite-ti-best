@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Recents – Figma</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Figma</title>
     <script>
       (function() {
         try {
@@ -50,28 +50,6 @@
           }
         }
       })();
-    </script>
-    <script>
-      // Disable right-click completely using capture phase
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }, true);
-
-      // Block developer shortcuts in capture phase
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'c' || e.key.toLowerCase() === 'j')) ||
-            (e.metaKey && e.altKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'c' || e.key.toLowerCase() === 'j')) ||
-            ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') ||
-            (e.metaKey && e.altKey && e.key.toLowerCase() === 'u') ||
-            ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's')
-        ) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }, true);
     </script>
   </head>
   <body>
