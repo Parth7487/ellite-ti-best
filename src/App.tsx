@@ -3421,25 +3421,6 @@ export default function App() {
 
                   {/* Grid for parameters */}
                   <div className="grid grid-cols-1 gap-3 text-xs font-mono">
-
-                    {/* Recolour Engine */}
-                    <div className="space-y-1.5">
-                      <label className="block text-[9px] text-neutral-400 uppercase tracking-widest font-bold">RECOLOUR ENGINE</label>
-                      <select
-                        value={recolourEngine}
-                        onChange={(e) => {
-                          const val = e.target.value as 'local' | 'photoroom';
-                          setRecolourEngine(val);
-                          if (Object.keys(recolouredImages).length > 0 || recolourCustomImage) {
-                            handleApplyRecolour({ engine: val });
-                          }
-                        }}
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-white font-mono text-[10px] focus:border-[#c0f20c] outline-none cursor-pointer uppercase text-left"
-                      >
-                        <option value="local">OFFLINE (LOCAL OPENCV)</option>
-                        <option value="photoroom">ONLINE (PHOTOROOM AI)</option>
-                      </select>
-                    </div>
                     
                     {/* Target Component */}
                     <div className="space-y-1.5">
