@@ -152,13 +152,9 @@ export default function StackedSections({
       ref={deckRef}
       data-stacked-deck=""
       className={`flex w-full flex-col ${gapClass ?? ""} ${className ?? ""}`}
-      style={
-        {
-          "--numcards": total,
-          "--stacked-top-offset": `${stackOffset}px`,
-          paddingBottom: `calc(${total} * ${stackOffset}px)`,
-        } as React.CSSProperties
-      }
+      style={{
+        paddingBottom: `${total * stackOffset}px`,
+      }}
     >
       {items.map((child, index) => {
         const key =
@@ -176,9 +172,8 @@ export default function StackedSections({
             style={
               {
                 top: `${stickyTop}px`,
-                "--index": cardIndex,
                 zIndex: cardIndex,
-                paddingTop: `calc(${cardIndex} * var(--stacked-top-offset))`,
+                paddingTop: `${cardIndex * stackOffset}px`,
               } as React.CSSProperties
             }
           >
