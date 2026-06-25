@@ -13,6 +13,7 @@ import { InteractiveCarExplorer } from './components/InteractiveCarExplorer';
 import { ModelFinder } from './components/ModelFinder';
 import { StoreMap } from './components/StoreMap';
 import { AboutUs } from './components/AboutUs';
+import { BlogPage } from './components/Blog';
 import TitaniumCatalog from './components/TitaniumCatalog';
 import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
@@ -42,6 +43,7 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { BannerGsapFramerAnimation } from '../Banner-gsap-framer-animation/BannerGsapFramerAnimation';
 
 interface AnimatedCounterProps {
   target: number;
@@ -123,21 +125,21 @@ const initialTier1Components: KitComponent[] = [
     prices: { matte: 575, gloss: 575, forged: 635, kevlar: 660 } }
 ];
 
-// Centralized dynamic component price calculator — uses real CSV prices
-export const getComponentPrice = (item: KitComponent) => {
+// Centralized dynamic component price calculator — uses real CSV prices and dynamic scaling factor
+export const getComponentPrice = (item: KitComponent, priceScalingFactor: number = 1.0) => {
+  let price = item.price;
   // If we have real per-variant prices, use them directly
   if (item.prices) {
     if (item.material === 'frp' && item.prices.frp) {
-      return item.prices.frp;
-    }
-    if (item.material === 'carbon') {
+      price = item.prices.frp;
+    } else if (item.material === 'carbon') {
       const fin = item.finish || 'matte';
-      const price = item.prices[fin as keyof typeof item.prices];
-      if (price) return price;
+      const p = item.prices[fin as keyof typeof item.prices];
+      if (p) price = p;
     }
   }
   // Fallback to base price
-  return item.price;
+  return Math.round(price * priceScalingFactor);
 };
 
 interface CatalogProduct {
@@ -172,7 +174,8 @@ const catalogProducts: CatalogProduct[] = [
     price: 4900,
     image: '/images/prod_r32_pandem_kit.jpg',
     category: 'body-kits',
-    eyebrow: 'Skyline GTR R32'
+    eyebrow: 'Skyline GTR R32',
+    isConfigurable: true
   },
   {
     id: 'prod_370z_allure_kit',
@@ -180,7 +183,8 @@ const catalogProducts: CatalogProduct[] = [
     price: 5450,
     image: '/images/prod_370z_allure_kit.jpg',
     category: 'body-kits',
-    eyebrow: 'Nissan 370Z'
+    eyebrow: 'Nissan 370Z',
+    isConfigurable: true
   },
 
   // Aero & Body Panels
@@ -333,7 +337,8 @@ const catalogProducts: CatalogProduct[] = [
     price: 4750,
     image: '/images/prod_gr86_pandem_kit.jpg',
     category: 'body-kits',
-    eyebrow: 'Toyota GR86 (ZN8)'
+    eyebrow: 'Toyota GR86 (ZN8)',
+    isConfigurable: true
   },
   {
     id: 'prod_370z_allure_widebody',
@@ -342,7 +347,8 @@ const catalogProducts: CatalogProduct[] = [
     image: '/images/prod_370z_allure_widebody.jpg',
     category: 'body-kits',
     eyebrow: 'Nissan 370Z (Z34)',
-    isSale: true
+    isSale: true,
+    isConfigurable: true
   },
   {
     id: 'prod_rx7_rocket_bunny',
@@ -350,7 +356,8 @@ const catalogProducts: CatalogProduct[] = [
     price: 5250,
     image: '/images/prod_rx7_rocket_bunny.jpg',
     category: 'body-kits',
-    eyebrow: 'Mazda RX-7 FD3S'
+    eyebrow: 'Mazda RX-7 FD3S',
+    isConfigurable: true
   },
   {
     id: 'prod_rx8_pandem_kit',
@@ -358,7 +365,8 @@ const catalogProducts: CatalogProduct[] = [
     price: 4200,
     image: '/images/prod_rx8_pandem_kit.jpg',
     category: 'body-kits',
-    eyebrow: 'Mazda RX-8 SE3P'
+    eyebrow: 'Mazda RX-8 SE3P',
+    isConfigurable: true
   },
 
   // Additional Hoods
@@ -614,17 +622,178 @@ export default function App() {
   const [shopByCarOpen, setShopByCarOpen] = useState(false);
   const [isHeroHidden, setIsHeroHidden] = useState(false);
   const [activeCar, setActiveCar] = useState('Nissan 350Z');
+  const [activeConfigProduct, setActiveConfigProduct] = useState<CatalogProduct>(catalogProducts[0]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const productImages = [
+
+  const productImages = activeConfigProduct.id === 'prod_350z_body_kit' ? [
     '/images/350z-hero-0.jpg',
     '/images/350z-hero-1.jpg',
     '/images/350z-hero-8.jpg',
     '/images/350z-hero-9.jpg'
-  ];
+  ] : [activeConfigProduct.image];
+
+  const priceScalingFactor = activeConfigProduct.id === 'prod_350z_body_kit' ? 1.0 : activeConfigProduct.price / 5845;
 
   // Toasts / alerts
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeProductTab, setActiveProductTab] = useState<'overview' | 'panels' | 'features' | 'materials' | 'leadtime'>('overview');
+
+  // --- ETi Active Color Changer States ---
+  const [recolourColor, setRecolourColor] = useState<string>('#ef4444'); // Candy Red default
+  const [recolourPart, setRecolourPart] = useState<string>(''); // empty means "entire car"
+  const [recolourEngine, setRecolourEngine] = useState<'local' | 'photoroom'>('photoroom');
+  const [recolourKeepBg, setRecolourKeepBg] = useState<boolean>(true);
+  const [recolourColorize, setRecolourColorize] = useState<boolean>(false);
+  const [recolourCustomImage, setRecolourCustomImage] = useState<string | null>(null);
+  const [recolourCustomImageName, setRecolourCustomImageName] = useState<string>('');
+  const [recolouredImages, setRecolouredImages] = useState<Record<number, string>>({});
+  const [isRecolourLoading, setIsRecolourLoading] = useState<boolean>(false);
+  const [isRecolourServerConnected, setIsRecolourServerConnected] = useState<boolean | null>(null);
+  const [recolourAllViews, setRecolourAllViews] = useState<boolean>(true);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const resp = await fetch('http://localhost:5050/', { method: 'GET' });
+        if (resp.ok) {
+          setIsRecolourServerConnected(true);
+        } else {
+          setIsRecolourServerConnected(false);
+        }
+      } catch (e) {
+        setIsRecolourServerConnected(false);
+      }
+    };
+    checkConnection();
+    const interval = setInterval(checkConnection, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleApplyRecolour = async (opts?: {
+    color?: string;
+    part?: string;
+    engine?: 'local' | 'photoroom';
+    keepBg?: boolean;
+    colorize?: boolean;
+  }) => {
+    const colorToApply = opts?.color || recolourColor;
+    const partToApply = opts?.part !== undefined ? opts.part : recolourPart;
+    const engineToApply = opts?.engine || recolourEngine;
+    const keepBgToApply = opts?.keepBg !== undefined ? opts.keepBg : recolourKeepBg;
+    const colorizeToApply = opts?.colorize !== undefined ? opts.colorize : recolourColorize;
+
+    setIsRecolourLoading(true);
+    try {
+      if (recolourCustomImage) {
+        const res = await fetch(recolourCustomImage);
+        const blob = await res.blob();
+        const fileToSend = new File([blob], recolourCustomImageName || 'custom.jpg', { type: blob.type });
+
+        const formData = new FormData();
+        formData.append('image', fileToSend);
+        formData.append('color', colorToApply);
+        formData.append('keep_bg', keepBgToApply ? 'true' : 'false');
+        formData.append('colorize', colorizeToApply ? 'true' : 'false');
+        formData.append('part', partToApply);
+        formData.append('engine', engineToApply);
+
+        const resp = await fetch('http://localhost:5050/api/recolour', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!resp.ok) {
+          const errorData = await resp.json();
+          throw new Error(errorData.error || 'Server error');
+        }
+
+        const data = await resp.json();
+        if (data.result) {
+          setRecolouredImages(prev => ({
+            ...prev,
+            [activeImageIndex]: data.result
+          }));
+          triggerToast('🎨 Custom color applied successfully!');
+        }
+      } else {
+        if (recolourAllViews) {
+          // Recolour all views in parallel
+          const promises = productImages.map(async (imgUrl, idx) => {
+            const res = await fetch(imgUrl);
+            const blob = await res.blob();
+            const fileToSend = new File([blob], imgUrl.substring(imgUrl.lastIndexOf('/') + 1), { type: 'image/jpeg' });
+
+            const formData = new FormData();
+            formData.append('image', fileToSend);
+            formData.append('color', colorToApply);
+            formData.append('keep_bg', keepBgToApply ? 'true' : 'false');
+            formData.append('colorize', colorizeToApply ? 'true' : 'false');
+            formData.append('part', partToApply);
+            formData.append('engine', engineToApply);
+
+            const resp = await fetch('http://localhost:5050/api/recolour', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!resp.ok) {
+              const errorData = await resp.json();
+              throw new Error(errorData.error || 'Server error');
+            }
+
+            const data = await resp.json();
+            return { idx, result: data.result };
+          });
+
+          const results = await Promise.all(promises);
+          const newRecoloured: Record<number, string> = {};
+          results.forEach(r => {
+            newRecoloured[r.idx] = r.result;
+          });
+          setRecolouredImages(newRecoloured);
+          triggerToast('🎨 Color scheme applied to all views!');
+        } else {
+          // Recolour only current view
+          const imgUrl = productImages[activeImageIndex];
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const fileToSend = new File([blob], imgUrl.substring(imgUrl.lastIndexOf('/') + 1), { type: 'image/jpeg' });
+
+          const formData = new FormData();
+          formData.append('image', fileToSend);
+          formData.append('color', colorToApply);
+          formData.append('keep_bg', keepBgToApply ? 'true' : 'false');
+          formData.append('colorize', colorizeToApply ? 'true' : 'false');
+          formData.append('part', partToApply);
+          formData.append('engine', engineToApply);
+
+          const resp = await fetch('http://localhost:5050/api/recolour', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!resp.ok) {
+            const errorData = await resp.json();
+            throw new Error(errorData.error || 'Server error');
+          }
+
+          const data = await resp.json();
+          if (data.result) {
+            setRecolouredImages(prev => ({
+              ...prev,
+              [activeImageIndex]: data.result
+            }));
+            triggerToast('🎨 Custom color applied successfully!');
+          }
+        }
+      }
+    } catch (e: any) {
+      console.error(e);
+      triggerToast(`❌ Recolour failed: ${e.message || e}`);
+    } finally {
+      setIsRecolourLoading(false);
+    }
+  };
 
   // --- Tier 1 State ---
   const [tier1Components, setTier1Components] = useState<KitComponent[]>(initialTier1Components);
@@ -727,7 +896,7 @@ export default function App() {
   const calculateTier1Subtotal = () => {
     return tier1Components.reduce((sum, item) => {
       if (!item.isSelected) return sum;
-      return sum + getComponentPrice(item);
+      return sum + getComponentPrice(item, priceScalingFactor);
     }, 0);
   };
 
@@ -758,8 +927,8 @@ export default function App() {
 
     const newCartItem: CartItem = {
       id: cartId,
-      title: "TOP SECRET STYLE WIDEBODY BODY KIT",
-      subtitle: "NISSAN 350Z FULL BUILD",
+      title: activeConfigProduct.title,
+      subtitle: `${activeConfigProduct.eyebrow.toUpperCase()} FULL BUILD`,
       imageType: 'tier1',
       qty: 1,
       unitPrice: tier1Total,
@@ -879,7 +1048,7 @@ export default function App() {
   };
 
   // Page state routing
-  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact' | 'blog'>('home');
   const [selectedProductDetail, setSelectedProductDetail] = useState<any | null>(null);
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -979,6 +1148,12 @@ export default function App() {
     e.preventDefault();
     if (product.isConfigurable) {
       triggerToast(`Redirecting to interactive custom builder spec for ${product.title}...`);
+      setActiveConfigProduct(product);
+      setActiveCar(product.eyebrow);
+      setRecolouredImages({});
+      setRecolourCustomImage(null);
+      setRecolourCustomImageName('');
+      setActiveImageIndex(0);
       setCurrentPage('product');
       return;
     }
@@ -1246,6 +1421,7 @@ export default function App() {
             <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
             <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
+            <button onClick={() => setCurrentPage('blog')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'blog' ? 'text-[#c0f20c]' : ''}`}>BLOG</button>
             <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
           </nav>
@@ -1355,6 +1531,7 @@ export default function App() {
                     { name: 'CATALOG', page: 'catalog' },
                     { name: 'TITANIUM HARDWARE', page: 'titanium' },
                     { name: 'STORY', page: 'story' },
+                    { name: 'BLOG', page: 'blog' },
                     { name: 'CONTACT', page: 'contact' },
                     { name: 'SWAG', page: 'swag' }
                   ].map((link) => (
@@ -1945,47 +2122,8 @@ export default function App() {
       {/* RENDER PAGES BASED ON STATE */}
       {currentPage === 'home' && (
         <div className="eti-page">
-          {/* HERO SECTION */}
-          <section className={`hero ${isHeroHidden ? 'opacity-0 pointer-events-none' : ''}`} aria-labelledby="heroTitle">
-            <div className="hero__media"></div>
-            <div className="hero__veil"></div>
-            <div className="container hero__inner">
-              <div className="hero__copy">
-                <div className="hero__kicker reveal" style={{ '--reveal-delay': '0ms' } as React.CSSProperties}>
-                  <span className="kicker">ENGINEERED FOR THE DRIVEN</span>
-                </div>
-                <h1 id="heroTitle" className="display-xl hero__title reveal" style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
-                  Carbon. Titanium.<br />
-                  <em>Precision.</em>
-                </h1>
-                <p className="hero__sub reveal" style={{ '--reveal-delay': '240ms' } as React.CSSProperties}>
-                  Aerospace-grade composites and titanium hardware, built for JDM and time attack. Lighter, stronger, faster.
-                </p>
-                <div className="hero__ctas reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
-                  <button onClick={() => setCurrentPage('product')} className="btn">Shop the Build <span className="arrow"></span></button>
-                  <button onClick={() => setCurrentPage('catalog')} className="text-link bg-transparent border-0 cursor-pointer text-white">Our Process</button>
-                </div>
-              </div>
-              <div className="hero__meta reveal" style={{ '--reveal-delay': '600ms' } as React.CSSProperties}>
-                <div className="hero__meta-col">
-                  <span>Established</span>
-                  <span>2022</span>
-                </div>
-                <div className="hero__meta-col">
-                  <span>Locations</span>
-                  <span>HK · USA · TH</span>
-                </div>
-                <div className="hero__meta-col">
-                  <span>Fitments</span>
-                  <span>30+ Chassis</span>
-                </div>
-                <div className="hero__meta-col">
-                  <span>Build</span>
-                  <span>Bespoke · Made to Order</span>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* INTERACTIVE GSAP/FRAMER BANNER ANIME */}
+          <BannerGsapFramerAnimation />
           {/* OVERLAPPING HOME CONTENT CONTAINER */}
           <div className="home-overlapping-content">
             {/* BRAND SPEC STRIP (MARQUEE) */}
@@ -3070,22 +3208,22 @@ export default function App() {
               <div className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase flex items-center gap-1.5 mb-1.5">
                 <span>VEHICLES</span>
                 <span className="text-neutral-700">/</span>
-                <span>NISSAN</span>
+                <span>{activeConfigProduct.eyebrow.split(' ')[0].toUpperCase()}</span>
                 <span className="text-neutral-700">/</span>
-                <span className="text-[#c0f20c] font-medium">350Z</span>
+                <span className="text-[#c0f20c] font-medium">{activeConfigProduct.eyebrow.split(' ').slice(1).join(' ').toUpperCase()}</span>
               </div>
 
               {/* Accent badge text */}
               <span className="text-xs font-mono font-extrabold tracking-widest text-[#c0f20c] uppercase">
-                NISSAN 350Z SPECIFICATION
+                {activeConfigProduct.eyebrow.toUpperCase()} SPECIFICATION
               </span>
 
               {/* Header titles */}
               <h1 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight mt-1 leading-none">
-                NISSAN 350Z TOP SECRET STYLE WIDEBODY BODY KIT
+                {activeConfigProduct.title}
               </h1>
               <p className="text-[10px] font-mono tracking-widest text-neutral-400 mt-2 uppercase">
-                BESPOKE CARBON • BUILT TO ORDER • $5,845.00 USD COMPLETE KIT (FRP)
+                BESPOKE CARBON • BUILT TO ORDER • ${activeConfigProduct.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD COMPLETE KIT (FRP)
               </p>
             </div>
 
@@ -3097,8 +3235,8 @@ export default function App() {
                 {/* Main product image */}
                 <div className="relative rounded-lg overflow-hidden bg-[#0a0a0a] border border-neutral-900 aspect-square">
                   <img 
-                    src={productImages[activeImageIndex]} 
-                    alt={`Nissan 350Z Top Secret Widebody - View ${activeImageIndex + 1}`}
+                    src={recolouredImages[activeImageIndex] || (recolourCustomImage && activeImageIndex === 0 ? recolourCustomImage : productImages[activeImageIndex])} 
+                    alt={`${activeConfigProduct.title} - View ${activeImageIndex + 1}`}
                     className="w-full h-full object-cover"
                   />
                   {/* ETI Badge overlay */}
@@ -3126,7 +3264,7 @@ export default function App() {
                       }`}
                     >
                       <img 
-                        src={img} 
+                        src={recolouredImages[idx] || (recolourCustomImage && idx === 0 ? recolourCustomImage : img)} 
                         alt={`Thumbnail ${idx + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -3138,12 +3276,238 @@ export default function App() {
                 <div className="flex items-center gap-3 text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
-                    <span>FITMENT: NISSAN 350Z</span>
+                    <span>FITMENT: {activeConfigProduct.eyebrow.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#c0f20c]" />
                     <span>7 COMPONENTS</span>
                   </div>
+                </div>
+
+                {/* ETI ACTIVE RECOLOUR SYSTEM PANEL */}
+                <div className="bg-black/60 border border-neutral-900 rounded-lg p-5 mt-4 space-y-4 backdrop-blur-md relative overflow-hidden">
+                  
+                  {/* Glowing header */}
+                  <div className="flex items-center justify-between border-b border-neutral-900 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#c0f20c] animate-pulse" />
+                      <span className="text-[10px] font-mono font-bold tracking-widest text-[#c0f20c] uppercase">
+                        ETI ACTIVE RECOLOUR SYSTEM
+                      </span>
+                    </div>
+                    
+                    {/* Status Pill */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[8px] font-mono tracking-widest text-neutral-500 uppercase">SERVER:</span>
+                      {isRecolourServerConnected === null ? (
+                        <span className="text-[8px] font-mono text-neutral-500 uppercase tracking-widest">PINGING...</span>
+                      ) : isRecolourServerConnected ? (
+                        <span className="text-[8px] font-mono text-[#c0f20c] uppercase tracking-widest font-bold flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-[#c0f20c]" /> ONLINE
+                        </span>
+                      ) : (
+                        <span className="text-[8px] font-mono text-red-500 uppercase tracking-widest font-bold flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-red-500" /> OFFLINE
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Body description */}
+                  <p className="text-[10px] font-mono text-neutral-450 uppercase leading-relaxed">
+                    Use our offline computer vision engine (OpenCV) or Photoroom AI endpoint to customize the car's color scheme in real-time.
+                  </p>
+
+                  {/* Preset Colors Grid */}
+                  <div className="space-y-2">
+                    <label className="block text-[9px] font-mono text-neutral-450 uppercase tracking-widest font-bold">PRESET SWATCHES</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { hex: '#ef4444', name: 'CANDY RED' },
+                        { hex: '#ef5da8', name: 'HOT PINK' },
+                        { hex: '#f97316', name: 'SUNSET ORANGE' },
+                        { hex: '#eab308', name: 'CHROME YELLOW' },
+                        { hex: '#22c55e', name: 'MIDORI GREEN' },
+                        { hex: '#06b6d4', name: 'TOKYO CYAN' },
+                        { hex: '#3b82f6', name: 'WANGAN BLUE' },
+                        { hex: '#8b5cf6', name: 'ANODIZED PURPLE' },
+                        { hex: '#ffffff', name: 'PEARL WHITE' },
+                        { hex: '#1a1a1a', name: 'STEALTH BLACK' },
+                        { hex: '#6b7280', name: 'GUNMETAL GREY' }
+                      ].map((preset) => (
+                        <button
+                          key={preset.hex}
+                          onClick={() => {
+                            setRecolourColor(preset.hex);
+                            handleApplyRecolour({ color: preset.hex });
+                          }}
+                          className={`w-7 h-7 rounded border transition-transform cursor-pointer relative ${
+                            recolourColor === preset.hex ? 'border-[#c0f20c] scale-110 shadow-[0_0_8px_rgba(192,242,12,0.4)]' : 'border-neutral-800 hover:border-neutral-500'
+                          }`}
+                          style={{ backgroundColor: preset.hex }}
+                          title={preset.name}
+                        >
+                          {recolourColor === preset.hex && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-white mix-blend-difference" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+
+                      {/* Custom color picker */}
+                      <div className="relative w-7 h-7 rounded border border-neutral-850 hover:border-neutral-500 overflow-hidden cursor-pointer flex items-center justify-center bg-neutral-950">
+                        <input
+                          type="color"
+                          value={recolourColor}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setRecolourColor(val);
+                            handleApplyRecolour({ color: val });
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        />
+                        <div className="text-[10px] font-mono font-bold text-neutral-400">+</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grid for parameters */}
+                  <div className="grid grid-cols-1 gap-3 text-xs font-mono">
+                    
+                    {/* Target Component */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[9px] text-neutral-400 uppercase tracking-widest font-bold">RECOLOUR TARGET</label>
+                      <select
+                        value={recolourPart}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setRecolourPart(val);
+                          if (Object.keys(recolouredImages).length > 0 || recolourCustomImage) {
+                            handleApplyRecolour({ part: val });
+                          }
+                        }}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-white font-mono text-[10px] focus:border-[#c0f20c] outline-none cursor-pointer uppercase text-left"
+                      >
+                        <option value="">ENTIRE VEHICLE</option>
+                        <option value="bumper">BUMPERS / SPOILERS</option>
+                        <option value="fender">FRONT / REAR FENDERS</option>
+                        <option value="skirt">SIDE SKIRTS</option>
+                        <option value="wing">LOWER WING LEGS</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Secondary settings */}
+                  <div className="grid grid-cols-2 gap-y-2 text-[9px] font-mono text-neutral-500 border-t border-neutral-900 pt-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={recolourKeepBg}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setRecolourKeepBg(val);
+                          if (Object.keys(recolouredImages).length > 0 || recolourCustomImage) {
+                            handleApplyRecolour({ keepBg: val });
+                          }
+                        }}
+                        className="accent-[#c0f20c]"
+                      />
+                      <span className="uppercase tracking-wider">PRESERVE SHADOWS</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={recolourAllViews}
+                        onChange={(e) => setRecolourAllViews(e.target.checked)}
+                        className="accent-[#c0f20c]"
+                      />
+                      <span className="uppercase tracking-wider">APPLY TO ALL VIEWS</span>
+                    </label>
+
+                    {recolourEngine === 'local' && (
+                      <label className="flex items-center gap-2 cursor-pointer select-none col-span-2">
+                        <input
+                          type="checkbox"
+                          checked={recolourColorize}
+                          onChange={(e) => {
+                            const val = e.target.checked;
+                            setRecolourColorize(val);
+                            if (Object.keys(recolouredImages).length > 0 || recolourCustomImage) {
+                              handleApplyRecolour({ colorize: val });
+                            }
+                          }}
+                          className="accent-[#c0f20c]"
+                        />
+                        <span className="uppercase tracking-wider">FORCE COLORIZE (GREY/CARBON PARTS)</span>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Custom upload area */}
+                  <div className="border border-dashed border-neutral-800 hover:border-[#c0f20c]/30 rounded-lg p-3 text-center transition-colors relative cursor-pointer bg-neutral-950/20">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setRecolourCustomImage(event.target?.result as string);
+                            setRecolourCustomImageName(file.name);
+                            setRecolouredImages({}); // clear old recolours
+                            setActiveImageIndex(0); // select the custom slot
+                            triggerToast(`📷 Loaded custom image: ${file.name}`);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    />
+                    <div className="space-y-1">
+                      <span className="block text-[9px] font-mono text-neutral-450 uppercase tracking-widest font-bold">
+                        {recolourCustomImage ? `CUSTOM: ${recolourCustomImageName.toUpperCase()}` : 'UPLOAD CUSTOM VEHICLE PHOTO'}
+                      </span>
+                      <span className="block text-[8px] font-mono text-neutral-600 uppercase tracking-wider">
+                        DRAG & DROP OR BROWSE (PNG/JPG)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action triggers */}
+                  <div className="flex gap-3 pt-1">
+                    <button
+                      onClick={handleApplyRecolour}
+                      disabled={isRecolourLoading}
+                      className="flex-1 h-10 bg-neutral-900 hover:bg-[#c0f20c] hover:text-black border border-neutral-800 hover:border-[#c0f20c] text-white font-mono text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer rounded flex items-center justify-center gap-2 disabled:opacity-40"
+                    >
+                      {isRecolourLoading ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                          <span>PROCESSING...</span>
+                        </>
+                      ) : (
+                        <span>APPLY COLOUR SCHEME</span>
+                      )}
+                    </button>
+
+                    {(Object.keys(recolouredImages).length > 0 || recolourCustomImage) && (
+                      <button
+                        onClick={() => {
+                          setRecolouredImages({});
+                          setRecolourCustomImage(null);
+                          setRecolourCustomImageName('');
+                          triggerToast('🎨 Color scheme restored to factory default!');
+                        }}
+                        className="h-10 px-4 bg-transparent border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-950 text-neutral-400 hover:text-white font-mono text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded"
+                      >
+                        RESET
+                      </button>
+                    )}
+                  </div>
+
                 </div>
 
               </div>
@@ -3209,7 +3573,7 @@ export default function App() {
                 {/* COMPONENT ROWS LIST */}
                 <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
                   {tier1Components.map((item) => {
-                    const currentPrice = getComponentPrice(item);
+                    const currentPrice = getComponentPrice(item, priceScalingFactor);
                     const isCarbon = item.material === 'carbon';
                     const isFRP = item.material === 'frp';
                     const activeFinish = item.finish || 'matte';
@@ -3410,7 +3774,7 @@ export default function App() {
                         </div>
                       ) : (
                         tier1Components.filter(c => c.isSelected).map((comp) => {
-                          const finalPrice = getComponentPrice(comp);
+                          const finalPrice = getComponentPrice(comp, priceScalingFactor);
                           const label = comp.material === 'frp' ? 'FRP Standard' : `${(comp.finish || 'matte').toUpperCase()} Carbon`;
                           return (
                             <div key={comp.id} className="flex justify-between items-baseline text-[10px] font-mono">
@@ -3894,6 +4258,10 @@ export default function App() {
         <AboutUs />
       )}
 
+      {currentPage === 'blog' && (
+        <BlogPage />
+      )}
+
       {currentPage === 'contact' && (
         <ContactPage triggerToast={triggerToast} setCurrentPage={setCurrentPage} />
       )}
@@ -3957,7 +4325,7 @@ export default function App() {
           <div className="space-y-4">
             <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-neutral-900 pb-2">QUICK LINKS</h4>
             <ul className="space-y-2 font-mono text-[11px]">
-              <li><button className="hover:text-white transition-colors cursor-pointer uppercase">BLOG</button></li>
+              <li><button onClick={() => setCurrentPage('blog')} className="hover:text-white transition-colors cursor-pointer uppercase">BLOG</button></li>
               <li><button className="hover:text-white transition-colors cursor-pointer uppercase">SEARCH</button></li>
               <li><button onClick={() => setCurrentPage('catalog')} className="hover:text-white transition-colors cursor-pointer uppercase">CATALOG</button></li>
               <li><button className="hover:text-white transition-colors cursor-pointer uppercase">WHOLESALE</button></li>
