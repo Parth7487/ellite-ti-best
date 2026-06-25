@@ -150,6 +150,7 @@ export default function StackedSections({
   return (
     <div
       ref={deckRef}
+      data-stacked-deck=""
       className={`flex w-full flex-col ${gapClass ?? ""} ${className ?? ""}`}
       style={
         {
@@ -170,6 +171,7 @@ export default function StackedSections({
             ref={(el) => {
               cardRefs.current[index] = el;
             }}
+            data-stacked-card=""
             className="sticky w-full"
             style={
               {
