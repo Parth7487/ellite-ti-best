@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import StackedSections from './StackedSections';
 import {
   Calendar, Clock, ArrowLeft, ChevronDown,
   User, Share2, Shield, Terminal, ArrowUpRight, Radio,
@@ -432,49 +433,38 @@ export const BlogPage: React.FC = () => {
   const featured = activeCategory === 'ALL' ? filtered[0] : null;
   const grid = activeCategory === 'ALL' ? filtered.slice(1) : filtered;
 
-  // Scroll tracking
-  // Scroll tracking for progress bar
+  // Scroll tracking for progress bar and active stacked card highlighting
   useEffect(() => {
     if (!selectedPost) { setScrollPercent(0); setActiveHeadingIdx(0); return; }
     const onScroll = () => {
       const el = document.documentElement;
       const progress = Math.min(100, Math.max(0, (window.scrollY / (el.scrollHeight - window.innerHeight)) * 100));
       setScrollPercent(progress);
+
+      // Compute active card index from layout positions
+      const cardElements = document.querySelectorAll('[data-stacked-card]');
+      let activeIdx = 0;
+      cardElements.forEach((cardEl, index) => {
+        const rect = cardEl.getBoundingClientRect();
+        // Since each card starts pinning at index * stackOffset (48px)
+        const pinnedTop = index * 48;
+        // Trigger active highlight slightly before it gets fully pinned/covered (with 120px buffer)
+        if (rect.top <= pinnedTop + 120) {
+          activeIdx = index;
+        }
+      });
+      // The first card (index 0) is the Intro, which has no heading.
+      // Card 1 corresponds to Heading 0. So activeHeadingIdx is activeIdx - 1.
+      setActiveHeadingIdx(Math.max(0, activeIdx - 1));
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     setScrollPercent(0);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [selectedPost]);
-
-  // IntersectionObserver: update active TOC heading as user scrolls to each section
-  useEffect(() => {
-    if (!selectedPost) return;
-    // Small delay so headings are mounted
-    const timer = setTimeout(() => {
-      const headingEls = document.querySelectorAll('[data-heading-idx]');
-      if (headingEls.length === 0) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          // Find the topmost visible heading
-          const visible = entries
-            .filter(e => e.isIntersecting)
-            .map(e => parseInt((e.target as HTMLElement).dataset.headingIdx || '0'));
-          if (visible.length > 0) {
-            setActiveHeadingIdx(Math.min(...visible));
-          }
-        },
-        {
-          rootMargin: '-10% 0px -70% 0px', // trigger when heading enters top 30% of viewport
-          threshold: 0,
-        }
-      );
-
-      headingEls.forEach(el => observer.observe(el));
-      return () => observer.disconnect();
-    }, 150);
-
-    return () => clearTimeout(timer);
+    // Initial call after elements layout
+    const timer = setTimeout(onScroll, 100);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+    };
   }, [selectedPost]);
   // GSAP entrance on list
   useEffect(() => {
@@ -641,73 +631,121 @@ export const BlogPage: React.FC = () => {
                 {/* Article content */}
                 <div className="lg:col-span-2 space-y-7 text-left">
                   {(() => {
-                    let headingCounter = -1;
-                    return selectedPost.sections.map((sect, i) => {
-                    const accent = catColor[selectedPost.category] || '#c0f20c';
-                    if (sect.type === 'heading') headingCounter++;
-                    const hIdx = headingCounter;
-                    switch (sect.type) {
-                      case 'paragraph':
-                        return <p key={i} className="text-neutral-300 text-sm md:text-[15px] leading-relaxed">{sect.content}</p>;
-                      case 'heading':
-                        return (
-                          <h2
-                            key={i}
-                            id={`heading-${hIdx}`}
-                            data-heading-idx={hIdx}
-                            className="font-display font-bold text-white uppercase text-base md:text-xl tracking-wider mt-10 mb-3 border-l-[3px] pl-4"
-                            style={{ borderColor: accent }}
-                          >
-                            {sect.content}
-                          </h2>
-                        );
-                      case 'quote':
-                        return (
-                          <div key={i} className="relative border border-neutral-800 bg-neutral-950/80 rounded-sm p-5 my-6 overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[3px]" style={{ backgroundImage: 'repeating-linear-gradient(45deg,#c0f20c,#c0f20c 6px,#000 6px,#000 12px)' }} />
-                            <div className="flex items-center gap-2 font-mono text-[8px] text-[#c0f20c] font-bold mb-3 mt-1 uppercase tracking-widest">
-                              <Shield className="w-3.5 h-3.5 animate-pulse" /> VERIFIED FIELD REPORT · ARCHIVE LOCKED
-                            </div>
-                            <p className="italic text-neutral-400 text-sm leading-relaxed">{sect.content}</p>
-                          </div>
-                        );
-                      case 'list':
-                        return (
-                          <ul key={i} className="space-y-3 my-6">
-                            {sect.items?.map((item, j) => (
-                              <li key={j} className="flex items-start gap-3 text-sm text-neutral-300 leading-relaxed">
-                                <span className="font-bold shrink-0 mt-1" style={{ color: accent }}>›</span>
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        );
-                      case 'image':
-                        return (
-                          <div key={i} className="my-8 space-y-2 group/img">
-                            <div className="relative overflow-hidden rounded-sm border border-neutral-900 bg-neutral-950">
-                              <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-cyan-400/40 z-10" />
-                              <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-cyan-400/40 z-10" />
-                              <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-cyan-400/40 z-10" />
-                              <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-cyan-400/40 z-10" />
-                              <img src={sect.src} alt={sect.alt} className="w-full h-auto max-h-[440px] object-cover opacity-60 group-hover/img:opacity-90 transition-all duration-500 group-hover/img:scale-[1.01]" />
-                            </div>
-                            <p className="text-[8px] font-mono text-neutral-600 uppercase tracking-widest text-center">FIG.{i + 1} — {sect.alt}</p>
-                          </div>
-                        );
-                      case 'faq':
-                        return (
-                          <div key={i} className="space-y-2 my-8">
-                            <div className="flex items-center gap-2 font-mono text-[8px] text-neutral-600 uppercase tracking-widest mb-4">
-                              <Terminal className="w-3.5 h-3.5" /> DIAGNOSTIC INDEX · Q&amp;A
-                            </div>
-                            {sect.faqItems?.map((faq, fi) => <FAQItem key={fi} question={faq.q} answer={faq.a} idx={fi} />)}
-                          </div>
-                        );
-                      default: return null;
+                    const groups: { heading: typeof selectedPost.sections[0] | null; items: typeof selectedPost.sections }[] = [];
+                    let currentGroup: { heading: typeof selectedPost.sections[0] | null; items: typeof selectedPost.sections } = { heading: null, items: [] };
+
+                    selectedPost.sections.forEach((sect) => {
+                      if (sect.type === 'heading') {
+                        if (currentGroup.heading !== null || currentGroup.items.length > 0) {
+                          groups.push(currentGroup);
+                        }
+                        currentGroup = { heading: sect, items: [] };
+                      } else {
+                        currentGroup.items.push(sect);
+                      }
+                    });
+                    if (currentGroup.heading !== null || currentGroup.items.length > 0) {
+                      groups.push(currentGroup);
                     }
-                  });
+
+                    return (
+                      <StackedSections stackOffset={48} paneGap="gap-6" className="space-y-0">
+                        {groups.map((group, groupIndex) => {
+                          const accent = catColor[selectedPost.category] || '#c0f20c';
+                          const hIdx = group.heading ? (groups[0].heading === null ? groupIndex - 1 : groupIndex) : -1;
+                          return (
+                            <div
+                              key={groupIndex}
+                              className="bg-[#0c0c0d] border border-neutral-900 rounded-sm p-6 md:p-8 space-y-6 shadow-2xl relative"
+                              style={{ borderTop: `2px solid ${accent}` }}
+                              data-card-group-idx={groupIndex}
+                            >
+                              {/* Ambient card design/texture details */}
+                              <div className="absolute top-2.5 right-3 flex gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accent }} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-neutral-800" />
+                              </div>
+                              <div className="font-mono text-[7px] text-neutral-600 tracking-widest uppercase">
+                                SECTION {String(groupIndex + 1).padStart(2, '0')} // {selectedPost.category}
+                              </div>
+
+                              {/* Heading (if exists) */}
+                              {group.heading && (
+                                <h2
+                                  id={`heading-${hIdx}`}
+                                  data-heading-idx={hIdx}
+                                  className="font-display font-bold text-white uppercase text-base md:text-xl tracking-wider border-l-[3px] pl-4 mt-2"
+                                  style={{ borderColor: accent }}
+                                >
+                                  {group.heading.content}
+                                </h2>
+                              )}
+
+                              {/* Card Content Elements */}
+                              <div className="space-y-5">
+                                {group.items.map((sect, i) => {
+                                  switch (sect.type) {
+                                    case 'paragraph':
+                                      return (
+                                        <p key={i} className="text-neutral-300 text-sm md:text-[14px] leading-relaxed">
+                                          {sect.content}
+                                        </p>
+                                      );
+                                    case 'quote':
+                                      return (
+                                        <div key={i} className="relative border border-neutral-900 bg-neutral-950/60 rounded-sm p-4 overflow-hidden">
+                                          <div className="absolute top-0 left-0 w-full h-[2px]" style={{ backgroundImage: `repeating-linear-gradient(45deg,${accent},${accent} 6px,#000 6px,#000 12px)` }} />
+                                          <p className="italic text-neutral-400 text-sm leading-relaxed mt-1">
+                                            {sect.content}
+                                          </p>
+                                        </div>
+                                      );
+                                    case 'list':
+                                      return (
+                                        <ul key={i} className="space-y-2">
+                                          {sect.items?.map((item, j) => (
+                                            <li key={j} className="flex items-start gap-2.5 text-sm text-neutral-300 leading-relaxed">
+                                              <span className="font-bold shrink-0 mt-0.5" style={{ color: accent }}>›</span>
+                                              <span>{item}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      );
+                                    case 'image':
+                                      return (
+                                        <div key={i} className="space-y-1.5 group/img">
+                                          <div className="relative overflow-hidden rounded-sm border border-neutral-900 bg-neutral-950">
+                                            <img
+                                              src={sect.src}
+                                              alt={sect.alt}
+                                              className="w-full h-auto max-h-[320px] object-cover opacity-70 group-hover/img:opacity-90 transition-all duration-500"
+                                            />
+                                          </div>
+                                          <p className="text-[7.5px] font-mono text-neutral-600 uppercase tracking-widest text-center">
+                                            {sect.alt}
+                                          </p>
+                                        </div>
+                                      );
+                                    case 'faq':
+                                      return (
+                                        <div key={i} className="space-y-2">
+                                          {sect.faqItems?.map((faq, fi) => (
+                                            <FAQItem key={fi} question={faq.q} answer={faq.a} idx={fi} />
+                                          ))}
+                                        </div>
+                                      );
+                                    default:
+                                      return null;
+                                  }
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </StackedSections>
+                    );
                   })()}
+
                   {/* Bottom nav */}
                   <div className="pt-10 border-t border-neutral-900 flex items-center justify-between">
                     <button onClick={handleBack} className="flex items-center gap-2 font-mono text-[9px] text-[#c0f20c] hover:text-white uppercase tracking-widest font-bold cursor-pointer transition-colors">

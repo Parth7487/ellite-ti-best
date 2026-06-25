@@ -2005,3 +2005,10 @@
     width: 100% !important;
   }
 }
+
+/* Stacked Sections custom animation layer */
+[data-stacked-content] {
+  transform-origin: 50% 0%;
+  will-change: transform;
+  transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
+}
