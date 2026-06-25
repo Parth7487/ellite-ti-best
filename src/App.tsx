@@ -18,6 +18,7 @@ import { Resources } from './components/Resources';
 import TitaniumCatalog from './components/TitaniumCatalog';
 import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
+import { LogoLoop } from './components/LogoLoop';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -633,6 +634,22 @@ const BrandLogos: Record<string, React.ReactNode> = {
   'FORD': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/ford.png" className="w-6 h-6 object-contain shrink-0" alt="Ford" />,
   'TESLA': <img src="https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/tesla.png" className="w-6 h-6 object-contain shrink-0" alt="Tesla" />
 };
+
+const BrandLoopList = [
+  { name: 'MAZDA', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mazda.png' },
+  { name: 'TOYOTA', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/toyota.png' },
+  { name: 'NISSAN', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/nissan.png' },
+  { name: 'MITSUBISHI', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mitsubishi.png' },
+  { name: 'HONDA', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/honda.png' },
+  { name: 'SUBARU', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/subaru.png' },
+  { name: 'BMW', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/bmw.png' },
+  { name: 'MERCEDES-BENZ', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/mercedes-benz.png' },
+  { name: 'PORSCHE', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/porsche.png' },
+  { name: 'LAMBORGHINI', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/lamborghini.png' },
+  { name: 'CHEVROLET', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/chevrolet.png' },
+  { name: 'FORD', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/ford.png' },
+  { name: 'TESLA', logo: 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/tesla.png' }
+];
 
 export default function App() {
   // --- Cart State ---
@@ -2168,26 +2185,29 @@ export default function App() {
           {/* OVERLAPPING HOME CONTENT CONTAINER */}
           <div className="home-overlapping-content">
             {/* BRAND SPEC STRIP (MARQUEE) */}
-            <div className="py-6 border-y border-neutral-900 bg-[#0a0a0b] overflow-hidden">
-            <div className="flex whitespace-nowrap text-xs font-mono uppercase tracking-[0.2em] text-neutral-400">
-              <div className="animate-marquee flex gap-8 items-center">
-                <span>NISSAN 350Z</span> <span className="text-[#9cce00]">•</span>
-                <span>MAZDA RX-7</span> <span className="text-[#9cce00]">•</span>
-                <span>TOYOTA SUPRA MK4</span> <span className="text-[#9cce00]">•</span>
-                <span>NISSAN SKYLINE R34</span> <span className="text-[#9cce00]">•</span>
-                <span>HONDA NSX NA1</span> <span className="text-[#9cce00]">•</span>
-                <span>CORVETTE C8</span> <span className="text-[#9cce00]">•</span>
-              </div>
-              <div className="animate-marquee flex gap-8 items-center">
-                <span>NISSAN 350Z</span> <span className="text-[#9cce00]">•</span>
-                <span>MAZDA RX-7</span> <span className="text-[#9cce00]">•</span>
-                <span>TOYOTA SUPRA MK4</span> <span className="text-[#9cce00]">•</span>
-                <span>NISSAN SKYLINE R34</span> <span className="text-[#9cce00]">•</span>
-                <span>HONDA NSX NA1</span> <span className="text-[#9cce00]">•</span>
-                <span>CORVETTE C8</span> <span className="text-[#9cce00]">•</span>
-              </div>
+            <div className="py-6 border-y border-neutral-900/50 bg-[#030303] overflow-hidden">
+              <LogoLoop
+                speed={30}
+                direction="left"
+                pauseOnHover={true}
+                fadeOut={true}
+                gap="gap-6 md:gap-8"
+                items={BrandLoopList.map((brand) => (
+                  <button
+                    key={brand.name}
+                    onClick={() => handleSelectChassis(brand.name)}
+                    className="flex items-center gap-3 px-5 py-2.5 bg-neutral-950/40 border border-neutral-900/60 rounded-xl backdrop-blur-sm transition-all duration-300 hover:border-[#9cce00]/40 hover:bg-neutral-900/40 group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-[#9cce00]/30 shrink-0"
+                  >
+                    <div className="w-8 h-8 flex items-center justify-center filter brightness-90 group-hover:brightness-110 group-hover:scale-105 transition-all duration-300">
+                      <img src={brand.logo} className="w-8 h-8 object-contain shrink-0" alt={brand.name} />
+                    </div>
+                    <span className="font-display font-bold text-[11px] md:text-xs tracking-wider text-neutral-300 group-hover:text-[#9cce00] transition-colors">
+                      {brand.name}
+                    </span>
+                  </button>
+                ))}
+              />
             </div>
-          </div>
 
           {/* 001 — CHASSIS COLLECTIONS GRID */}
           <section className="eti-featured-chassis" id="fitment">

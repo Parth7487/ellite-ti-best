@@ -2012,3 +2012,36 @@
   will-change: transform;
   transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* LogoLoop scrolling marquee keyframes */
+@keyframes logo-loop-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes logo-loop-right {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-logo-loop-left {
+  animation: logo-loop-left var(--speed, 25s) linear infinite;
+}
+
+.animate-logo-loop-right {
+  animation: logo-loop-right var(--speed, 25s) linear infinite;
+}
+
+/* Hover-to-pause logic */
+.animate-logo-loop-left:hover,
+.animate-logo-loop-right:hover {
+  animation-play-state: var(--hover-state, paused);
+}
