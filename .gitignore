@@ -9,3 +9,13 @@ coverage/
 .vercel
 mockup-02/
 
+# Python / Recolour Backend Ignore Rules
+recolour-backend/venv/
+recolour-backend/__pycache__/
+recolour-backend/outputs/
+recolour-backend/uploads/
+recolour-backend/.env
+scratch/
+
+
+

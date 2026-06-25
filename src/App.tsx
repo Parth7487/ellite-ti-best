@@ -14,6 +14,7 @@ import { ModelFinder } from './components/ModelFinder';
 import { StoreMap } from './components/StoreMap';
 import { AboutUs } from './components/AboutUs';
 import { BlogPage } from './components/Blog';
+import { Resources } from './components/Resources';
 import TitaniumCatalog from './components/TitaniumCatalog';
 import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
@@ -164,6 +165,24 @@ const catalogProducts: CatalogProduct[] = [
     title: 'TOP SECRET STYLE WIDEBODY BODY KIT',
     price: 5845,
     image: '/images/prod_350z_body_kit.jpg',
+    category: 'body-kits',
+    eyebrow: 'Nissan 350Z',
+    isConfigurable: true
+  },
+  {
+    id: 'prod_350z_nismo380',
+    title: 'NISMO STYLE 380 BODY KIT',
+    price: 2095,
+    image: '/images/prod_350z_nismo380_1.jpg',
+    category: 'body-kits',
+    eyebrow: 'Nissan 350Z',
+    isConfigurable: true
+  },
+  {
+    id: 'prod_350z_superleggera',
+    title: 'SUPER LEGGERA BODY KIT',
+    price: 3910,
+    image: '/images/prod_350z_superleggera_1.jpg',
     category: 'body-kits',
     eyebrow: 'Nissan 350Z',
     isConfigurable: true
@@ -630,9 +649,23 @@ export default function App() {
     '/images/350z-hero-1.jpg',
     '/images/350z-hero-8.jpg',
     '/images/350z-hero-9.jpg'
+  ] : activeConfigProduct.id === 'prod_350z_nismo380' ? [
+    '/images/prod_350z_nismo380_1.jpg',
+    '/images/prod_350z_nismo380_2.jpg',
+    '/images/prod_350z_nismo380_3.jpg',
+    '/images/prod_350z_nismo380_4.jpg',
+    '/images/prod_350z_nismo380_5.jpg',
+  ] : activeConfigProduct.id === 'prod_350z_superleggera' ? [
+    '/images/prod_350z_superleggera_0.jpg',
+    '/images/prod_350z_superleggera_1.jpg',
+    '/images/prod_350z_superleggera_2.jpg',
+    '/images/prod_350z_superleggera_3.jpg',
+    '/images/prod_350z_superleggera_4.jpg',
   ] : [activeConfigProduct.image];
 
-  const priceScalingFactor = activeConfigProduct.id === 'prod_350z_body_kit' ? 1.0 : activeConfigProduct.price / 5845;
+  const priceScalingFactor = activeConfigProduct.id === 'prod_350z_body_kit'
+    ? 1.0
+    : activeConfigProduct.price / 5845;
 
   // Toasts / alerts
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1048,7 +1081,7 @@ export default function App() {
   };
 
   // Page state routing
-  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact' | 'blog'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact' | 'blog' | 'resources'>('home');
   const [selectedProductDetail, setSelectedProductDetail] = useState<any | null>(null);
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1313,7 +1346,13 @@ export default function App() {
     setSearchQuery(query);
     setCurrentPage(page);
     setShopByCarOpen(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
+
+  // Scroll to top on every page change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-[#030303] text-neutral-200 selection:bg-[#c0f20c]/30 selection:text-[#c0f20c] font-sans pb-12">
@@ -1422,6 +1461,7 @@ export default function App() {
             <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
             <button onClick={() => setCurrentPage('blog')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'blog' ? 'text-[#c0f20c]' : ''}`}>BLOG</button>
+            <button onClick={() => setCurrentPage('resources')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'resources' ? 'text-[#c0f20c]' : ''}`}>RESOURCES</button>
             <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
           </nav>
@@ -1532,6 +1572,7 @@ export default function App() {
                     { name: 'TITANIUM HARDWARE', page: 'titanium' },
                     { name: 'STORY', page: 'story' },
                     { name: 'BLOG', page: 'blog' },
+                    { name: 'RESOURCES', page: 'resources' },
                     { name: 'CONTACT', page: 'contact' },
                     { name: 'SWAG', page: 'swag' }
                   ].map((link) => (
@@ -2485,6 +2526,12 @@ export default function App() {
               onClick={(e) => {
                 if (p.isConfigurable) {
                   e.preventDefault();
+                  setActiveConfigProduct(p);
+                  setActiveCar(p.eyebrow);
+                  setRecolouredImages({});
+                  setRecolourCustomImage(null);
+                  setRecolourCustomImageName('');
+                  setActiveImageIndex(0);
                   setCurrentPage('product');
                 } else {
                   handleProductAction(e, p);
@@ -3374,6 +3421,25 @@ export default function App() {
 
                   {/* Grid for parameters */}
                   <div className="grid grid-cols-1 gap-3 text-xs font-mono">
+
+                    {/* Recolour Engine */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[9px] text-neutral-400 uppercase tracking-widest font-bold">RECOLOUR ENGINE</label>
+                      <select
+                        value={recolourEngine}
+                        onChange={(e) => {
+                          const val = e.target.value as 'local' | 'photoroom';
+                          setRecolourEngine(val);
+                          if (Object.keys(recolouredImages).length > 0 || recolourCustomImage) {
+                            handleApplyRecolour({ engine: val });
+                          }
+                        }}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-white font-mono text-[10px] focus:border-[#c0f20c] outline-none cursor-pointer uppercase text-left"
+                      >
+                        <option value="local">OFFLINE (LOCAL OPENCV)</option>
+                        <option value="photoroom">ONLINE (PHOTOROOM AI)</option>
+                      </select>
+                    </div>
                     
                     {/* Target Component */}
                     <div className="space-y-1.5">
@@ -4260,6 +4326,10 @@ export default function App() {
 
       {currentPage === 'blog' && (
         <BlogPage />
+      )}
+
+      {currentPage === 'resources' && (
+        <Resources onNavigate={(page) => setCurrentPage(page as any)} />
       )}
 
       {currentPage === 'contact' && (

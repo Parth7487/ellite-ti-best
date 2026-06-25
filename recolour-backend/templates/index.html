@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETi Colour Changer — AI Product Recolouring</title>
+  <meta name="description" content="Drop any ETi car kit photo and instantly generate colour variants using AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Design Tokens ───────────────────────────────────────────────── */
+    :root {
+      --bg:        #08080e;
+      --surface:   #0f0f18;
+      --surface2:  #14141f;
+      --surface3:  #1c1c2a;
+      --border:    #252535;
+      --border2:   #2e2e44;
+      --accent:    #8b5cf6;
+      --accent2:   #a78bfa;
+      --accent3:   #c4b5fd;
+      --glow:      rgba(139,92,246,0.25);
+      --text:      #f0f0f8;
+      --text2:     #9090b0;
+      --text3:     #5a5a7a;
+      --success:   #10b981;
+      --error:     #f43f5e;
+      --r:         14px;
+      --r-sm:      8px;
+      --shadow:    0 8px 40px rgba(0,0,0,0.6);
+    }
+
+    /* ─── Reset & Base ────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Header ──────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+    }
+    .header-logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), #06b6d4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+    .header-pill {
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.3);
+      color: var(--accent3);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .header-api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .dot-live {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; } 50% { opacity:0.5; }
+    }
+
+    /* ─── Layout ──────────────────────────────────────────────────────── */
+    .app-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 272px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 20px 16px;
+      gap: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      background: var(--surface2);
+      border-radius: var(--r-sm);
+      padding: 3px;
+      gap: 3px;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 7px 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all 0.2s;
+      border: none;
+      background: none;
+    }
+    .mode-btn.active {
+      background: var(--surface3);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      margin-bottom: -8px;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 1.5px dashed var(--border2);
+      border-radius: var(--r);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(139,92,246,0.05);
+    }
+    .drop-zone.has-image {
+      border-style: solid;
+      border-color: var(--border2);
+      padding: 8px;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon { font-size: 28px; margin-bottom: 8px; }
+    .drop-label { font-size: 12px; font-weight: 500; color: var(--text2); line-height: 1.5; }
+    .drop-label span { color: var(--accent2); }
+    .drop-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: var(--r-sm);
+      display: none;
+      background: repeating-conic-gradient(#1a1a28 0% 25%, #101018 0% 50%) 0 0 / 12px 12px;
+    }
+    .drop-preview.visible { display: block; }
+
+    /* Colour picker */
+    .color-picker-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 5px;
+    }
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 2px solid transparent;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.selected {
+      border-color: white;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+      transform: scale(1.12);
+    }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border-radius: var(--r-sm);
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+    }
+    .color-preview-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .color-preview-box:hover { transform: scale(1.05); }
+    .color-hex-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: 'Inter', monospace;
+      font-size: 13px;
+      outline: none;
+      text-transform: uppercase;
+    }
+    input[type="color"] {
+      opacity: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* Part description */
+    .part-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .part-input:focus { border-color: var(--accent); }
+    .part-input::placeholder { color: var(--text3); }
+
+    /* Quality row */
+    .quality-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .quality-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      padding: 8px 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Generate button */
+    .btn-generate {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--r-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-generate:hover { background: #7c3aed; transform: translateY(-1px); box-shadow: 0 4px 20px var(--glow); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-generate .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-generate.loading .spinner { display: block; }
+    .btn-generate.loading .btn-text { opacity: 0.7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Batch colors */
+    .batch-colors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .batch-color-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text2);
+    }
+    .batch-color-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .batch-remove-btn {
+      background: none; border: none; color: var(--text3); cursor: pointer;
+      font-size: 12px; line-height: 1; padding: 0 2px;
+      transition: color 0.15s;
+    }
+    .batch-remove-btn:hover { color: var(--error); }
+    .btn-add-color {
+      background: var(--surface2);
+      border: 1px dashed var(--border2);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--accent2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-add-color:hover { border-color: var(--accent); background: rgba(139,92,246,0.08); }
+    .btn-generate-batch {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--accent), #06b6d4);
+      color: white;
+      border: none;
+      border-radius: var(--r-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-generate-batch:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(6,182,212,0.3); }
+    .btn-generate-batch:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ─── Main canvas ─────────────────────────────────────────────────── */
+    .main-canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* Empty state / Part guide */
+    .empty-state {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .empty-state::-webkit-scrollbar { width: 5px; }
+    .empty-state::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+    .guide-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .guide-header-icon { font-size: 48px; margin-bottom: 12px; }
+    .guide-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.4px; }
+    .guide-sub { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 480px; margin: 0 auto; }
+    .guide-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .guide-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .guide-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+    .guide-card-icon { font-size: 22px; margin-bottom: 8px; }
+    .guide-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .guide-card-desc { font-size: 11px; color: var(--text2); line-height: 1.55; }
+    .guide-card-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-works { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+    .badge-tip   { background: rgba(139,92,246,0.12); color: var(--accent3); border: 1px solid rgba(139,92,246,0.2); }
+    .guide-tips {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      margin-bottom: 24px;
+    }
+    .guide-tips-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .guide-tip-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .guide-tip-row:last-child { border-bottom: none; }
+    .guide-tip-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+
+    /* Results area */
+    .results-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .results-area::-webkit-scrollbar { width: 6px; }
+    .results-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+    .results-area.visible { display: flex; }
+
+    /* Compare view */
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .image-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .image-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .image-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text2);
+    }
+    .image-card-body {
+      background: repeating-conic-gradient(#0f0f18 0% 25%, #0a0a12 0% 50%) 0 0 / 16px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      padding: 12px;
+    }
+    .image-card-body img {
+      max-width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+      border-radius: var(--r-sm);
+    }
+
+    /* Result card */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .result-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 30px var(--glow); }
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-color-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-color-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.15);
+    }
+    .result-color-name { font-size: 12px; font-weight: 500; font-family: monospace; }
+    .result-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-download {
+      padding: 5px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-download:hover { border-color: var(--accent2); color: var(--accent3); background: rgba(139,92,246,0.1); }
+    .result-card-body {
+      background: repeating-conic-gradient(#0f0f18 0% 25%, #0a0a12 0% 50%) 0 0 / 16px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      padding: 16px;
+    }
+    .result-card-body img {
+      max-width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .result-meta {
+      padding: 10px 14px;
+      font-size: 11px;
+      color: var(--text3);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+    }
+    .result-meta span { color: var(--text2); font-weight: 500; }
+
+    /* Batch grid */
+    .batch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      z-index: 100;
+      transform: translateY(8px);
+      opacity: 0;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 320px;
+    }
+    .toast.visible { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--success); }
+    .toast.error   { border-color: var(--error); }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar.visible { display: block; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #06b6d4);
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* Scrollable batch preview */
+    .batch-nobg-strip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .batch-nobg-thumb {
+      width: 80px; height: 80px;
+      object-fit: contain;
+      background: repeating-conic-gradient(#0f0f18 0% 25%, #0a0a12 0% 50%) 0 0 / 10px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .batch-nobg-info { font-size: 12px; color: var(--text2); }
+    .batch-nobg-info strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-track {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--border2);
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-track.on { background: var(--accent); }
+    .toggle-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left 0.2s;
+    }
+    .toggle-track.on .toggle-thumb { left: 19px; }
+    .toggle-label-text { font-size: 12px; color: var(--text2); }
+
+    /* Mode selector */
+    .mode-select {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      overflow: hidden;
+    }
+    .mode-select-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text2);
+      transition: all 0.15s;
+      line-height: 1.3;
+    }
+    .mode-select-btn.active {
+      background: var(--surface3);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px var(--border2);
+    }
+    .mode-select-btn:hover:not(.active) { background: rgba(255,255,255,0.03); }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .sidebar { width: 220px; }
+      .compare-row { grid-template-columns: 1fr; }
+      .batch-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-brand">
+      <div class="header-logo">🎨</div>
+      ETi Colour Changer
+      <span class="header-pill">AI</span>
+    </div>
+    <div class="header-api-status">
+      <div class="dot-live"></div>
+      Photoroom API Connected
+    </div>
+  </header>
+
+  <!-- ─── App layout ──────────────────────────────────────────────────── -->
+  <div class="app-layout">
+
+    <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Mode toggle -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-mode-single" onclick="setMode('single')">Single</button>
+        <button class="mode-btn" id="btn-mode-batch"  onclick="setMode('batch')">Batch</button>
+      </div>
+
+      <!-- Upload drop zone -->
+      <div>
+        <div class="section-label">Image</div>
+        <div style="height:10px"></div>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files[0])" />
+          <div id="dropPlaceholder">
+            <div class="drop-icon">📸</div>
+            <div class="drop-label">
+              <span>Click to upload</span> or drag &amp; drop<br />
+              JPG, PNG up to 20 MB
+            </div>
+          </div>
+          <img class="drop-preview" id="dropPreview" alt="preview" />
+        </div>
+      </div>
+
+      <!-- ─── SINGLE mode controls ──────────────────────────────────── -->
+      <div id="single-controls">
+        <div class="section-label">Target Colour</div>
+        <div style="height:10px"></div>
+        <div class="color-picker-wrapper">
+          <!-- Preset swatches -->
+          <div class="color-grid" id="swatchGrid"></div>
+          <!-- Custom hex row -->
+          <div class="color-row">
+            <div class="color-preview-box" id="colorPreviewBox" onclick="openColorPicker()"></div>
+            <input type="color" id="nativeColorPicker" onchange="onNativeColorChange(this.value)" />
+            <input class="color-hex-input" id="hexInput" maxlength="7" value="#FF0000"
+                   oninput="onHexInput(this.value)"
+                   placeholder="#RRGGBB" />
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="section-label">Recolour Engine</div>
+        <div style="height:8px"></div>
+        <div class="mode-select" id="engineSelect">
+          <button class="mode-select-btn active" id="btnEngineLocal" onclick="setRecolourEngine('local')">
+            💻 Local Engine<br/><span style="font-size:9px;opacity:0.7">Instant &amp; Free</span>
+          </button>
+          <button class="mode-select-btn" id="btnEnginePhotoroom" onclick="setRecolourEngine('photoroom')">
+            ☁️ Photoroom AI<br/><span style="font-size:9px;opacity:0.7">Generative Edit</span>
+          </button>
+        </div>
+
+        <!-- Photoroom AI Custom Prompt (hidden by default) -->
+        <div id="photoroom-prompt-wrapper" style="display:none;">
+          <div style="height:12px"></div>
+          <div class="section-label">AI Edit Prompt (optional)</div>
+          <div style="height:8px"></div>
+          <textarea class="part-input" id="promptInput" rows="2"
+                    placeholder="e.g. Change the car color to lime green and preserve logos"></textarea>
+        </div>
+
+        <div id="local-mode-wrapper">
+          <div style="height:12px"></div>
+          <div class="section-label">Recolour Mode</div>
+          <div style="height:8px"></div>
+          <div class="mode-select" id="modeSelect">
+            <button class="mode-select-btn active" id="btnModeShift" onclick="setColorizeMode(false)">
+              🎯 Smart Shift<br/><span style="font-size:9px;opacity:0.7">existing colour</span>
+            </button>
+            <button class="mode-select-btn" id="btnModeColorize" onclick="setColorizeMode(true)">
+              🖌 Full Colorize<br/><span style="font-size:9px;opacity:0.7">carbon / grey parts</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="section-label">Part (optional)</div>
+        <div style="height:8px"></div>
+        <textarea class="part-input" id="partInput" rows="2"
+                  placeholder="e.g. car body, spoiler, bumper…"></textarea>
+
+        <div style="height:12px"></div>
+        <div class="section-label">Background</div>
+        <div style="height:8px"></div>
+        <label class="toggle-row" id="keepBgToggleLabel">
+          <div class="toggle-track" id="keepBgTrack">
+            <div class="toggle-thumb" id="keepBgThumb"></div>
+          </div>
+          <span class="toggle-label-text" id="keepBgText">Keep original background</span>
+        </label>
+
+        <div style="height:16px"></div>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div style="height:8px"></div>
+        <button class="btn-generate" id="btnGenerate" onclick="runSingle()">
+          <div class="spinner"></div>
+          <span class="btn-text">Generate Image</span>
+        </button>
+      </div>
+
+      <!-- ─── BATCH mode controls ───────────────────────────────────── -->
+      <div id="batch-controls" style="display:none; flex-direction:column; gap:12px;">
+        <div class="section-label">Colour Palette</div>
+        <div class="batch-colors" id="batchChips"></div>
+        <button class="btn-add-color" onclick="addBatchColor()">+ Add colour</button>
+
+        <div style="height:4px"></div>
+        <div class="progress-bar" id="batchProgressBar">
+          <div class="progress-fill" id="batchProgressFill" style="width:0%"></div>
+        </div>
+        <div style="height:4px"></div>
+        <button class="btn-generate-batch" id="btnBatch" onclick="runBatch()">
+          🎨 Generate All Variants
+        </button>
+        <div style="height:6px"></div>
+        <label class="toggle-row" id="batchKeepBgLabel">
+          <div class="toggle-track" id="batchKeepBgTrack">
+            <div class="toggle-thumb" id="batchKeepBgThumb"></div>
+          </div>
+          <span class="toggle-label-text" id="batchKeepBgText">Keep original background</span>
+        </label>
+      </div>
+
+    </aside>
+
+    <!-- ─── Main canvas ──────────────────────────────────────────────── -->
+    <main class="main-canvas">
+
+      <!-- Empty state / Part guide -->
+      <div class="empty-state" id="emptyState">
+
+        <div class="guide-header">
+          <div class="guide-header-icon">🎨</div>
+          <div class="guide-title">ETi Colour Visualiser</div>
+          <div class="guide-sub">
+            Upload any product photo from the sidebar, pick a colour, and hit <strong>Generate Image</strong>.
+            Works on complete cars, individual carbon parts, bumpers, spoilers, and more.
+          </div>
+        </div>
+
+        <!-- Part type cards -->
+        <div class="guide-section-title">Supported Part Types</div>
+        <div class="guide-grid">
+
+          <div class="guide-card">
+            <div class="guide-card-icon">🚗</div>
+            <div class="guide-card-title">Full Car Body</div>
+            <div class="guide-card-desc">Upload a complete side or front shot. The tool auto-detects the dominant paint colour and shifts it to your target. Shadows, trim, glass and tyres are untouched.</div>
+            <span class="guide-card-badge badge-works">✓ Works great</span>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-card-icon">⬛</div>
+            <div class="guide-card-title">Carbon Fibre Parts</div>
+            <div class="guide-card-desc">Raw carbon bumpers, diffusers, spoilers — the dark carbon weave is fully preserved (protected by brightness threshold). Only painted red/coloured accent strips change.</div>
+            <span class="guide-card-badge badge-tip">💡 Carbon texture safe</span>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-card-icon">🏎️</div>
+            <div class="guide-card-title">Front Bumper / Splitter</div>
+            <div class="guide-card-desc">Works on raw or painted bumpers. If the part has colour accents (lip strips, vents) those will recolour. If it's all one colour, the entire part shifts.</div>
+            <span class="guide-card-badge badge-works">✓ Works great</span>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-card-icon">🦅</div>
+            <div class="guide-card-title">Rear Spoiler / Wing</div>
+            <div class="guide-card-desc">Upload a standalone shot of the spoiler or wing. Paint colour is shifted, aluminium mounts and carbon end plates are left natural.</div>
+            <span class="guide-card-badge badge-works">✓ Works great</span>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-card-icon">💨</div>
+            <div class="guide-card-title">Rear Diffuser</div>
+            <div class="guide-card-desc">Carbon or painted diffusers — same protection. If the diffuser is black carbon it won't change (carbon is dark = protected). Coloured painted diffusers recolour fully.</div>
+            <span class="guide-card-badge badge-tip">💡 Dark carbon protected</span>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-card-icon">📦</div>
+            <div class="guide-card-title">Side Skirts &amp; Canards</div>
+            <div class="guide-card-desc">Individual kit parts laid flat or mounted on a car. Best results with solid-colour studio/dark background. The dominant colour of the part is detected and shifted.</div>
+            <span class="guide-card-badge badge-works">✓ Works great</span>
+          </div>
+
+        </div>
+
+        <!-- Tips -->
+        <div class="guide-tips">
+          <div class="guide-tips-title">💡 Tips for best results</div>
+
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">📸</span>
+            <span>Use <strong>studio or dark background</strong> shots — the algorithm focuses on the dominant paint colour and naturally ignores neutral/dark backgrounds.</span>
+          </div>
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">⬛</span>
+            <span><strong>Carbon parts:</strong> Raw carbon fibre won't change at all — it's too dark and desaturated to trigger the hue mask. Only coloured accent sections change.</span>
+          </div>
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">🎯</span>
+            <span><strong>One colour per image</strong> works best. If a bumper has both red and orange accents, the most dominant one is targeted. Use Batch mode to preview multiple colours at once.</span>
+          </div>
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">🔁</span>
+            <span><strong>Batch mode</strong> — switch to Batch in the top toggle, add multiple colours, and generate all variants from one image with a single click. Great for client colour presentations.</span>
+          </div>
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">🪞</span>
+            <span><strong>Floor reflections</strong> are auto-managed — the bottom 20% of the image is excluded from recolouring, and the fade zone above gets only a 7% subtle tint.</span>
+          </div>
+          <div class="guide-tip-row">
+            <span class="guide-tip-icon">💰</span>
+            <span><strong>Zero cost, unlimited.</strong> No API used when Keep Background is ON. Pure local processing on your machine — as fast as 0.5 seconds per image.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Results -->
+      <div class="results-area" id="resultsArea"></div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Preset colour palette (automotive) ──────────────────────────────
+    const PRESETS = [
+      "#e33d72","#ef4444","#f97316","#eab308",
+      "#84cc16","#22c55e","#06b6d4","#3b82f6",
+      "#8b5cf6","#ec4899","#f0f0f0","#1a1a1a",
+      "#6b7280","#92400e","#0e7490","#7c3aed",
+    ];
+
+    let selectedColor = "#e33d72";
+    let uploadedFile  = null;
+    let currentMode   = "single";
+    let batchColors   = ["#e33d72","#3b82f6","#22c55e","#8b5cf6"];
+    let keepBg        = true;
+    let batchKeepBg   = true;
+    let colorizeMode  = false;   // false=smart shift, true=full surface colorize
+    let recolourEngine = "local";
+
+    // ── Init ─────────────────────────────────────────────────────────────
+    function init() {
+      buildSwatches();
+      buildBatchChips();
+      updateColorUI(selectedColor);
+      setupDragDrop();
+      setupToggles();
+    }
+
+    function setupToggles() {
+      // Single mode toggle
+      const track = document.getElementById("keepBgTrack");
+      setToggle(track, keepBg);
+      document.getElementById("keepBgToggleLabel").addEventListener("click", () => {
+        keepBg = !keepBg;
+        setToggle(track, keepBg);
+      });
+      // Batch mode toggle
+      const bTrack = document.getElementById("batchKeepBgTrack");
+      setToggle(bTrack, batchKeepBg);
+      document.getElementById("batchKeepBgLabel").addEventListener("click", () => {
+        batchKeepBg = !batchKeepBg;
+        setToggle(bTrack, batchKeepBg);
+      });
+    }
+
+    function setToggle(track, on) {
+      track.classList.toggle("on", on);
+    }
+
+    function setColorizeMode(on) {
+      colorizeMode = on;
+      document.getElementById("btnModeShift").classList.toggle("active", !on);
+      document.getElementById("btnModeColorize").classList.toggle("active", on);
+    }
+
+    function setRecolourEngine(engine) {
+      recolourEngine = engine;
+      document.getElementById("btnEngineLocal").classList.toggle("active", engine === "local");
+      document.getElementById("btnEnginePhotoroom").classList.toggle("active", engine === "photoroom");
+      
+      const localWrapper = document.getElementById("local-mode-wrapper");
+      const prWrapper = document.getElementById("photoroom-prompt-wrapper");
+      
+      if (engine === "photoroom") {
+        localWrapper.style.display = "none";
+        prWrapper.style.display = "block";
+      } else {
+        localWrapper.style.display = "block";
+        prWrapper.style.display = "none";
+      }
+    }
+
+    function buildSwatches() {
+      const grid = document.getElementById("swatchGrid");
+      grid.innerHTML = "";
+      PRESETS.forEach(c => {
+        const el = document.createElement("div");
+        el.className = "color-swatch" + (c === selectedColor ? " selected" : "");
+        el.style.background = c;
+        el.title = c;
+        el.onclick = () => selectColor(c);
+        grid.appendChild(el);
+      });
+    }
+
+    function buildBatchChips() {
+      const container = document.getElementById("batchChips");
+      container.innerHTML = "";
+      batchColors.forEach((c, i) => {
+        const chip = document.createElement("div");
+        chip.className = "batch-color-chip";
+        chip.innerHTML = `
+          <div class="batch-color-dot" style="background:${c}"></div>
+          ${c.toUpperCase()}
+          <button class="batch-remove-btn" onclick="removeBatchColor(${i})">×</button>
+        `;
+        container.appendChild(chip);
+      });
+    }
+
+    // ── Mode switching ────────────────────────────────────────────────────
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById("btn-mode-single").classList.toggle("active", mode === "single");
+      document.getElementById("btn-mode-batch").classList.toggle("active", mode === "batch");
+      document.getElementById("single-controls").style.display = mode === "single" ? "flex" : "none";
+      document.getElementById("single-controls").style.flexDirection = "column";
+      document.getElementById("single-controls").style.gap = "0";
+      document.getElementById("batch-controls").style.display = mode === "batch" ? "flex" : "none";
+
+      document.getElementById("resultsArea").innerHTML = "";
+      document.getElementById("resultsArea").classList.remove("visible");
+      document.getElementById("emptyState").style.display = uploadedFile ? "none" : "flex";
+    }
+
+    // ── File handling ─────────────────────────────────────────────────────
+    function setupDragDrop() {
+      const zone = document.getElementById("dropZone");
+      zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("drag-over"); });
+      zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        zone.classList.remove("drag-over");
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+      });
+    }
+
+    function handleFile(file) {
+      if (!file) return;
+      uploadedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        const preview = document.getElementById("dropPreview");
+        preview.src = e.target.result;
+        preview.classList.add("visible");
+        document.getElementById("dropPlaceholder").style.display = "none";
+        document.getElementById("dropZone").classList.add("has-image");
+        document.getElementById("emptyState").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ── Colour selection ──────────────────────────────────────────────────
+    function selectColor(hex) {
+      selectedColor = hex;
+      document.querySelectorAll(".color-swatch").forEach(s => {
+        s.classList.toggle("selected", s.style.background === hex || s.title === hex);
+      });
+      updateColorUI(hex);
+    }
+
+    function updateColorUI(hex) {
+      document.getElementById("colorPreviewBox").style.background = hex;
+      document.getElementById("hexInput").value = hex.toUpperCase();
+      document.getElementById("nativeColorPicker").value = hex;
+    }
+
+    function onHexInput(val) {
+      if (/^#[0-9a-f]{6}$/i.test(val)) selectColor(val);
+    }
+
+    function openColorPicker() {
+      document.getElementById("nativeColorPicker").click();
+    }
+
+    function onNativeColorChange(val) {
+      selectColor(val);
+      // Deselect preset swatches if custom color
+      if (!PRESETS.includes(val.toLowerCase())) {
+        document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("selected"));
+      }
+    }
+
+    // ── Batch colour management ───────────────────────────────────────────
+    function addBatchColor() {
+      const picker = document.createElement("input");
+      picker.type  = "color";
+      picker.value = "#ff6600";
+      picker.style.display = "none";
+      document.body.appendChild(picker);
+      picker.click();
+      picker.addEventListener("change", () => {
+        batchColors.push(picker.value);
+        buildBatchChips();
+        document.body.removeChild(picker);
+      });
+    }
+
+    function removeBatchColor(i) {
+      batchColors.splice(i, 1);
+      buildBatchChips();
+    }
+
+    // ── Single recolour ───────────────────────────────────────────────────
+    async function runSingle() {
+      if (!uploadedFile) { showToast("⚠️  Please upload an image first", "error"); return; }
+
+      const btn = document.getElementById("btnGenerate");
+      setLoading(btn, true);
+      showProgress("progressBar", "progressFill");
+
+      const fd = new FormData();
+      fd.append("image", uploadedFile);
+      fd.append("color", selectedColor);
+      fd.append("keep_bg", keepBg ? "true" : "false");
+      fd.append("colorize", colorizeMode ? "true" : "false");
+      fd.append("part", document.getElementById("partInput").value);
+      fd.append("engine", recolourEngine);
+      fd.append("prompt", document.getElementById("promptInput").value);
+
+      try {
+        animateProgress("progressFill", 0, keepBg ? 90 : 70, keepBg ? 1500 : 4000);
+        const resp = await fetch("/api/recolour", { method: "POST", body: fd });
+        const data = await resp.json();
+
+        if (data.error) throw new Error(data.error);
+
+        animateProgress("progressFill", keepBg ? 90 : 70, 100, 400);
+        await sleep(500);
+
+        renderSingleResult(data);
+        showToast("✅  Recolour complete — saved to outputs/", "success");
+      } catch (e) {
+        showToast("❌  " + e.message, "error");
+        console.error(e);
+      } finally {
+        setLoading(btn, false);
+        hideProgress("progressBar", "progressFill");
+      }
+    }
+
+    function renderSingleResult(data) {
+      const area = document.getElementById("resultsArea");
+
+      // Build compare panels — skip "no-bg" panel if background was kept
+      const compareCards = keepBg
+        ? `<div class="image-card">
+            <div class="image-card-header"><span class="image-card-label">Original</span></div>
+            <div class="image-card-body"><img src="${data.original}" alt="original" /></div>
+           </div>`
+        : `<div class="image-card">
+            <div class="image-card-header"><span class="image-card-label">Original</span></div>
+            <div class="image-card-body"><img src="${data.original}" alt="original" /></div>
+           </div>
+           <div class="image-card">
+            <div class="image-card-header"><span class="image-card-label">Background Removed</span></div>
+            <div class="image-card-body"><img src="${data.nobg}" alt="no background" /></div>
+           </div>`;
+
+      const isColorize = data.info?.mode === 'colorize';
+      const isPhotoroomAI = data.info?.engine === 'photoroom';
+      const autoColorizeBadge = data.info?.auto_colorize 
+        ? `<span style="font-size:10px;background:rgba(167,139,250,0.15);color:var(--accent2);border:1px solid rgba(167,139,250,0.3);padding:1px 6px;border-radius:4px;margin-left:6px;">Auto-colorize (low saturation)</span>`
+        : '';
+      const engineBadge = isPhotoroomAI 
+        ? `<span style="font-size:10px;background:rgba(6,182,212,0.15);color:#22d3ee;border:1px solid rgba(6,182,212,0.3);padding:1px 6px;border-radius:4px;margin-left:6px;">Photoroom AI Engine</span>`
+        : '';
+      const modeBadge = isPhotoroomAI
+        ? ''
+        : (isColorize ? '<span style="font-size:10px;color:var(--accent3);margin-left:4px;">Full colorize</span>' : '<span style="font-size:10px;color:var(--text3);margin-left:4px;">Smart shift</span>');
+
+      area.innerHTML = `
+        <div class="compare-row">${compareCards}</div>
+
+        <div class="result-card">
+          <div class="result-card-header">
+            <div class="result-color-info">
+              <div class="result-color-dot" style="background:${data.target_color || selectedColor}"></div>
+              <span class="result-color-name">${(data.target_color || selectedColor).toUpperCase()}</span>
+              ${ keepBg ? '<span style="font-size:10px;color:var(--text3);margin-left:6px;">BG kept</span>' : '' }
+              ${modeBadge}
+              ${engineBadge}
+              ${autoColorizeBadge}
+            </div>
+            <div class="result-actions">
+              <a class="btn-download" href="${data.result}" download="recoloured_${selectedColor.slice(1)}.${keepBg ? 'jpg' : 'png'}">
+                ⬇ Download
+              </a>
+            </div>
+          </div>
+          <div class="result-card-body">
+            <img src="${data.result}" alt="recoloured" />
+          </div>
+          <div class="result-meta">
+            ${isPhotoroomAI 
+              ? `AI Prompt: <span style="font-style:italic;">"${data.info?.prompt ?? '—'}"</span>`
+              : `Dominant hue: <span>${data.info?.dominant_hue ?? '—'}°</span>
+                 &nbsp;|&nbsp;
+                 Target hue: <span>${data.info?.target_hue ?? '—'}°</span>
+                 &nbsp;|&nbsp;
+                 Avg saturation: <span>${data.info?.average_saturation ?? '—'}</span>
+                 &nbsp;|&nbsp;
+                 Pixels changed: <span>${(data.info?.pixels_changed ?? 0).toLocaleString()}</span>`
+            }
+            &nbsp;|&nbsp;
+            Saved: <span style="font-family:monospace;font-size:10px;">${data.saved_as}</span>
+          </div>
+        </div>
+      `;
+      area.classList.add("visible");
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    // ── Batch recolour ────────────────────────────────────────────────────
+    async function runBatch() {
+      if (!uploadedFile)  { showToast("⚠️  Please upload an image first", "error"); return; }
+      if (!batchColors.length) { showToast("⚠️  Add at least one colour", "error"); return; }
+
+      const btn = document.getElementById("btnBatch");
+      btn.disabled = true;
+      btn.textContent = "⏳ Processing…";
+      showProgress("batchProgressBar", "batchProgressFill");
+
+      const fd = new FormData();
+      fd.append("image", uploadedFile);
+      fd.append("colors", JSON.stringify(batchColors));
+      fd.append("keep_bg", batchKeepBg ? "true" : "false");
+      fd.append("colorize", colorizeMode ? "true" : "false");
+      fd.append("part", document.getElementById("partInput").value);
+      fd.append("engine", recolourEngine);
+      fd.append("prompt", document.getElementById("promptInput").value);
+
+      try {
+        animateProgress("batchProgressFill", 0, 85, batchKeepBg ? 2000 : 6000);
+        const resp = await fetch("/api/batch", { method: "POST", body: fd });
+        const data = await resp.json();
+
+        if (data.error) throw new Error(data.error);
+
+        animateProgress("batchProgressFill", 85, 100, 600);
+        await sleep(700);
+
+        renderBatchResults(data);
+        showToast(`✅  ${data.results.length} variants generated!`, "success");
+      } catch (e) {
+        showToast("❌  " + e.message, "error");
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🎨 Generate All Variants";
+        hideProgress("batchProgressBar", "batchProgressFill");
+      }
+    }
+
+    function renderBatchResults(data) {
+      const area = document.getElementById("resultsArea");
+      const nobgHtml = data.nobg
+        ? `<div class="batch-nobg-strip">
+            <img class="batch-nobg-thumb" src="${data.nobg}" alt="no bg" />
+            <div class="batch-nobg-info">
+              <strong>Background Removed ✓</strong>
+              ${data.results.length} colour variants generated below
+            </div>
+           </div>`
+        : `<div class="batch-nobg-strip">
+            <div style="font-size:22px">🎨</div>
+            <div class="batch-nobg-info">
+              <strong>${data.results.length} colour variants generated</strong>
+              Background kept — processed locally in seconds
+            </div>
+           </div>`;
+
+      area.innerHTML = `
+        ${nobgHtml}
+        <div class="batch-grid">
+          ${data.results.map(r => `
+            <div class="result-card">
+              <div class="result-card-header">
+                <div class="result-color-info">
+                  <div class="result-color-dot" style="background:${r.color}"></div>
+                  <span class="result-color-name">${r.color.toUpperCase()}</span>
+                </div>
+                <a class="btn-download" href="${r.image}" download="recoloured_${r.color.slice(1)}.jpg">⬇</a>
+              </div>
+              <div class="result-card-body" style="min-height:160px;">
+                <img src="${r.image}" alt="${r.color}" />
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      area.classList.add("visible");
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function setLoading(btn, on) {
+      btn.disabled = on;
+      btn.classList.toggle("loading", on);
+    }
+
+    function showProgress(barId, fillId) {
+      document.getElementById(barId).classList.add("visible");
+      document.getElementById(fillId).style.width = "0%";
+    }
+
+    function hideProgress(barId, fillId) {
+      setTimeout(() => {
+        document.getElementById(barId).classList.remove("visible");
+        document.getElementById(fillId).style.width = "0%";
+      }, 800);
+    }
+
+    function animateProgress(fillId, from, to, duration) {
+      const fill  = document.getElementById(fillId);
+      const start = Date.now();
+      fill.style.width = from + "%";
+      const tick = () => {
+        const elapsed = Date.now() - start;
+        const pct     = Math.min(elapsed / duration, 1);
+        const cur     = from + (to - from) * pct;
+        fill.style.width = cur + "%";
+        if (pct < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    function showToast(msg, type = "info") {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className   = `toast ${type} visible`;
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove("visible"), 4000);
+    }
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // ── Start ─────────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>
