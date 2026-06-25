@@ -1,9 +1,8 @@
 """
-app.py — Flask server for the ETi Colour Changer
-Run: python app.py
+api/index.py — Flask server for the ETi Colour Changer (Vercel Serverless Function compatible)
 """
 
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, send_file
 from pathlib import Path
 from dotenv import load_dotenv
 import json
@@ -12,18 +11,32 @@ import io
 import cv2
 import numpy as np
 
-from recolour import (
-    remove_background,
-    smart_recolour,
-    smart_recolour_inplace,
-    bytes_to_bgra,
-    bytes_to_bgr,
-    bgra_to_bytes,
-    to_data_uri,
-    save_output,
-    photoroom_ai_recolour,
-    restore_protected_logo,
-)
+try:
+    from api.recolour import (
+        remove_background,
+        smart_recolour,
+        smart_recolour_inplace,
+        bytes_to_bgra,
+        bytes_to_bgr,
+        bgra_to_bytes,
+        to_data_uri,
+        save_output,
+        photoroom_ai_recolour,
+        restore_protected_logo,
+    )
+except ImportError:
+    from recolour import (
+        remove_background,
+        smart_recolour,
+        smart_recolour_inplace,
+        bytes_to_bgra,
+        bytes_to_bgr,
+        bgra_to_bytes,
+        to_data_uri,
+        save_output,
+        photoroom_ai_recolour,
+        restore_protected_logo,
+    )
 
 load_dotenv()
 
@@ -37,15 +50,35 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-OUTPUT_DIR = Path("outputs")
-OUTPUT_DIR.mkdir(exist_ok=True)
+# Vercel handles the output path internally. We configure outputs inside /tmp if writable,
+# or default to Path("outputs") as a fallback.
+OUTPUT_DIR = Path("/tmp/outputs") if os.path.exists("/tmp") else Path("outputs")
+try:
+    OUTPUT_DIR.mkdir(exist_ok=True)
+except Exception:
+    pass
 
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
 
 @app.route("/")
+@app.route("/api")
+@app.route("/api/")
 def index():
-    return render_template("index.html")
+    return jsonify({
+        "status": "active",
+        "service": "ETi Active Recolour API Backend",
+        "engine": "photoroom",
+        "photoroom_api_key_configured": bool(os.getenv("PHOTOROOM_API_KEY"))
+    })
+
+
+@app.route("/api/health")
+def health():
+    return jsonify({
+        "status": "healthy",
+        "server": "vercel-serverless" if os.getenv("VERCEL") else "local"
+    })
 
 
 # COLOR NAMES lookup for Photoroom AI prompt mapping

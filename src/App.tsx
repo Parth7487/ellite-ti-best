@@ -687,7 +687,7 @@ export default function App() {
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const resp = await fetch('http://localhost:5050/', { method: 'GET' });
+        const resp = await fetch('/api', { method: 'GET' });
         if (resp.ok) {
           setIsRecolourServerConnected(true);
         } else {
@@ -730,7 +730,7 @@ export default function App() {
         formData.append('part', partToApply);
         formData.append('engine', engineToApply);
 
-        const resp = await fetch('http://localhost:5050/api/recolour', {
+        const resp = await fetch('/api/recolour', {
           method: 'POST',
           body: formData,
         });
@@ -764,7 +764,7 @@ export default function App() {
             formData.append('part', partToApply);
             formData.append('engine', engineToApply);
 
-            const resp = await fetch('http://localhost:5050/api/recolour', {
+            const resp = await fetch('/api/recolour', {
               method: 'POST',
               body: formData,
             });
@@ -800,7 +800,7 @@ export default function App() {
           formData.append('part', partToApply);
           formData.append('engine', engineToApply);
 
-          const resp = await fetch('http://localhost:5050/api/recolour', {
+          const resp = await fetch('/api/recolour', {
             method: 'POST',
             body: formData,
           });

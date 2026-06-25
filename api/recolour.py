@@ -381,11 +381,15 @@ def to_data_uri(data: bytes, mime: str = "image/png") -> str:
 
 
 def save_output(data: bytes, color: str, out_dir: Path) -> Path:
-    ts    = datetime.now().strftime("%Y%m%d_%H%M%S")
-    fname = f"recoloured_{color.lstrip('#')}_{ts}.jpg"
-    path  = out_dir / fname
-    path.write_bytes(data)
-    return path
+    try:
+        ts    = datetime.now().strftime("%Y%m%d_%H%M%S")
+        fname = f"recoloured_{color.lstrip('#')}_{ts}.jpg"
+        path  = out_dir / fname
+        out_dir.mkdir(exist_ok=True)
+        path.write_bytes(data)
+        return path
+    except Exception:
+        return Path("skipped_readonly")
 
 
 def restore_protected_logo(original_bgr: np.ndarray, result_img: np.ndarray) -> np.ndarray:
