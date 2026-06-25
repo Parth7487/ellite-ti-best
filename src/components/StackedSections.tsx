@@ -4,6 +4,7 @@ export interface StackedSectionsProps {
   children?: React.ReactNode;
   withDramaEffect?: boolean;
   stackOffset?: number;
+  stickyTop?: number;
   paneGap?: false | string;
   scrollRunway?: string;
   className?: string;
@@ -28,6 +29,7 @@ export default function StackedSections({
   children,
   withDramaEffect = true,
   stackOffset = 48,
+  stickyTop = 0,
   paneGap = "gap-4",
   scrollRunway = "0px",
   className,
@@ -71,7 +73,7 @@ export default function StackedSections({
         return false;
       }
       return (
-        nextCard.getBoundingClientRect().top - containerTop <= (cardIndex + 1) * stackOffset + 1
+        nextCard.getBoundingClientRect().top - containerTop <= stickyTop + (cardIndex + 1) * stackOffset + 1
       );
     };
 
@@ -103,7 +105,7 @@ export default function StackedSections({
           continue;
         }
 
-        const pinnedTop = (i + 1) * stackOffset;
+        const pinnedTop = stickyTop + (i + 1) * stackOffset;
         const offset = nextCard.getBoundingClientRect().top - containerTop - pinnedTop;
         const rowH = card.offsetHeight > 0 ? card.offsetHeight : 1;
         const distance = Math.max(rowH - pinnedTop, 1);
@@ -137,7 +139,7 @@ export default function StackedSections({
         }
       }
     };
-  }, [total, stackOffset, withDramaEffect, scaleAtDepth]);
+  }, [total, stackOffset, stickyTop, withDramaEffect, scaleAtDepth]);
 
   if (total === 0) {
     return null;
@@ -168,9 +170,10 @@ export default function StackedSections({
             ref={(el) => {
               cardRefs.current[index] = el;
             }}
-            className="sticky top-0 w-full"
+            className="sticky w-full"
             style={
               {
+                top: `${stickyTop}px`,
                 "--index": cardIndex,
                 zIndex: cardIndex,
                 paddingTop: `calc(${cardIndex} * var(--stacked-top-offset))`,

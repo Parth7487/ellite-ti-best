@@ -446,8 +446,8 @@ export const BlogPage: React.FC = () => {
       let activeIdx = 0;
       cardElements.forEach((cardEl, index) => {
         const rect = cardEl.getBoundingClientRect();
-        // Since each card starts pinning at index * stackOffset (48px)
-        const pinnedTop = index * 48;
+        // Since each card starts pinning at stickyTop (80) + index * stackOffset (48px)
+        const pinnedTop = 80 + index * 48;
         // Trigger active highlight slightly before it gets fully pinned/covered (with 120px buffer)
         if (rect.top <= pinnedTop + 120) {
           activeIdx = index;
@@ -493,7 +493,7 @@ export const BlogPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#070708] min-h-screen text-[#fafaf7] pt-20 relative overflow-x-hidden">
+    <div className="w-full bg-[#070708] min-h-screen text-[#fafaf7] pt-20 relative overflow-x-clip">
       {/* Ambient grid */}
       <div className="fixed inset-0 opacity-[0.022] pointer-events-none z-0">
         <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 48px,#fff 48px,#fff 49px),repeating-linear-gradient(90deg,transparent,transparent 48px,#fff 48px,#fff 49px)' }} />
@@ -649,7 +649,7 @@ export const BlogPage: React.FC = () => {
                     }
 
                     return (
-                      <StackedSections stackOffset={48} paneGap="gap-6" className="space-y-0">
+                      <StackedSections stickyTop={80} stackOffset={48} paneGap="gap-6" className="space-y-0">
                         {groups.map((group, groupIndex) => {
                           const accent = catColor[selectedPost.category] || '#c0f20c';
                           const hIdx = group.heading ? (groups[0].heading === null ? groupIndex - 1 : groupIndex) : -1;
