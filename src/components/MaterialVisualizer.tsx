@@ -370,13 +370,13 @@ export default function MaterialVisualizer() {
               style={{ opacity: wipeProgress / 100 }}
             />
             
-            {/* Visual Divider (Wipe Line) */}
+            {/* Visual Divider (Wipe Line) - Disabled for dissolve-only transition */}
             <div 
               className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#c0f20c] to-transparent pointer-events-none"
               style={{ 
                 left: `${wipeProgress}%`,
                 boxShadow: '0 0 10px #c0f20c, 0 0 20px #c0f20c',
-                opacity: wipeProgress > 0 && wipeProgress < 100 ? 0.8 : 0
+                opacity: 0
               }}
             />
 
