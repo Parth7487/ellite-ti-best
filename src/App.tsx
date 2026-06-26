@@ -2274,7 +2274,7 @@ export default function App() {
           </section>
 
           {/* 001-A — CHASSIS COLLECTIONS (EXPAND ON HOVER) */}
-          <section className="eti-featured-chassis py-24 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
+          <section className="eti-featured-chassis pt-0 pb-24 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
             <div className="reveal w-full px-0" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
               <ExpandOnHover 
                 items={CHASSIS_LIST} 

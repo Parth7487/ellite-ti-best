@@ -30,7 +30,7 @@ export function ExpandOnHover({ items, onSelect }: ExpandOnHoverProps) {
     <div 
       className="w-full flex flex-col items-center justify-center bg-[#0a0a0b] relative"
       style={{
-        paddingTop: `${sectionPadding}px`,
+        paddingTop: "0px",
         paddingBottom: `${sectionPadding}px`,
       }}
     >
