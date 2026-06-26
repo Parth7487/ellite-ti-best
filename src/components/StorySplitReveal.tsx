@@ -30,40 +30,52 @@ const SECTIONS: StorySection[] = [
 ];
 
 export default function StorySplitReveal() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const height = rect.height;
-      const scrollProgress = -rect.top / (height - window.innerHeight);
-      const clamped = Math.max(0, Math.min(0.99, scrollProgress));
-      const index = Math.floor(clamped * SECTIONS.length);
-      setActiveIndex(index);
+    const observerOptions = {
+      root: null, // window viewport
+      rootMargin: "-45% 0px -45% 0px", // triggers when elements enter the middle of the viewport
+      threshold: 0,
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = Number(entry.target.getAttribute("data-index"));
+          if (!isNaN(index)) {
+            setActiveIndex(index);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    blockRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (
-    <section 
-      ref={containerRef} 
-      className="relative w-full bg-black border-t border-neutral-900"
-      style={{ minHeight: "300vh" }}
-    >
+    <section className="relative w-full bg-black border-t border-neutral-900">
+      
       {/* Container header for alternative version */}
-      <div className="absolute top-8 left-8 z-20 flex items-center gap-4">
+      <div className="absolute top-8 left-8 z-30 flex items-center gap-4">
         <span className="text-[10px] tracking-[0.2em] font-mono text-emerald-500 uppercase px-2 py-0.5 border border-emerald-500/30 bg-emerald-500/10 rounded">
           Alternative Layout 004-B: Split Reveal
         </span>
       </div>
 
-      <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row overflow-hidden">
-        {/* Left Half: Sticky Image Gallery */}
-        <div className="relative w-full md:w-1/2 h-1/2 md:h-full bg-neutral-950 flex flex-col justify-end p-8 border-r border-neutral-900/50">
+      <div className="flex flex-col md:flex-row w-full relative">
+        
+        {/* Left Side: Sticky Image Showcase */}
+        <div className="w-full md:w-1/2 h-[50vh] md:h-screen sticky top-0 z-10 overflow-hidden bg-neutral-950 border-r border-neutral-900/50 flex flex-col justify-end p-8">
           <div className="absolute inset-0 z-0">
             <AnimatePresence mode="wait">
               <motion.div
@@ -71,16 +83,19 @@ export default function StorySplitReveal() {
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="w-full h-full bg-cover bg-center"
                 style={{ backgroundImage: `url('${SECTIONS[activeIndex].image}')` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/20" />
+                {/* Dark Vignette Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          <div className="relative z-10 font-mono text-[10px] text-neutral-400 tracking-wider">
+          {/* Sticky Image Caption Label */}
+          <div className="relative z-10 font-mono text-[9px] text-neutral-400 tracking-wider">
             <AnimatePresence mode="wait">
               <motion.span
                 key={activeIndex}
@@ -88,6 +103,7 @@ export default function StorySplitReveal() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.3 }}
+                className="block"
               >
                 {SECTIONS[activeIndex].label}
               </motion.span>
@@ -95,21 +111,26 @@ export default function StorySplitReveal() {
           </div>
         </div>
 
-        {/* Right Half: Scrolling Content Blocks */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full overflow-y-auto hide-scrollbar md:snap-y md:snap-mandatory">
+        {/* Right Side: Normal Scrolling Text Blocks */}
+        <div className="w-full md:w-1/2 relative bg-black">
           {SECTIONS.map((sec, idx) => {
             const isActive = activeIndex === idx;
             return (
-              <div 
+              <div
                 key={idx}
-                className="w-full h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 snap-start py-12"
+                ref={(el) => { blockRefs.current[idx] = el; }}
+                data-index={idx}
+                className="w-full h-[50vh] md:h-screen flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 border-b border-neutral-950 last:border-b-0"
               >
                 <motion.div
-                  animate={{ opacity: isActive ? 1 : 0.25, x: isActive ? 0 : -10 }}
-                  transition={{ duration: 0.5 }}
+                  animate={{ 
+                    opacity: isActive ? 1 : 0.2, 
+                    x: isActive ? 0 : -10 
+                  }}
+                  transition={{ duration: 0.4 }}
                   className="space-y-6 max-w-lg"
                 >
-                  <span className="text-xs font-mono text-emerald-500 tracking-[0.2em] uppercase">
+                  <span className="text-xs font-mono text-emerald-500 tracking-[0.2em] uppercase block">
                     {sec.title}
                   </span>
                   
@@ -123,9 +144,9 @@ export default function StorySplitReveal() {
                   
                   {isActive && (
                     <motion.div 
-                      layoutId="split-line"
-                      className="h-[2px] bg-emerald-500 w-16"
-                      transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                      layoutId="split-line-active"
+                      className="h-[2px] bg-emerald-500 w-16 mt-4"
+                      transition={{ type: "spring", stiffness: 120, damping: 15 }}
                     />
                   )}
                 </motion.div>
@@ -133,6 +154,7 @@ export default function StorySplitReveal() {
             );
           })}
         </div>
+
       </div>
     </section>
   );
