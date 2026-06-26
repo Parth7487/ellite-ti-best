@@ -347,9 +347,14 @@ export default function MaterialVisualizer() {
               Interactive transformations between 5 JDM spec carbon &amp; weave hoods.
             </p>
           </div>
-          <div className="font-mono text-[9px] bg-[#c0f20c]/10 border border-[#c0f20c]/20 text-[#c0f20c] px-3 py-1 uppercase tracking-widest font-bold">
-            ⚡ Dynamic Wipe
-          </div>
+          <a 
+            href="https://labs.google/fx/tools/flow/project/c4d70d3c-a745-49b4-a1f2-6442ac1d8ff2" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-mono text-[9px] bg-[#c0f20c]/10 border border-[#c0f20c]/20 text-[#c0f20c] px-3 py-1 uppercase tracking-widest font-bold hover:bg-[#c0f20c] hover:text-black transition-colors duration-300 rounded-full"
+          >
+            ⚡ Google Flow
+          </a>
         </div>
 
         {/* Workspace */}
