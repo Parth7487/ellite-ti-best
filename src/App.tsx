@@ -24,6 +24,7 @@ import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
 import JoinVortex from './components/JoinVortex';
 import ForzaShowroom from './components/ForzaShowroom';
+import MaterialVisualizer from './components/MaterialVisualizer';
 
 import { 
   ShieldCheck,
@@ -4300,6 +4301,7 @@ export default function App() {
             </p>
           </div>
           <ForzaShowroom triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
+          <MaterialVisualizer />
           <JoinVortex triggerToast={triggerToast} />
         </div>
       )}
