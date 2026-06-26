@@ -39,10 +39,10 @@ export default function JoinVideoMarquee({ triggerToast }: Props) {
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-transparent to-neutral-950" />
       </div>
 
-      {/* Alternative Layout Tag */}
+      {/* Section Kicker */}
       <div className="relative z-10 p-6 self-start">
         <span className="text-[10px] tracking-[0.2em] font-mono text-emerald-500 uppercase px-2 py-0.5 border border-emerald-500/30 bg-emerald-500/10 rounded">
-          Alternative Layout 008-D: Video Marquee Banner
+          008 — JOIN
         </span>
       </div>
 

@@ -23,7 +23,6 @@ import { ExpandOnHover } from './components/ExpandOnHover';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
 import JoinVideoMarquee from './components/JoinVideoMarquee';
-import JoinSpotlightSplit from './components/JoinSpotlightSplit';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -2499,35 +2498,8 @@ export default function App() {
 
 
 
-          {/* 008 — NEWSLETTER SIGNUP */}
-          <section className="newsletter">
-            <div className="container">
-              <div className="newsletter-inner">
-                <div>
-                  <span className="kicker reveal">008 — JOIN</span>
-                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>Join the Elites.</h2>
-                  <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>First access to new chassis support, build features, and motorsport drops. No spam. No mailing-list garbage.</p>
-                </div>
-                <form 
-                  className="form-row reveal" 
-                  style={{ '--reveal-delay': '300ms' } as React.CSSProperties}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    triggerToast("✨ SUBSCRIBED TO ETI NEWSLETTER!");
-                  }}
-                >
-                  <input type="email" placeholder="your@email.com" required />
-                  <button type="submit">Subscribe</button>
-                </form>
-              </div>
-            </div>
-          </section>
-
-          {/* 008-D — JOIN VIDEO MARQUEE ALTERNATIVE */}
+          {/* 008 — JOIN */}
           <JoinVideoMarquee triggerToast={triggerToast} />
-
-          {/* 008-E — JOIN SPOTLIGHT SPLIT ALTERNATIVE */}
-          <JoinSpotlightSplit triggerToast={triggerToast} />
         </div>
       </div>
     )}
