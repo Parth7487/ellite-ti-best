@@ -22,6 +22,7 @@ import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
+import JoinVortex from './components/JoinVortex';
 
 import { 
   ShieldCheck,
@@ -2238,7 +2239,7 @@ export default function App() {
               </div>
 
               <div className="eti-chassis-grid">
-                {CHASSIS_LIST.map((card, idx) => (
+                {CHASSIS_LIST.filter(card => card.make !== "HONDA").map((card, idx) => (
                   <button 
                     key={idx}
                     onClick={() => {
@@ -2478,6 +2479,9 @@ export default function App() {
 
           {/* 004-B — STORY SPLIT REVEAL ALTERNATIVE */}
           <StorySplitReveal />
+
+          {/* 008 — JOIN VORTEX */}
+          <JoinVortex triggerToast={triggerToast} />
 
 
 
