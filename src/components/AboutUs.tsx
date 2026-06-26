@@ -347,7 +347,7 @@ export const AboutUs: React.FC = () => {
       name: "MAD MIKE WHIDDETT",
       designation: "DRIFT ICON / ROTARY FANATIC",
       src: "/images/about/image_16.png",
-      quote: "MAD MIKE NEEDS NO INTRODUCTION. DRIFT ICON, ROTARY FANATIC, AND THE MIND BEHIND SOME OF THE WILDEST RX-7 BUILDS ON THE PLANET. WE SUPPORT HIS FORMULA DRIFT PROGRAM WITH THE SAME MINDSET HE BRINGS TO EVERY CAR, WHICH IS TO GO HARDER THAN ANYONE ELSE AND MAKE IT LOOK EFFORTLESS.",
+      quote: "Mad Mike needs no introduction. Drift icon, rotary fanatic, and the mind behind some of the wildest RX-7 builds on the planet. We support his Formula Drift program with the same mindset he brings to every car — to go harder than anyone else and make it look effortless.",
       stats: [
         { label: 'VEHICLE', val: 'RX-7 S15 "MADBUL"' },
         { label: 'POWER', val: '850 BHP' },
@@ -359,7 +359,7 @@ export const AboutUs: React.FC = () => {
       name: "ROB DAHM",
       designation: "ROTARY BUILDER / OFF-GRID ENGINEER",
       src: "/images/about/image_15.png",
-      quote: "ROB IS A LEGEND IN THE ROTARY WORLD AND THE CREATOR OF ONE OF THE MOST EXTREME RX-7S EVER BUILT. HIS PIKES PEAK PROGRAM IS ALL ABOUT PUSHING BOUNDARIES IN A WAY ONLY HE CAN. WORKING WITH HIM LETS US TEST OUR PARTS IN REAL ABUSE CONDITIONS AND BE PART OF A BUILD THAT REPRESENTS PURE INNOVATION.",
+      quote: "Rob is a legend in the rotary world and the creator of one of the most extreme RX-7s ever built. His Pikes Peak program is all about pushing boundaries in a way only he can. Working with him lets us test our parts in real abuse conditions and be part of a build that represents pure innovation.",
       stats: [
         { label: 'VEHICLE', val: 'AWD 4-ROTOR FD' },
         { label: 'POWER', val: '1400 BHP' },
@@ -369,14 +369,14 @@ export const AboutUs: React.FC = () => {
     },
     {
       name: "JON WONG",
-      designation: "TRACK RACER / JDM OUTLAW BUILDER",
+      designation: "JDM BUILDER / PRECISION CULTURE",
       src: "/images/about/image_17.png",
-      quote: "JON IS A HIGH-END BUILDER, ENTHUSIAST, AND LONG-TIME SUPPORTER OF PRECISION JDM CULTURE. HIS FD RX-7, MK4 SUPRA, MR2, AND OTHER SHOW CARS REFLECT THE EXACT VALUES WE CARE ABOUT: CLEAN WORK, THOUGHTFUL MODS, AND BUILDS THAT STAND OUT WITHOUT TRYING TOO HARD.",
+      quote: "Jon is a high-end builder, enthusiast, and long-time supporter of precision JDM culture. His FD RX-7, MK4 Supra, MR2, and other show cars reflect the exact values we care about — clean work, thoughtful mods, and builds that stand out without trying too hard.",
       stats: [
-        { label: 'VEHICLE', val: '911 GT3 RS (991)' },
-        { label: 'POWER', val: '520 BHP' },
-        { label: 'WEIGHT SAVED', val: '-38 KG' },
-        { label: 'DISCIPLINE', val: 'TRACK / OUTLAW' }
+        { label: 'VEHICLES', val: 'FD RX-7 / MK4 / MR2' },
+        { label: 'STYLE', val: 'PRECISION JDM' },
+        { label: 'FOCUS', val: 'SHOW + FUNCTION' },
+        { label: 'DISCIPLINE', val: 'CULTURE / BUILD' }
       ]
     }
   ];
@@ -673,25 +673,25 @@ export const AboutUs: React.FC = () => {
           {
             title: "PHILOSOPHY",
             content: (
-              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-3xl">
                 <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                <div className="h-72 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
                   <img
                     src="/images/about/Gemini_Generated_Image_4luxtr4luxtr4lux.png"
                     alt="Philosophy"
                     className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                  <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
                     LOC // PHI_VAL.01
                   </div>
                 </div>
-                <div className="p-6 space-y-4 text-left flex-grow">
+                <div className="p-8 space-y-5 text-left flex-grow">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-4 h-4 text-[#c0f20c]" />
-                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR PHILOSOPHY</h3>
+                    <Shield className="w-5 h-5 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-sm">OUR PHILOSOPHY</h3>
                   </div>
-                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                  <p className="text-neutral-300 text-sm leading-relaxed font-sans tracking-wide">
                     Every weave, curve, and bolt we create reflects our pursuit of functional beauty.
                     Performance parts should not only look right but fit right, feel right, and perform under pressure.
                     We work closely with fabricators, tuners, and sponsored drivers who share the same passion.
@@ -704,25 +704,25 @@ export const AboutUs: React.FC = () => {
           {
             title: "MISSION",
             content: (
-              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-3xl">
                 <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                <div className="h-72 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
                   <img
                     src="/images/about/9_a3293c81-c0e9-4567-8f49-a269000daba6.png"
                     alt="Mission"
                     className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                  <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
                     LOC // MSN_VAL.02
                   </div>
                 </div>
-                <div className="p-6 space-y-4 text-left flex-grow">
+                <div className="p-8 space-y-5 text-left flex-grow">
                   <div className="flex items-center gap-3">
-                    <Target className="w-4 h-4 text-[#c0f20c]" />
-                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR MISSION</h3>
+                    <Target className="w-5 h-5 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-sm">OUR MISSION</h3>
                   </div>
-                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                  <p className="text-neutral-300 text-sm leading-relaxed font-sans tracking-wide">
                     To deliver personalized, high-quality performance components through expert craftsmanship and
                     advanced technology. Every customer should experience exceptional fitment, function, and finish.
                   </p>
@@ -733,25 +733,25 @@ export const AboutUs: React.FC = () => {
           {
             title: "VISION",
             content: (
-              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-3xl">
                 <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                <div className="h-72 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
                   <img
                     src="/images/about/19_0f5095c1-3a32-4745-97ba-2f9ccd979a70.png"
                     alt="Vision"
                     className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                  <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
                     LOC // VSN_VAL.03
                   </div>
                 </div>
-                <div className="p-6 space-y-4 text-left flex-grow">
+                <div className="p-8 space-y-5 text-left flex-grow">
                   <div className="flex items-center gap-3">
-                    <Eye className="w-4 h-4 text-[#c0f20c]" />
-                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR VISION</h3>
+                    <Eye className="w-5 h-5 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-sm">OUR VISION</h3>
                   </div>
-                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                  <p className="text-neutral-300 text-sm leading-relaxed font-sans tracking-wide">
                     To lead the global stage in custom automotive design by staying true to innovation, precision,
                     and individuality. We don't follow trends. We create them.
                   </p>
@@ -946,15 +946,15 @@ export const AboutUs: React.FC = () => {
         </div>
         
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative z-10">
-          <div className="text-center mb-16 space-y-3">
+          <div className="text-center mb-16 space-y-4">
             <span className="font-mono text-[9px] text-[#c0f20c] tracking-[0.25em] uppercase font-bold block">
               SPONSORED DRIVERS
             </span>
             <h2 className="text-xl md:text-2xl lg:text-3xl font-display font-bold uppercase tracking-wider text-white max-w-2xl mx-auto leading-snug">
-              OUR SPONSORED DRIVERS REPRESENT THE BEST IN JDM, DRIFT, AND TIME ATTACK CULTURE.
+              Our sponsored drivers represent the best in JDM, drift, and time attack culture.
             </h2>
-            <p className="text-neutral-400 font-mono text-[10px] uppercase tracking-widest max-w-xl mx-auto italic font-bold">
-              THEY TEST, PUSH, AND PROVE THE QUALITY OF EVERY ELITE TI PRODUCT.
+            <p className="text-neutral-400 font-sans text-sm max-w-xl mx-auto leading-relaxed">
+              They test, push, and prove the quality of every Elite Ti product.
             </p>
           </div>
 
@@ -962,8 +962,8 @@ export const AboutUs: React.FC = () => {
             <AnimatedTestimonials testimonials={driverTestimonials} autoplay={false} />
           </div>
 
-          <p className="text-center font-mono text-[9px] text-neutral-500 uppercase tracking-widest mt-16 leading-relaxed max-w-xl mx-auto">
-            EVERY PARTNERSHIP REFLECTS OUR DEDICATION TO PERFORMANCE, CRAFTSMANSHIP, AND AUTHENTICITY.
+          <p className="text-center font-sans text-sm text-neutral-400 mt-16 leading-relaxed max-w-xl mx-auto">
+            Every partnership reflects our dedication to performance, craftsmanship, and authenticity.
           </p>
         </div>
       </section>
