@@ -332,7 +332,7 @@ export default function MaterialVisualizer() {
   }, [accordionIndex]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-16 flex flex-col gap-16 font-mono text-left bg-[#0a0a0c]">
+    <div className="w-full max-w-[1000px] mx-auto px-6 py-16 flex flex-col gap-16 font-mono text-left bg-[#0a0a0c]">
       
       {/* SECTION 1: Hood Material Visualiser */}
       <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-none p-6 md:p-10 shadow-2xl flex flex-col gap-8">
@@ -361,7 +361,7 @@ export default function MaterialVisualizer() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* Viewer Frame Box */}
-          <div className="lg:col-span-2 relative aspect-square md:aspect-video bg-neutral-950 border border-neutral-900 overflow-hidden" ref={viewerBoxRef} id="viewerBox">
+          <div className="lg:col-span-2 relative aspect-square bg-neutral-950 border border-neutral-900 overflow-hidden" ref={viewerBoxRef} id="viewerBox">
             <img className="absolute inset-0 w-full h-full object-cover pointer-events-none" src={bgImg} alt="Background" />
             <img 
               className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-all duration-75" 
