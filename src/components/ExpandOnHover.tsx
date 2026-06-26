@@ -121,7 +121,10 @@ export function ExpandOnHover({ items, onSelect }: ExpandOnHoverProps) {
                 <div className={`absolute inset-y-0 right-0 left-0 hidden md:flex items-center justify-center transition-all duration-300 ${
                   isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}>
-                  <span className="font-display font-bold text-[11px] tracking-[0.2em] text-neutral-500 uppercase select-none pointer-events-none origin-center -rotate-90 whitespace-nowrap">
+                  <span 
+                    className="font-display font-bold text-[11px] tracking-[0.2em] text-white uppercase select-none pointer-events-none origin-center -rotate-90 whitespace-nowrap"
+                    style={{ textShadow: "0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 0.95)" }}
+                  >
                     {item.model}
                   </span>
                 </div>
