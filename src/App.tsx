@@ -25,9 +25,8 @@ import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
 import MotorsportsTelemetry from './components/MotorsportsTelemetry';
 import MotorsportsBanner from './components/MotorsportsBanner';
-import JoinTerminal from './components/JoinTerminal';
-import JoinGlassCard from './components/JoinGlassCard';
-import JoinSplit3D from './components/JoinSplit3D';
+import JoinVideoMarquee from './components/JoinVideoMarquee';
+import JoinSpotlightSplit from './components/JoinSpotlightSplit';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -2536,14 +2535,11 @@ export default function App() {
             </div>
           </section>
 
-          {/* 008-A — JOIN TERMINAL ALTERNATIVE */}
-          <JoinTerminal triggerToast={triggerToast} />
+          {/* 008-D — JOIN VIDEO MARQUEE ALTERNATIVE */}
+          <JoinVideoMarquee triggerToast={triggerToast} />
 
-          {/* 008-B — JOIN GLASS CARD ALTERNATIVE */}
-          <JoinGlassCard triggerToast={triggerToast} />
-
-          {/* 008-C — JOIN SPLIT 3D ALTERNATIVE */}
-          <JoinSplit3D triggerToast={triggerToast} />
+          {/* 008-E — JOIN SPOTLIGHT SPLIT ALTERNATIVE */}
+          <JoinSpotlightSplit triggerToast={triggerToast} />
         </div>
       </div>
     )}
