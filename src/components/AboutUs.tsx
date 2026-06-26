@@ -674,6 +674,9 @@ export const AboutUs: React.FC = () => {
           <div className="text-center mb-16 space-y-2">
             <span className="font-mono text-[9px] text-[#c0f20c] tracking-[0.25em] uppercase font-bold">CORE VALUES</span>
             <h2 className="text-2xl md:text-3xl font-display font-bold uppercase tracking-wider text-white">THE ETI PROTOCOL</h2>
+            <p className="text-neutral-500 font-mono text-[9px] tracking-widest uppercase mt-2">
+              Respecting the past. Engineering the future.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
