@@ -5,6 +5,8 @@ import gsap from 'gsap';
 import { Timeline } from './Timeline';
 import { AnimatedTestimonials } from './AnimatedTestimonials';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import JoinVortex from './JoinVortex';
+import ForzaShowroom from './ForzaShowroom';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -333,7 +335,13 @@ const PlatformIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-export const AboutUs: React.FC = () => {
+interface AboutUsProps {
+  triggerToast?: (msg: string) => void;
+  onAddToCart?: (product: { id: string; title: string; price: number; category: string }) => void;
+}
+
+export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) => {
+  const toast = triggerToast || ((msg: string) => console.log(msg));
   // Form submission state
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1510,6 +1518,12 @@ export const AboutUs: React.FC = () => {
           </AnimatePresence>
         </div>
       </section>
+
+      {/* Forza Showroom Tuner Section */}
+      <ForzaShowroom triggerToast={toast} onAddToCart={onAddToCart} />
+
+      {/* Join WebGL Vortex Section */}
+      <JoinVortex triggerToast={toast} />
 
     </div>
   );

@@ -23,6 +23,7 @@ import { ExpandOnHover } from './components/ExpandOnHover';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
 import JoinVortex from './components/JoinVortex';
+import ForzaShowroom from './components/ForzaShowroom';
 
 import { 
   ShieldCheck,
@@ -2366,6 +2367,9 @@ export default function App() {
 
 
 
+          {/* Forza Showroom Tuner Section */}
+          <ForzaShowroom triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
+
           {/* 002.5 — INTERACTIVE AERO EXPLORER */}
           <InteractiveCarExplorer onAddToCart={handleAddSimpleProductToCart} />
 
@@ -4279,7 +4283,7 @@ export default function App() {
       )}
 
       {currentPage === 'story' && (
-        <AboutUs />
+        <AboutUs triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
       )}
 
       {currentPage === 'blog' && (
