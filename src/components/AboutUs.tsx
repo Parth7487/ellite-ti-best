@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Check, Send, Shield, Target, Eye, Users, Trophy, Twitter, Linkedin } from 'lucide-react';
 import gsap from 'gsap';
 import { Timeline } from './Timeline';
+import { AnimatedTestimonials } from './AnimatedTestimonials';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
@@ -352,6 +353,45 @@ export const AboutUs: React.FC = () => {
       </div>
     ),
   }));
+
+  const driverTestimonials = [
+    {
+      name: "MAD MIKE WHIDDETT",
+      designation: "DRIFT ICON / ROTARY FANATIC",
+      src: "/images/about/image_16.png",
+      quote: "MAD MIKE NEEDS NO INTRODUCTION. DRIFT ICON, ROTARY FANATIC, AND THE MIND BEHIND SOME OF THE WILDEST RX-7 BUILDS ON THE PLANET. WE SUPPORT HIS FORMULA DRIFT PROGRAM WITH THE SAME MINDSET HE BRINGS TO EVERY CAR, WHICH IS TO GO HARDER THAN ANYONE ELSE AND MAKE IT LOOK EFFORTLESS.",
+      stats: [
+        { label: 'VEHICLE', val: 'RX-7 S15 "MADBUL"' },
+        { label: 'POWER', val: '850 BHP' },
+        { label: 'ENGINE', val: '4-ROTOR 26B' },
+        { label: 'DISCIPLINE', val: 'DRIFT' }
+      ]
+    },
+    {
+      name: "ROB DAHM",
+      designation: "ROTARY BUILDER / OFF-GRID ENGINEER",
+      src: "/images/about/image_15.png",
+      quote: "ROB IS A LEGEND IN THE ROTARY WORLD AND THE CREATOR OF ONE OF THE MOST EXTREME RX-7S EVER BUILT. HIS PIKES PEAK PROGRAM IS ALL ABOUT PUSHING BOUNDARIES IN A WAY ONLY HE CAN. WORKING WITH HIM LETS US TEST OUR PARTS IN REAL ABUSE CONDITIONS AND BE PART OF A BUILD THAT REPRESENTS PURE INNOVATION.",
+      stats: [
+        { label: 'VEHICLE', val: 'AWD 4-ROTOR FD' },
+        { label: 'POWER', val: '1400 BHP' },
+        { label: 'BOOST', val: '35 PSI' },
+        { label: 'DISCIPLINE', val: 'TIME ATTACK' }
+      ]
+    },
+    {
+      name: "JON WONG",
+      designation: "TRACK RACER / JDM OUTLAW BUILDER",
+      src: "/images/about/image_17.png",
+      quote: "JON IS A HIGH-END BUILDER, ENTHUSIAST, AND LONG-TIME SUPPORTER OF PRECISION JDM CULTURE. HIS FD RX-7, MK4 SUPRA, MR2, AND OTHER SHOW CARS REFLECT THE EXACT VALUES WE CARE ABOUT: CLEAN WORK, THOUGHTFUL MODS, AND BUILDS THAT STAND OUT WITHOUT TRYING TOO HARD.",
+      stats: [
+        { label: 'VEHICLE', val: '911 GT3 RS (991)' },
+        { label: 'POWER', val: '520 BHP' },
+        { label: 'WEIGHT SAVED', val: '-38 KG' },
+        { label: 'DISCIPLINE', val: 'TRACK / OUTLAW' }
+      ]
+    }
+  ];
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -927,42 +967,8 @@ export const AboutUs: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <DriverCard 
-              name="MAD MIKE WHIDDETT"
-              image="/images/about/image_16.png"
-              bio="MAD MIKE NEEDS NO INTRODUCTION. DRIFT ICON, ROTARY FANATIC, AND THE MIND BEHIND SOME OF THE WILDEST RX-7 BUILDS ON THE PLANET. WE SUPPORT HIS FORMULA DRIFT PROGRAM WITH THE SAME MINDSET HE BRINGS TO EVERY CAR, WHICH IS TO GO HARDER THAN ANYONE ELSE AND MAKE IT LOOK EFFORTLESS."
-              stats={[
-                { label: 'VEHICLE', val: 'RX-7 S15 "MADBUL"' },
-                { label: 'POWER', val: '850 BHP' },
-                { label: 'ENGINE', val: '4-ROTOR 26B' },
-                { label: 'DISCIPLINE', val: 'DRIFT' }
-              ]}
-            />
-
-            <DriverCard 
-              name="ROB DAHM"
-              image="/images/about/image_15.png"
-              bio="ROB IS A LEGEND IN THE ROTARY WORLD AND THE CREATOR OF ONE OF THE MOST EXTREME RX-7S EVER BUILT. HIS PIKES PEAK PROGRAM IS ALL ABOUT PUSHING BOUNDARIES IN A WAY ONLY HE CAN. WORKING WITH HIM LETS US TEST OUR PARTS IN REAL ABUSE CONDITIONS AND BE PART OF A BUILD THAT REPRESENTS PURE INNOVATION."
-              stats={[
-                { label: 'VEHICLE', val: 'AWD 4-ROTOR FD' },
-                { label: 'POWER', val: '1400 BHP' },
-                { label: 'BOOST', val: '35 PSI' },
-                { label: 'DISCIPLINE', val: 'TIME ATTACK' }
-              ]}
-            />
-
-            <DriverCard 
-              name="JON WONG"
-              image="/images/about/image_17.png"
-              bio="JON IS A HIGH-END BUILDER, ENTHUSIAST, AND LONG-TIME SUPPORTER OF PRECISION JDM CULTURE. HIS FD RX-7, MK4 SUPRA, MR2, AND OTHER SHOW CARS REFLECT THE EXACT VALUES WE CARE ABOUT: CLEAN WORK, THOUGHTFUL MODS, AND BUILDS THAT STAND OUT WITHOUT TRYING TOO HARD."
-              stats={[
-                { label: 'VEHICLE', val: '911 GT3 RS (991)' },
-                { label: 'POWER', val: '520 BHP' },
-                { label: 'WEIGHT SAVED', val: '-38 KG' },
-                { label: 'DISCIPLINE', val: 'TRACK / OUTLAW' }
-              ]}
-            />
+          <div className="mt-8 border border-neutral-900 bg-[#0a0a0b] rounded-3xl p-2 md:p-6 relative overflow-hidden">
+            <AnimatedTestimonials testimonials={driverTestimonials} autoplay={false} />
           </div>
 
           <p className="text-center font-mono text-[9px] text-neutral-500 uppercase tracking-widest mt-16 leading-relaxed max-w-xl mx-auto">
