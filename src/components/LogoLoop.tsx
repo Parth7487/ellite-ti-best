@@ -26,7 +26,7 @@ export function LogoLoop({
 
   return (
     <div 
-      className={`relative overflow-hidden w-full py-6 select-none ${className}`}
+      className={`relative overflow-hidden w-full py-1 select-none ${className}`}
       style={{
         '--speed': `${speed}s`,
         '--hover-state': pauseOnHover ? 'paused' : 'running',

@@ -658,8 +658,9 @@ const BrandLoopList = [
 const CHASSIS_LIST = [
   { make: "MAZDA", model: "RX-7", code: "FD3S", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254" },
   { make: "TOYOTA", model: "SUPRA MK4", code: "JZA80", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300" },
-  { make: "TOYOTA", model: "SUPRA MK5", code: "A90", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" },
   { make: "NISSAN", model: "SKYLINE GT-R", code: "BNR34", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270" },
+  { make: "TOYOTA", model: "SUPRA MK5", code: "A90", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" },
+  { make: "HONDA", model: "NSX", code: "NA1", image: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?q=80&w=800&auto=format&fit=crop" },
   { make: "NISSAN", model: "GT-R", code: "R35", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271" },
   { make: "NISSAN", model: "350Z", code: "Z33", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262" }
 ];
@@ -2197,7 +2198,7 @@ export default function App() {
           {/* OVERLAPPING HOME CONTENT CONTAINER */}
           <div className="home-overlapping-content">
             {/* BRAND SPEC STRIP (MARQUEE) */}
-            <div className="py-6 border-y border-neutral-900/50 bg-[#030303] overflow-hidden">
+            <div className="py-2 border-y border-neutral-900/50 bg-[#030303] overflow-hidden">
               <LogoLoop
                 speed={30}
                 direction="left"
@@ -2273,32 +2274,18 @@ export default function App() {
           </section>
 
           {/* 001-A — CHASSIS COLLECTIONS (EXPAND ON HOVER) */}
-          <section className="eti-featured-chassis py-20 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
-            <div className="container">
-              <div className="section-head mb-12">
-                <div>
-                  <span className="kicker reveal">001-A — CHASSIS (OPTION A)</span>
-                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle (Hover-Expand)</h2>
-                  <p className="reveal mt-2 text-[9px] uppercase tracking-widest text-neutral-500 font-mono" style={{ '--reveal-delay': '150ms' } as React.CSSProperties}>
-                    Respecting the past. Engineering the future.
-                  </p>
-                </div>
-                <div className="ti-rule"></div>
-                <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>Option A &nbsp;/&nbsp; width animation</span>
-              </div>
-
-              <div className="reveal flex justify-center w-full" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
-                <ExpandOnHover 
-                  items={CHASSIS_LIST} 
-                  onSelect={(card) => {
-                    if (card.model.includes("350Z")) {
-                      setCurrentPage('product');
-                    } else {
-                      setCurrentPage('catalog');
-                    }
-                  }} 
-                />
-              </div>
+          <section className="eti-featured-chassis py-24 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
+            <div className="reveal w-full px-0" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
+              <ExpandOnHover 
+                items={CHASSIS_LIST} 
+                onSelect={(card) => {
+                  if (card.model.includes("350Z")) {
+                    setCurrentPage('product');
+                  } else {
+                    setCurrentPage('catalog');
+                  }
+                }} 
+              />
             </div>
           </section>
 
