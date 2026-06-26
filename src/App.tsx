@@ -20,8 +20,7 @@ import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
 import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
-import { ChassisParallaxStack } from './components/ChassisParallaxStack';
-import { ChassisMagneticGrid } from './components/ChassisMagneticGrid';
+import { ChassisCinematicShowcase } from './components/ChassisCinematicShowcase';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
 import MotorsportsTelemetry from './components/MotorsportsTelemetry';
@@ -2382,15 +2381,8 @@ export default function App() {
             </div>
           </section>
 
-          {/* 002-A — FEATURED CHASSIS STACK ALTERNATIVE */}
-          <ChassisParallaxStack
-            slides={slidesData}
-            onNavigate={() => setCurrentPage('catalog')}
-            onAddToCart={handleAddSimpleProductToCart}
-          />
-
-          {/* 002-B — FEATURED CHASSIS MAGNETIC GRID ALTERNATIVE */}
-          <ChassisMagneticGrid
+          {/* 002-C — FEATURED CHASSIS CINEMATIC SHOWCASE */}
+          <ChassisCinematicShowcase
             slides={slidesData}
             onNavigate={() => setCurrentPage('catalog')}
             onAddToCart={handleAddSimpleProductToCart}
@@ -2502,35 +2494,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* 004 — STORY */}
-          <section className="story" id="story">
-            <div className="story-grid">
-              <div className="story__copy">
-                <span className="kicker reveal">004 — STORY</span>
-                <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>Built in a garage. Refined for the world.</h2>
-                <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>ETi started in a garage with one goal: build parts we'd trust on our own cars. That same mindset scaled into a global carbon and titanium brand for JDM and motorsport — the Manufaktur house for the chassis that deserve it.</p>
-                <p className="reveal" style={{ '--reveal-delay': '280ms' } as React.CSSProperties}>Every piece we make is made to order. No catalog runs. No mass production. Make it lighter. Make it stronger. Make it perfect — for your build.</p>
-                <div className="story__stats reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
-                  <div>
-                    <span>Founded</span>
-                    <span>2022</span>
-                  </div>
-                  <div>
-                    <span>Production</span>
-                    <span>Bangkok, TH</span>
-                  </div>
-                  <div>
-                    <span>Standard</span>
-                    <span>Bespoke &middot; Made to Order</span>
-                  </div>
-                </div>
-              </div>
-              <div className="story__media">
-                <div className="story__media-inner" style={{ backgroundImage: "url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/565312703_10161443462990684_2525092078171342042_n.jpg?v=1766319824')" }}></div>
-                <span className="story__media-label">FILE / 2024-08 / SUPRA MK4 / NIGHT FITMENT</span>
-              </div>
-            </div>
-          </section>
+
 
           {/* 004-A — STORY HORIZONTAL SCROLL ALTERNATIVE */}
           <StoryHorizontalScroll onNavigate={() => setCurrentPage('catalog')} />
@@ -2538,24 +2502,7 @@ export default function App() {
           {/* 004-B — STORY SPLIT REVEAL ALTERNATIVE */}
           <StorySplitReveal />
 
-          {/* 005 — MOTORSPORTS */}
-          <section className="story story--reverse" id="motorsports" aria-labelledby="motorsportsTitle">
-            <div className="story-grid story-grid--reverse">
-              <div className="story__media story__media--motorsports">
-                <div className="story__media-inner" style={{ backgroundImage: "url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group_2.png?v=1760683834')" }}></div>
-                <span className="story__media-label">FILE / 2026 / TIME ATTACK / CIRCUIT PROGRAM</span>
-              </div>
-              <div className="story__copy">
-                <span className="kicker reveal">005 — MOTORSPORTS</span>
-                <h2 id="motorsportsTitle" className="display-l reveal" style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>ETi Motorsports.</h2>
-                <p className="reveal" style={{ '--reveal-delay': '200ms' } as React.CSSProperties}>Race-engineered, track-tested, proven on the chassis we sell. ETi Motorsports is the racing arm of the brand — where every part is refined under real load before it ships to your driveway.</p>
-                <p className="reveal" style={{ '--reveal-delay': '280ms' } as React.CSSProperties}>Time attack. Circuit. Drift. The same Manufaktur standard, applied to the cars that earn it.</p>
-                <div className="cta-row reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
-                  <button onClick={() => setCurrentPage('catalog')} className="text-link bg-transparent border-0 cursor-pointer text-white">Explore the Program</button>
-                </div>
-              </div>
-            </div>
-          </section>
+
 
           {/* 005-A — MOTORSPORTS TELEMETRY ALTERNATIVE */}
           <MotorsportsTelemetry onNavigate={() => setCurrentPage('catalog')} />
@@ -2563,21 +2510,7 @@ export default function App() {
           {/* 005-B — MOTORSPORTS BANNER ALTERNATIVE */}
           <MotorsportsBanner onNavigate={() => setCurrentPage('catalog')} />
 
-          {/* 006 — EDITORIAL JDM REVIVAL BANNER */}
-          <section className="banner">
-            <div className="banner__bg" style={{ backgroundImage: `radial-gradient(ellipse at 30% 70%, rgba(0,0,0,0.4), transparent 60%), url('https://cdn.shopify.com/s/files/1/0842/8362/1657/files/Mask_group.png?v=1760445002')` }}></div>
-            <div className="banner__veil"></div>
-            <div className="container banner__inner">
-              <div className="banner__copy">
-                <span className="banner__kicker kicker reveal">EDITORIAL — 006</span>
-                <h2 className="display-xl reveal" style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>The '90s JDM Revival.</h2>
-                <p className="reveal" style={{ '--reveal-delay': '240ms' } as React.CSSProperties}>The return of a golden era. Bespoke carbon, OEM-precision fitment, and parts your build deserves.</p>
-                <div className="reveal" style={{ '--reveal-delay': '360ms' } as React.CSSProperties}>
-                  <button onClick={() => setCurrentPage('catalog')} className="btn">Explore the Era <span className="arrow"></span></button>
-                </div>
-              </div>
-            </div>
-          </section>
+
 
           {/* 008 — NEWSLETTER SIGNUP */}
           <section className="newsletter">
