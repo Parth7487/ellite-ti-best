@@ -493,8 +493,10 @@ export default function MaterialVisualizer() {
 
                 {/* Card Title Header */}
                 <div 
-                  className={`z-20 transition-all duration-500 origin-left-bottom whitespace-nowrap ${
-                    !isActive ? 'static md:absolute md:bottom-7 md:left-5 md:-rotate-90' : 'mb-36 md:mb-24 text-left'
+                  className={`z-20 transition-all duration-500 origin-left-bottom whitespace-nowrap absolute bottom-6 left-6 ${
+                    isActive 
+                      ? '-translate-y-[170px] translate-x-0 rotate-0 text-left' 
+                      : 'md:-rotate-90 md:translate-y-0 md:left-7 md:bottom-7'
                   }`}
                 >
                   {isActive && (
