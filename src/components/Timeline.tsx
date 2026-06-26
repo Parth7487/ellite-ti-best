@@ -27,6 +27,7 @@ function WheelSpoke({
   w: number;
   h: number;
   rotation: any;
+  key?: any;
 }) {
   return (
     <motion.div

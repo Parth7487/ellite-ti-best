@@ -20,6 +20,15 @@ import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
 import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
+import { ChassisParallaxStack } from './components/ChassisParallaxStack';
+import { ChassisMagneticGrid } from './components/ChassisMagneticGrid';
+import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
+import StorySplitReveal from './components/StorySplitReveal';
+import MotorsportsTelemetry from './components/MotorsportsTelemetry';
+import MotorsportsBanner from './components/MotorsportsBanner';
+import JoinTerminal from './components/JoinTerminal';
+import JoinGlassCard from './components/JoinGlassCard';
+import JoinSplit3D from './components/JoinSplit3D';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -1488,7 +1497,6 @@ export default function App() {
             <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
             <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
-            <button onClick={() => setCurrentPage('blog')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'blog' ? 'text-[#c0f20c]' : ''}`}>BLOG</button>
             <button onClick={() => setCurrentPage('resources')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'resources' ? 'text-[#c0f20c]' : ''}`}>RESOURCES</button>
             <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
@@ -1599,7 +1607,6 @@ export default function App() {
                     { name: 'CATALOG', page: 'catalog' },
                     { name: 'TITANIUM HARDWARE', page: 'titanium' },
                     { name: 'STORY', page: 'story' },
-                    { name: 'BLOG', page: 'blog' },
                     { name: 'RESOURCES', page: 'resources' },
                     { name: 'CONTACT', page: 'contact' },
                     { name: 'SWAG', page: 'swag' }
@@ -2375,6 +2382,20 @@ export default function App() {
             </div>
           </section>
 
+          {/* 002-A — FEATURED CHASSIS STACK ALTERNATIVE */}
+          <ChassisParallaxStack
+            slides={slidesData}
+            onNavigate={() => setCurrentPage('catalog')}
+            onAddToCart={handleAddSimpleProductToCart}
+          />
+
+          {/* 002-B — FEATURED CHASSIS MAGNETIC GRID ALTERNATIVE */}
+          <ChassisMagneticGrid
+            slides={slidesData}
+            onNavigate={() => setCurrentPage('catalog')}
+            onAddToCart={handleAddSimpleProductToCart}
+          />
+
           {/* 002.5 — INTERACTIVE AERO EXPLORER */}
           <InteractiveCarExplorer onAddToCart={handleAddSimpleProductToCart} />
 
@@ -2511,6 +2532,12 @@ export default function App() {
             </div>
           </section>
 
+          {/* 004-A — STORY HORIZONTAL SCROLL ALTERNATIVE */}
+          <StoryHorizontalScroll onNavigate={() => setCurrentPage('catalog')} />
+
+          {/* 004-B — STORY SPLIT REVEAL ALTERNATIVE */}
+          <StorySplitReveal />
+
           {/* 005 — MOTORSPORTS */}
           <section className="story story--reverse" id="motorsports" aria-labelledby="motorsportsTitle">
             <div className="story-grid story-grid--reverse">
@@ -2529,6 +2556,12 @@ export default function App() {
               </div>
             </div>
           </section>
+
+          {/* 005-A — MOTORSPORTS TELEMETRY ALTERNATIVE */}
+          <MotorsportsTelemetry onNavigate={() => setCurrentPage('catalog')} />
+
+          {/* 005-B — MOTORSPORTS BANNER ALTERNATIVE */}
+          <MotorsportsBanner onNavigate={() => setCurrentPage('catalog')} />
 
           {/* 006 — EDITORIAL JDM REVIVAL BANNER */}
           <section className="banner">
@@ -2569,6 +2602,15 @@ export default function App() {
               </div>
             </div>
           </section>
+
+          {/* 008-A — JOIN TERMINAL ALTERNATIVE */}
+          <JoinTerminal triggerToast={triggerToast} />
+
+          {/* 008-B — JOIN GLASS CARD ALTERNATIVE */}
+          <JoinGlassCard triggerToast={triggerToast} />
+
+          {/* 008-C — JOIN SPLIT 3D ALTERNATIVE */}
+          <JoinSplit3D triggerToast={triggerToast} />
         </div>
       </div>
     )}
