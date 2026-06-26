@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Check, Send, Shield, Target, Eye, Users, Trophy, Twitter, Linkedin } from 'lucide-react';
 import gsap from 'gsap';
+import { Timeline } from './Timeline';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
@@ -337,6 +338,20 @@ export const AboutUs: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState(0);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+
+  const timelineData = milestones.map((item) => ({
+    title: item.year,
+    content: (
+      <div className="space-y-3">
+        <h4 className="text-white text-lg md:text-xl font-display font-bold tracking-wider uppercase">
+          {item.title}
+        </h4>
+        <p className="text-neutral-400 font-sans text-xs md:text-sm leading-relaxed max-w-lg">
+          {item.desc}
+        </p>
+      </div>
+    ),
+  }));
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -715,65 +730,7 @@ export const AboutUs: React.FC = () => {
       </section>
 
       {/* 3. THE BLOODLINE */}
-      <section className="py-24 border-b border-neutral-900 bg-[#0a0a0b] relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#c0f20c]/5 rounded-full blur-[90px] pointer-events-none" />
-
-        <div className="max-w-[1000px] mx-auto px-6 md:px-12">
-          <div className="text-center mb-20 space-y-2">
-            <h2 className="text-2xl md:text-3xl font-display font-bold uppercase tracking-[0.2em] text-white">
-              THE <span className="text-[#c0f20c]">BLOODLINE</span>
-            </h2>
-            <p className="text-neutral-500 font-mono text-[9px] tracking-widest uppercase">
-              Respecting the past. Engineering the future.
-            </p>
-          </div>
-
-          <div className="relative">
-            {/* Vertical Center Line */}
-            <div className="absolute left-[13px] md:left-1/2 top-0 bottom-0 w-[1px] bg-neutral-850 md:-translate-x-1/2" />
-
-            <div className="space-y-16">
-              {milestones.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className={`flex flex-col md:flex-row gap-8 items-start md:items-center relative ${
-                    index % 2 === 0 ? 'md:flex-row-reverse' : ''
-                  }`}
-                >
-                  {/* Content block */}
-                  <div className="flex-1 pl-10 md:pl-0">
-                    <div className={`space-y-1.5 ${
-                      index % 2 === 0 ? 'md:text-left' : 'md:text-right'
-                    }`}>
-                      <span className="text-[#c0f20c] font-mono font-bold text-base tracking-wider">
-                        {item.year}
-                      </span>
-                      <h3 className="text-white text-lg font-display font-bold tracking-wider uppercase">
-                        {item.title}
-                      </h3>
-                      <p className={`text-neutral-450 font-sans text-xs leading-relaxed max-w-sm ${
-                        index % 2 === 0 ? '' : 'md:ml-auto'
-                      }`}>
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Central Node Indicator */}
-                  <div className="absolute left-[7px] md:left-1/2 md:-translate-x-1/2 w-3.5 h-3.5 bg-black border-[2px] border-[#c0f20c] rounded-full z-10 shadow-[0_0_8px_rgba(192,242,12,0.6)]" />
-
-                  {/* Empty Spacer Column for Desktop */}
-                  <div className="flex-1 hidden md:block" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <Timeline data={timelineData} />
 
       {/* 4. MEET THE CREW (OUR TEAM SHOWCASE - Staggered Grid & List Layout) */}
       <section className="py-24 border-b border-neutral-900 bg-[#080809] overflow-hidden">
