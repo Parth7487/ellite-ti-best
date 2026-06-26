@@ -134,16 +134,6 @@ export default function JoinVortex({ triggerToast }: JoinVortexProps) {
     };
     animate();
 
-    // --- GSAP Scroll-Triggered Animations ---
-    const scanner = section.querySelector('#scanner-line');
-    gsap.to(scanner, {
-      y: () => section.offsetHeight,
-      opacity: 0.5,
-      duration: 2.5,
-      ease: 'none',
-      repeat: -1,
-      yoyo: true,
-    });
 
     const revealElements = section.querySelectorAll('.gsap-reveal');
     const fadeElements = section.querySelectorAll('.gsap-fade');
@@ -268,8 +258,6 @@ export default function JoinVortex({ triggerToast }: JoinVortexProps) {
         }}
       />
 
-      {/* Laser Scanner line */}
-      <div id="scanner-line" className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#c0f20c]/60 to-transparent opacity-0 z-40" />
 
       {/* Main Grid Content */}
       <div className="relative z-50 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">

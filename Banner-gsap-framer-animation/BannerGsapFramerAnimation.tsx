@@ -53,7 +53,7 @@ export const BannerGsapFramerAnimation: React.FC = () => {
   const steps = [1, 83, 125, 170, 240];
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [mode, setMode] = useState<'scroll' | 'click'>('click');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -76,36 +76,44 @@ export const BannerGsapFramerAnimation: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Preload Images
   useEffect(() => {
     const loadedImages: HTMLImageElement[] = [];
     let loadedCount = 0;
     const totalFrames = 240;
 
+    // 1. Populate imagesRef immediately with empty Image elements so that individual frames
+    // can be rendered on canvas as soon as they finish loading, instead of waiting for all 240.
     for (let i = 1; i <= totalFrames; i++) {
       const img = new Image();
       const paddedIndex = String(i).padStart(3, '0');
       img.src = `/Banner-gsap-framer-animation/frames/frame_${paddedIndex}.webp`;
-      
-      img.onload = () => {
+      loadedImages.push(img);
+    }
+    imagesRef.current = loadedImages;
+
+    let hasFadedOut = false;
+
+    // 2. Set up event handlers to track load progress
+    loadedImages.forEach((img, index) => {
+      const handleImageLoad = () => {
         loadedCount++;
         const progress = Math.round((loadedCount / totalFrames) * 100);
-        setLoadProgress(progress);
-        
-        if (loadedCount === totalFrames) {
-          imagesRef.current = loadedImages;
-          setIsLoading(false);
-          // Refresh ScrollTrigger positions after state is set and loading screen fades
-          setTimeout(() => {
-            ScrollTrigger.refresh();
-          }, 150);
+
+        // Draw first frame immediately when it loads so it's not a black screen
+        if (index === 0) {
+          drawFrame(1);
         }
-      };
-      
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === totalFrames) {
-          imagesRef.current = loadedImages;
+
+        // Throttle progress state updates (only update on multiples of 5 or at 100)
+        // to avoid 240 consecutive React renders which lag the UI significantly
+        if (progress % 5 === 0 || progress === 100) {
+          setLoadProgress(progress);
+        }
+
+        // 3. Fade out the loading screen early once 25% (60 frames) are loaded.
+        // The remaining frames will finish loading in the background over localhost in a split second.
+        if ((progress >= 25 || loadedCount === totalFrames) && !hasFadedOut) {
+          hasFadedOut = true;
           setIsLoading(false);
           setTimeout(() => {
             ScrollTrigger.refresh();
@@ -113,8 +121,9 @@ export const BannerGsapFramerAnimation: React.FC = () => {
         }
       };
 
-      loadedImages.push(img);
-    }
+      img.onload = handleImageLoad;
+      img.onerror = handleImageLoad; // Continue even if some frames fail to load
+    });
   }, []);
 
   // Drawing Canvas Frames

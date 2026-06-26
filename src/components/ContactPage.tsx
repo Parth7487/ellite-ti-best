@@ -597,6 +597,37 @@ export default function ContactPage({ triggerToast, setCurrentPage }: ContactPag
 
       <StoreMap />
 
+      {/* OFFICIAL DEALERS SECTION */}
+      <div className="mt-24 border-t border-neutral-900 pt-16 text-left max-w-[1400px] mx-auto">
+        <div className="text-center mb-12">
+          <span className="font-mono text-[10px] text-[#c0f20c] tracking-[0.3em] uppercase block mb-3">AUTHORIZED PARTNERS</span>
+          <h2 className="font-display text-2xl md:text-3xl font-bold uppercase text-white tracking-wider mb-6">
+            OFFICIAL DEALERS
+          </h2>
+          <p className="text-neutral-400 text-xs md:text-sm max-w-2xl mx-auto leading-relaxed">
+            Purchase authentic Elite Ti components through our trusted global network of authorized tuning shops and distributors.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { region: "NORTH AMERICA", name: "Evasive Motorsports", location: "Cerritos, CA", url: "evasivemotorsports.com" },
+            { region: "EUROPE", name: "JDM Distro", location: "Dublin, Ireland", url: "jdmdistro.com" },
+            { region: "JAPAN", name: "Top Secret", location: "Chiba, Japan", url: "topsecret-jpn.com" },
+            { region: "AUSTRALIA", name: "JDMYard", location: "Sydney, NSW", url: "jdmyard.com" }
+          ].map((dealer, idx) => (
+            <div key={idx} className="bg-[#0b0b0c]/60 border border-neutral-900 rounded-xl p-6 transition-all duration-300 hover:border-[#c0f20c]/40 hover:bg-[#111112]/80 group">
+              <div className="font-mono text-[9px] text-[#c0f20c] tracking-widest uppercase mb-4">{dealer.region}</div>
+              <h3 className="font-display font-bold text-white text-lg tracking-wide uppercase mb-1">{dealer.name}</h3>
+              <p className="text-neutral-500 text-xs font-mono mb-4">{dealer.location}</p>
+              <a href={`https://${dealer.url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-mono text-neutral-400 uppercase tracking-widest group-hover:text-white transition-colors">
+                {dealer.url} <ArrowRight className="w-3 h-3 text-[#c0f20c]" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* FAQ SECTION */}
       <div className="mt-24 border-t border-neutral-900 pt-16 text-left max-w-4xl mx-auto">
         <div className="text-center mb-12">

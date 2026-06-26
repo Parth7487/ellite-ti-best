@@ -1,0 +1,12 @@
+{
+  "sectionPadding": 64,
+  "maxWidthDesktop": "1000px",
+  "maxWidthTablet": "768px",
+  "maxWidthMobile": "100%",
+  "containerHeightDesktop": 400,
+  "containerHeightMobile": "auto",
+  "cardGap": 16,
+  "borderRadius": 12,
+  "activeFlexGrow": 4.5,
+  "inactiveFlexGrow": 1
+}

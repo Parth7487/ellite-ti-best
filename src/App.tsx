@@ -1493,9 +1493,7 @@ export default function App() {
 
             <button onClick={() => setCurrentPage('catalog')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'catalog' ? 'text-[#c0f20c]' : ''}`}>CATALOG</button>
             <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
-            <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
-            <button onClick={() => setCurrentPage('showroom')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'showroom' ? 'text-[#c0f20c]' : ''}`}>SHOWROOM</button>
             <button onClick={() => setCurrentPage('resources')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'resources' ? 'text-[#c0f20c]' : ''}`}>RESOURCES</button>
             <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
@@ -1606,7 +1604,6 @@ export default function App() {
                     { name: 'CATALOG', page: 'catalog' },
                     { name: 'TITANIUM HARDWARE', page: 'titanium' },
                     { name: 'STORY', page: 'story' },
-                    { name: 'SHOWROOM', page: 'showroom' },
                     { name: 'RESOURCES', page: 'resources' },
                     { name: 'CONTACT', page: 'contact' },
                     { name: 'SWAG', page: 'swag' }
@@ -2227,59 +2224,8 @@ export default function App() {
               />
             </div>
 
-          {/* 001 — CHASSIS COLLECTIONS GRID */}
-          <section className="eti-featured-chassis" id="fitment">
-            <div className="container">
-              <div className="section-head">
-                <div>
-                  <span className="kicker reveal">001 — CHASSIS</span>
-                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle</h2>
-                  <p className="reveal mt-2 text-[9px] uppercase tracking-widest text-neutral-500 font-mono" style={{ '--reveal-delay': '150ms' } as React.CSSProperties}>
-                    Respecting the past. Engineering the future.
-                  </p>
-                </div>
-                <div className="ti-rule"></div>
-                <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>30+ chassis &nbsp;/&nbsp; bespoke fitment</span>
-              </div>
-
-              <div className="eti-chassis-grid">
-                {CHASSIS_LIST.filter(card => card.make !== "HONDA").map((card, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => {
-                      if (card.model.includes("350Z")) {
-                        setCurrentPage('product');
-                      } else {
-                        setCurrentPage('catalog');
-                      }
-                    }}
-                    className="eti-chassis-tile reveal bg-transparent p-0 text-left border-0 cursor-pointer"
-                    style={{ '--reveal-delay': `${idx * 60}ms` } as React.CSSProperties}
-                  >
-                    <div className="eti-chassis-tile__img">
-                      <img src={card.image} alt={`${card.make} ${card.model} ${card.code}`} loading="lazy" />
-                    </div>
-                    <div className="eti-chassis-tile__ov">
-                      <span className="eti-chassis-tile__make">{card.make}</span>
-                      <span className="eti-chassis-tile__model">{card.model}</span>
-                      <span className="eti-chassis-tile__code">{card.code}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <button 
-                onClick={() => setCurrentPage('catalog')}
-                className="eti-chassis-viewall reveal bg-transparent border-0 border-b border-[#9cce00] cursor-pointer text-[#fafaf7]"
-                style={{ '--reveal-delay': '360ms' } as React.CSSProperties}
-              >
-                View all 30+ chassis <span aria-hidden="true">&rarr;</span>
-              </button>
-            </div>
-          </section>
-
           {/* 001-A — CHASSIS COLLECTIONS (EXPAND ON HOVER) */}
-          <section className="eti-featured-chassis pt-0 pb-24 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
+          <section className="pt-0 pb-24 border-b border-neutral-900 bg-[#080809]" id="fitment-hover">
             <div className="reveal w-full px-0" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
               <ExpandOnHover 
                 items={CHASSIS_LIST} 
@@ -2479,6 +2425,9 @@ export default function App() {
             </div>
           </section>
 
+          {/* MATERIAL EXPLORER (Moved below ETi Standard) */}
+          <MaterialVisualizer type="accordion" />
+
 
 
           {/* 004-A — STORY HORIZONTAL SCROLL ALTERNATIVE */}
@@ -2486,9 +2435,6 @@ export default function App() {
 
           {/* 004-B — STORY SPLIT REVEAL ALTERNATIVE */}
           <StorySplitReveal />
-
-          {/* 008 — JOIN VORTEX */}
-          <JoinVortex triggerToast={triggerToast} />
 
 
 
@@ -4133,6 +4079,11 @@ export default function App() {
             </div>
           </section>
 
+          {/* Hood Material Visualiser (Inserted as requested) */}
+          <div className="w-full max-w-[1200px] mx-auto py-12">
+            <MaterialVisualizer type="hood" />
+          </div>
+
           {/* Verified Customer Reviews Section */}
           <section className="pt-16 border-t border-neutral-900 space-y-10">
             <div className="flex justify-between items-end border-b border-neutral-900 pb-6">
@@ -4248,6 +4199,7 @@ export default function App() {
                         <img 
                           src={prod.image} 
                           alt={prod.title} 
+                          loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
                         />
                       )}
@@ -4301,8 +4253,6 @@ export default function App() {
             </p>
           </div>
           <ForzaShowroom triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
-          <MaterialVisualizer />
-          <JoinVortex triggerToast={triggerToast} />
         </div>
       )}
 
@@ -4331,13 +4281,16 @@ export default function App() {
       {/* Global Interactive Store Map */}
       <StoreMap />
 
+      {/* 008 — JOIN VORTEX (Moved below OUR LOCATIONS) */}
+      <JoinVortex triggerToast={triggerToast} />
+
       {/* DETAILED STORE FOOTER — Styled identically to the theme export */}
       <footer className="mt-20 border-t border-neutral-900 bg-[#070708] pt-16 pb-8 text-neutral-400">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 border-b border-neutral-900 pb-12">
           
           {/* Brand block (logo + description + social links) */}
           <div className="lg:col-span-2 space-y-6">
-            <img src="/images/logo.png" alt="Elite TI Logo" className="h-9 w-auto object-contain" />
+            <img src="/images/logo.png" alt="Elite TI Logo" className="h-16 w-auto object-contain" />
             <p className="text-xs font-mono uppercase tracking-wide leading-relaxed text-neutral-400 max-w-sm">
               Bespoke carbon and titanium for JDM and motorsport. Race-engineered, made to order, shipped worldwide.
             </p>

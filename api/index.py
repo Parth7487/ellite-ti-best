@@ -2,9 +2,11 @@
 api/index.py — Flask server for the ETi Colour Changer (Vercel Serverless Function compatible)
 """
 
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
 from flask import Flask, request, jsonify, send_file
 from pathlib import Path
-from dotenv import load_dotenv
 import json
 import os
 import io
@@ -38,10 +40,9 @@ except ImportError:
         restore_protected_logo,
     )
 
-load_dotenv()
-
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024   # 25 MB upload limit
+
 
 @app.after_request
 def after_request(response):
@@ -126,7 +127,7 @@ def api_recolour():
     keep_bg      = request.form.get("keep_bg", "false").lower() == "true"
     colorize     = request.form.get("colorize", "false").lower() == "true"
     part         = request.form.get("part", "")
-    engine       = request.form.get("engine", "local").lower()
+    engine       = request.form.get("engine", "photoroom").lower()
     prompt       = request.form.get("prompt", "").strip()
     filename     = f.filename or "image.jpg"
     image_bytes  = f.read()
@@ -255,7 +256,7 @@ def api_batch():
     keep_bg     = request.form.get("keep_bg", "false").lower() == "true"
     colorize    = request.form.get("colorize", "false").lower() == "true"
     part        = request.form.get("part", "")
-    engine      = request.form.get("engine", "local").lower()
+    engine      = request.form.get("engine", "photoroom").lower()
     prompt      = request.form.get("prompt", "").strip()
     filename    = f.filename or "image.jpg"
     image_bytes = f.read()

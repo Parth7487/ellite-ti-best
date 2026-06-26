@@ -24,7 +24,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import datetime
 
-load_dotenv()
+load_dotenv(override=True)
 
 API_KEY      = os.getenv("PHOTOROOM_API_KEY", "")
 PR_ENDPOINT  = "https://image-api.photoroom.com/v2/edit"

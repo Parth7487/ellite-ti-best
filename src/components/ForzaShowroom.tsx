@@ -40,16 +40,16 @@ const catalogData: Record<string, CarData> = {
     class: 'S1',
     rating: '842',
     make: 'MAZDA',
-    model: 'RX-7 SPIRIT R',
-    year: '2002',
+    model: 'Mazda RX-7 (FD3S) Minor Change 2000',
+    year: '2000',
     colorHex: '#39ff14', 
-    heroImg: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2000&auto=format&fit=crop',
+    heroImg: '/images/upgrades/upgrade_1.webp',
     baseStats: { speed: 6.8, handling: 7.5, acceleration: 6.2, aero: 6.0 },
     upgrades: [
-      { id: 'u1', type: 'AERO', name: 'RE AMEMIYA FRONT BUMPER', price: '1,450 CR', img: 'https://images.unsplash.com/photo-1620882963177-3e1b068a044a?q=80&w=400&auto=format&fit=crop', boost: { aero: 1.2, handling: 0.5, speed: -0.1 } },
-      { id: 'u2', type: 'ENGINE', name: 'RACING ROTORS & SEALS', price: '4,200 CR', img: 'https://images.unsplash.com/photo-1600713303646-0b818f972b20?q=80&w=400&auto=format&fit=crop', boost: { speed: 1.4, acceleration: 1.1 } },
-      { id: 'u3', type: 'CHASSIS', name: 'CARBON FIBER SKIRTS', price: '850 CR', img: 'https://images.unsplash.com/photo-1610647752706-3bb12232b3bf?q=80&w=400&auto=format&fit=crop', boost: { handling: 0.3, aero: 0.4 } },
-      { id: 'u4', type: 'AERO', name: 'ADJUSTABLE GT WING', price: '2,100 CR', img: 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?q=80&w=400&auto=format&fit=crop', boost: { aero: 1.8, handling: 0.8, speed: -0.4 } },
+      { id: 'u1', type: 'AERO', name: 'FRONT BUMPER', price: '1,450 USD', img: '/images/upgrades/upgrade_1.webp', boost: { aero: 1.2, handling: 0.5, speed: -0.1 } },
+      { id: 'u2', type: 'AERO', name: 'SIDE SKIRTS (PAIR)', price: '850 USD', img: '/images/upgrades/upgrade_2.webp', boost: { handling: 0.3, aero: 0.4 } },
+      { id: 'u3', type: 'AERO', name: 'REAR SPOILER', price: '1,200 USD', img: '/images/upgrades/upgrade_3.webp', boost: { aero: 1.8, handling: 0.8, speed: -0.4 } },
+      { id: 'u4', type: 'AERO', name: 'REAR DIFFUSER', price: '950 USD', img: '/images/upgrades/upgrade_3.webp', boost: { handling: 1.0, aero: 1.5 } },
     ]
   },
   supra: {
@@ -57,16 +57,19 @@ const catalogData: Record<string, CarData> = {
     class: 'S1',
     rating: '865',
     make: 'TOYOTA',
-    model: 'SUPRA RZ',
+    model: 'ETi Toyota Supra MKIV TRD 3000GT Body Kit',
     year: '1998',
     colorHex: '#b026ff', 
-    heroImg: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=2000&auto=format&fit=crop',
+    heroImg: '/images/cars/supra_trd_main.webp',
     baseStats: { speed: 8.2, handling: 6.1, acceleration: 7.8, aero: 5.2 },
     upgrades: [
-      { id: 'u5', type: 'ENGINE', name: 'SINGLE TURBO CONVERSION', price: '8,500 CR', img: 'https://images.unsplash.com/photo-1486496146582-9ffcd0b2b2b7?q=80&w=400&auto=format&fit=crop', boost: { speed: 1.5, acceleration: 1.6, handling: -0.2 } },
-      { id: 'u6', type: 'AERO', name: 'R-RIDERS WIDEBODY KIT', price: '5,500 CR', img: 'https://images.unsplash.com/photo-1598555627685-61879c5ce11f?q=80&w=400&auto=format&fit=crop', boost: { handling: 1.5, aero: 1.0, speed: -0.5 } },
-      { id: 'u7', type: 'TIRES', name: 'RACING SLICKS', price: '1,200 CR', img: 'https://images.unsplash.com/photo-1635334547926-d62f6b863390?q=80&w=400&auto=format&fit=crop', boost: { handling: 2.0, acceleration: 1.0 } },
-      { id: 'u8', type: 'DRIVETRAIN', name: 'RACE CLUTCH & FLYWHEEL', price: '1,800 CR', img: 'https://images.unsplash.com/photo-1635446077755-e4d0d08a0dcd?q=80&w=400&auto=format&fit=crop', boost: { acceleration: 0.8 } },
+      { id: 'u5', type: 'AERO', name: 'FRONT BUMPER', price: '1,200 USD', img: '/images/upgrades/supra_1.webp', boost: { speed: 1.5, handling: 1.6 } },
+      { id: 'u6', type: 'AERO', name: 'FRONT BUMPER LIP', price: '450 USD', img: '/images/upgrades/supra_2.webp', boost: { aero: 1.0, handling: 0.5 } },
+      { id: 'u7', type: 'AERO', name: 'FRONT DIFFUSER', price: '650 USD', img: '/images/upgrades/supra_3.webp', boost: { handling: 1.2, aero: 1.0 } },
+      { id: 'u8', type: 'AERO', name: 'REAR BUMPER', price: '1,100 USD', img: '/images/upgrades/supra_4.webp', boost: { handling: 0.8, aero: 1.2 } },
+      { id: 'u9', type: 'AERO', name: 'SIDE SKIRT', price: '700 USD', img: '/images/upgrades/supra_1.webp', boost: { handling: 0.5, aero: 0.5 } },
+      { id: 'u10', type: 'AERO', name: 'FRONT FENDER', price: '850 USD', img: '/images/upgrades/supra_2.webp', boost: { handling: 1.0 } },
+      { id: 'u11', type: 'AERO', name: 'REAR FENDER', price: '950 USD', img: '/images/upgrades/supra_3.webp', boost: { aero: 0.5 } },
     ]
   }
 };
@@ -138,7 +141,8 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = -0.99;
-    scene.add(ring);
+    // scene.add(ring);
+
 
     // Grid helper inside ring
     const gridHelper = new THREE.GridHelper(7, 14, 0xffffff, 0xffffff);
@@ -185,23 +189,6 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
     };
     window.addEventListener('resize', handleResize);
 
-    // Parallax mouse effect on 2D overlay car
-    const handleMouseMove = (e: MouseEvent) => {
-      const img = heroImgRef.current;
-      if (!img) return;
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-      
-      gsap.to(img, {
-        x: x * 30,
-        y: y * 20,
-        rotationY: x * 5,
-        rotationX: -y * 5,
-        duration: 1,
-        ease: 'power2.out'
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
 
     // Intro Entrance Animation
     gsap.set(headerRef.current, { y: -50, opacity: 0 });
@@ -218,7 +205,6 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
       renderer.dispose();
       floorGeo.dispose();
       floorMat.dispose();
@@ -319,7 +305,7 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
   };
 
   return (
-    <section className="relative w-full h-[110vh] md:h-screen overflow-hidden select-none bg-[#0a0a0c] border-b border-white/5" id="showroom-section">
+    <section className="relative w-full h-[110vh] md:h-screen overflow-hidden select-none bg-[#0a0a0c] border-b border-white/5" id="showroom-section" style={{ isolation: 'isolate' }}>
       {/* WebGL Podium Background */}
       <div ref={canvasContainerRef} className="absolute inset-0 z-0" />
 
@@ -344,7 +330,7 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
               <h2 className="text-xl md:text-2xl font-bold italic tracking-wide text-neutral-400 leading-none">
                 {activeCar.make} <span className="text-sm font-normal not-italic ml-2">{activeCar.year}</span>
               </h2>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black italic tracking-wider uppercase text-white drop-shadow-lg leading-none mt-1" style={{ fontFamily: 'Teko, sans-serif' }}>
+              <h1 className="text-xl md:text-3xl lg:text-4xl font-black italic tracking-wider uppercase text-white drop-shadow-lg leading-tight mt-1" style={{ fontFamily: 'Teko, sans-serif' }}>
                 {activeCar.model}
               </h1>
             </div>
@@ -371,15 +357,14 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
           </div>
         </header>
 
-        {/* Center Hero Car Image */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none mt-10">
-          <div className="w-[90%] max-w-5xl drop-shadow-[0_30px_50px_rgba(0,0,0,0.9)]" style={{ perspective: '1000px' }}>
+        {/* Center Hero Car Image - placed before z-10 layer to stay contained */}
+        <div className="absolute inset-0 z-[1] flex items-center justify-center pointer-events-none mt-12" style={{ overflow: 'hidden' }}>
+          <div className="w-[80%] max-w-4xl drop-shadow-[0_30px_50px_rgba(0,0,0,0.9)]">
             <img 
               ref={heroImgRef}
               src={activeCar.heroImg} 
               alt={activeCar.model}
-              className="w-full object-contain mix-blend-lighten opacity-95 transition-all duration-300"
-              style={{ transformStyle: 'preserve-3d' }}
+              className="w-full object-contain opacity-95 transition-all duration-300"
             />
           </div>
         </div>
@@ -518,8 +503,7 @@ export default function ForzaShowroom({ triggerToast, onAddToCart }: ForzaShowro
                       {upgrade.name}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#eebb22] flex items-center justify-center font-sans text-[8px] font-black text-black">CR</div>
-                      <span className="text-sm font-bold tracking-wider text-[#eebb22]">
+                      <span className="text-sm font-bold tracking-wider text-white">
                         {upgrade.price}
                       </span>
                     </div>

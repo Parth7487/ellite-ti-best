@@ -7,6 +7,7 @@ import { AnimatedTestimonials } from './AnimatedTestimonials';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import JoinVortex from './JoinVortex';
 import ForzaShowroom from './ForzaShowroom';
+import MaterialVisualizer from './MaterialVisualizer';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -43,7 +44,7 @@ const teamMembers: TeamMember[] = [
     role: 'FOUNDER & BUILDER',
     specialty: 'SEMA BUILDER & COMPOSITE SPECIALIST',
     desc: "Before ETi was a company, it was just me wrenching on SEMA builds, FDs, a Supra, and whatever else I could get my hands on. One project turned into five, five turned into a garage full of carbon and titanium parts, and eventually this brand took on a life of its own. I've always cared about clean fitment, real performance, and building things the right way. That mindset shaped ETi from day one. It's been a wild ride going from late-night projects to running a full operation, but I wouldn't trade it for anything. This is the life I always wanted to build.",
-    image: '/images/about/Untitled_920_x_720_px_920_x_720_px_720_x_720_px_6.jpg',
+    image: '/images/about/nate_updated.jpeg',
     aspectRatio: '3/4',
     socials: { twitter: 'https://twitter.com', linkedin: 'https://linkedin.com' }
   },
@@ -53,7 +54,7 @@ const teamMembers: TeamMember[] = [
     role: 'PRODUCTION MANAGER',
     specialty: 'RACE FABRICATION & AUTOCLAVE COMPOSITES',
     desc: "I've been in the fabrication and motorsports world for a long time, building custom cars, race setups, and composite parts for just about every platform that matters. When Nate and I linked up, the workflow clicked immediately. My role is keeping production tight, making sure every piece is consistent, and making sure the final fit and finish is something we're proud to put our name on. I've seen a lot of shops and builds over the years, and ETi is the kind of project that keeps things exciting.",
-    image: '/images/about/488582008_2116432635462724_4988972868626204832_n.jpg',
+    image: '/images/about/peter_updated.jpeg',
     aspectRatio: '1/1',
     socials: { twitter: 'https://twitter.com', linkedin: 'https://linkedin.com' }
   },
@@ -63,7 +64,7 @@ const teamMembers: TeamMember[] = [
     role: 'BRAND VISUALS',
     specialty: 'CREATIVE DIRECTOR & CAMPAIGN LEADER',
     desc: "I take care of the brand's visuals and media. Photos, videos, campaigns, the look and feel of ETi. That's my world. I've always had a good eye for aesthetics, and working with carbon and high-performance builds makes it even more fun. I make sure everything looks clean, sharp, and consistent. Sometimes I'm behind the camera, sometimes in front of it, but always making sure the brand shows up the way it should.",
-    image: '/images/about/598165143_1534383627830966_1382805036797804322_n.jpg',
+    image: '/images/about/lita_updated.jpeg',
     aspectRatio: '3/4',
     socials: { twitter: 'https://twitter.com', linkedin: 'https://linkedin.com' }
   },
@@ -73,7 +74,7 @@ const teamMembers: TeamMember[] = [
     role: 'SALES & CUSTOMER SUPPORT',
     specialty: 'CLIENT RELATION COORDINATOR',
     desc: "I help handle sales and customer support here at Elite Ti. If you ever have any questions, concerns, need updates on an order, or want to learn more about any of our products, feel free to reach out anytime. I'm always happy to help and do my best to get you the information you need. Whether you're planning a build, looking for a specific part, or just want to bounce around some ideas, don't hesitate to send me a message. Looking forward to helping more fellow enthusiasts along the way!",
-    image: '/images/about/Profile_1.1.png',
+    image: '/images/about/aldwin_updated.jpeg',
     aspectRatio: '3/4',
     socials: { twitter: 'https://twitter.com', linkedin: 'https://linkedin.com' }
   }
@@ -127,7 +128,7 @@ const TechInput: React.FC<TechInputProps> = ({ label, ...props }) => {
           setIsFocused(false);
           props.onBlur?.(e);
         }}
-        className="w-full bg-neutral-950/80 border border-neutral-900 focus:border-[#c0f20c]/60 p-3.5 text-xs text-white font-mono placeholder-transparent outline-none transition-all duration-300 rounded"
+        className="w-full bg-neutral-950/80 border border-neutral-900 focus:border-[#c0f20c]/60 p-4 pt-5 text-sm md:text-base text-white font-mono placeholder-transparent outline-none transition-all duration-300 rounded"
       />
       {/* Laser line effect */}
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-neutral-900 overflow-hidden rounded-b">
@@ -352,21 +353,9 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
 
   const driverTestimonials = [
     {
-      name: "MAD MIKE WHIDDETT",
-      designation: "DRIFT ICON / ROTARY FANATIC",
-      src: "/images/about/image_16.png",
-      quote: "Mad Mike needs no introduction. Drift icon, rotary fanatic, and the mind behind some of the wildest RX-7 builds on the planet. We support his Formula Drift program with the same mindset he brings to every car — to go harder than anyone else and make it look effortless.",
-      stats: [
-        { label: 'VEHICLE', val: 'RX-7 S15 "MADBUL"' },
-        { label: 'POWER', val: '850 BHP' },
-        { label: 'ENGINE', val: '4-ROTOR 26B' },
-        { label: 'DISCIPLINE', val: 'DRIFT' }
-      ]
-    },
-    {
       name: "ROB DAHM",
       designation: "ROTARY BUILDER / OFF-GRID ENGINEER",
-      src: "/images/about/image_15.png",
+      src: "/images/about/driver_15.jpeg",
       quote: "Rob is a legend in the rotary world and the creator of one of the most extreme RX-7s ever built. His Pikes Peak program is all about pushing boundaries in a way only he can. Working with him lets us test our parts in real abuse conditions and be part of a build that represents pure innovation.",
       stats: [
         { label: 'VEHICLE', val: 'AWD 4-ROTOR FD' },
@@ -376,9 +365,21 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
       ]
     },
     {
+      name: "MAD MIKE WHIDDETT",
+      designation: "DRIFT ICON / ROTARY FANATIC",
+      src: "/images/about/driver_16.jpeg",
+      quote: "Mad Mike needs no introduction. Drift icon, rotary fanatic, and the mind behind some of the wildest RX-7 builds on the planet. We support his Formula Drift program with the same mindset he brings to every car — to go harder than anyone else and make it look effortless.",
+      stats: [
+        { label: 'VEHICLE', val: 'RX-7 S15 "MADBUL"' },
+        { label: 'POWER', val: '850 BHP' },
+        { label: 'ENGINE', val: '4-ROTOR 26B' },
+        { label: 'DISCIPLINE', val: 'DRIFT' }
+      ]
+    },
+    {
       name: "JON WONG",
       designation: "JDM BUILDER / PRECISION CULTURE",
-      src: "/images/about/image_17.png",
+      src: "/images/about/driver_17.jpeg",
       quote: "Jon is a high-end builder, enthusiast, and long-time supporter of precision JDM culture. His FD RX-7, MK4 Supra, MR2, and other show cars reflect the exact values we care about — clean work, thoughtful mods, and builds that stand out without trying too hard.",
       stats: [
         { label: 'VEHICLES', val: 'FD RX-7 / MK4 / MR2' },
@@ -610,52 +611,28 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
     <div className="eti-page bg-[#0a0a0b] text-[#fafaf7] min-h-[85vh] overflow-x-hidden">
       
       {/* 1. HERO TITLE BLOCK & INTRO */}
-      <section className="relative py-28 border-b border-neutral-900 overflow-hidden flex items-center justify-center min-h-[50vh]">
+      <section className="relative w-full h-[60vh] min-h-[500px] max-h-[700px] overflow-hidden flex items-end justify-start border-b border-neutral-900">
         {/* Real photo background with premium look */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img 
             src="/images/about/571358377_10161486980150684_4356990159724431223_n.jpg" 
             alt="Elite Ti Atelier" 
-            className="w-full h-full object-cover opacity-25 filter grayscale scale-105"
+            className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/75 to-[#0a0a0b]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/50 to-transparent" />
         </div>
 
-        {/* Grid pattern background */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none z-10">
-          <div 
-            className="absolute inset-0" 
-            style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 40px, #333 40px, #333 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, #333 40px, #333 41px)',
-            }} 
-          />
-        </div>
-
-        {/* Diagonal glow strip */}
-        <div className="absolute top-0 right-1/4 w-[1px] h-full bg-gradient-to-b from-[#c0f20c]/30 via-transparent to-transparent rotate-12 origin-top z-10" />
-
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative z-20 text-center space-y-6">
-          <span className="kicker font-mono text-[10px] tracking-[0.3em] text-[#c0f20c] uppercase font-bold">
-            EST. 2022 &mdash; HIGH PERFORMANCE ALLOCATIONS
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold uppercase tracking-[0.2em] text-white leading-tight">
-            ABOUT ELITE TI
+        <div className="w-full max-w-[1200px] mx-auto px-6 md:px-12 relative z-20 pb-16">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold uppercase tracking-[0.2em] text-white italic drop-shadow-lg mb-4">
+            ABOUT US
           </h1>
-          
-          <div className="w-16 h-[2px] bg-[#c0f20c] mx-auto my-6" />
 
-          <p className="text-neutral-400 font-mono text-xs uppercase tracking-widest max-w-xl mx-auto">
-            HONG KONG &bull; UNITED STATES &bull; BANGKOK &bull; WORLDWIDE
-          </p>
-
-          <div className="max-w-3xl mx-auto pt-8">
-            <p className="text-neutral-300 text-xs md:text-sm leading-relaxed font-sans text-center max-w-2xl mx-auto uppercase tracking-wide">
+          <div className="max-w-3xl">
+            <p className="text-white text-xs md:text-sm leading-relaxed font-display uppercase tracking-wider font-bold drop-shadow-md">
               Elite Ti started with a simple goal: build parts we would trust on our own cars. 
               What began in a small garage has evolved into a global brand known for uncompromising 
               carbon fiber and titanium craftsmanship. Founded by a Marine veteran and lifelong automotive 
               enthusiast, Elite Ti blends discipline, engineering, and artistry to push the limits of performance and design.
-            </p>
-            <p className="text-neutral-450 text-xs leading-relaxed font-sans mt-4 text-center max-w-2xl mx-auto uppercase tracking-wider">
               We specialize in custom carbon fiber and titanium upgrades for JDM, time attack, and 
               high-performance builds. From concept to final fitment, every piece is designed with one 
               mindset: make it lighter, make it stronger, make it perfect.
@@ -687,7 +664,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                   <img
                     src="/images/about/Gemini_Generated_Image_4luxtr4luxtr4lux.png"
                     alt="Philosophy"
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                    className="w-full h-full object-cover opacity-85 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
                   <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
@@ -718,7 +695,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                   <img
                     src="/images/about/9_a3293c81-c0e9-4567-8f49-a269000daba6.png"
                     alt="Mission"
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                    className="w-full h-full object-cover opacity-85 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
                   <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
@@ -747,7 +724,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                   <img
                     src="/images/about/19_0f5095c1-3a32-4745-97ba-2f9ccd979a70.png"
                     alt="Vision"
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                    className="w-full h-full object-cover opacity-85 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
                   <div className="absolute top-3 left-3 font-mono text-[8px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
@@ -805,6 +782,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                     }`}
                   >
                     <img src={teamMembers[0].image} alt={teamMembers[0].name} className="w-full h-auto object-cover rounded-2xl" style={{ aspectRatio: '3/4' }} />
+                    <div className={`absolute inset-0 bg-black transition-opacity duration-500 pointer-events-none ${activeMemberId === 'nate' ? 'opacity-0' : 'opacity-40'}`} />
                   </div>
                   {/* Peter */}
                   <div 
@@ -817,6 +795,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                     }`}
                   >
                     <img src={teamMembers[1].image} alt={teamMembers[1].name} className="w-full h-auto object-cover rounded-2xl" style={{ aspectRatio: '1/1' }} />
+                    <div className={`absolute inset-0 bg-black transition-opacity duration-500 pointer-events-none ${activeMemberId === 'peter' ? 'opacity-0' : 'opacity-40'}`} />
                   </div>
                 </div>
 
@@ -836,6 +815,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                     }`}
                   >
                     <img src={teamMembers[2].image} alt={teamMembers[2].name} className="w-full h-auto object-cover rounded-2xl" style={{ aspectRatio: '3/4' }} />
+                    <div className={`absolute inset-0 bg-black transition-opacity duration-500 pointer-events-none ${activeMemberId === 'lita' ? 'opacity-0' : 'opacity-40'}`} />
                   </div>
                   {/* Aldwin */}
                   <div 
@@ -848,7 +828,10 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                     }`}
                   >
                     {teamMembers[3] && (
-                      <img src={teamMembers[3].image} alt={teamMembers[3].name} className="w-full h-auto object-cover rounded-2xl" style={{ aspectRatio: '3/4' }} />
+                      <>
+                        <img src={teamMembers[3].image} alt={teamMembers[3].name} className="w-full h-auto object-cover rounded-2xl" style={{ aspectRatio: '3/4' }} />
+                        <div className={`absolute inset-0 bg-black transition-opacity duration-500 pointer-events-none ${activeMemberId === 'aldwin' ? 'opacity-0' : 'opacity-40'}`} />
+                      </>
                     )}
                   </div>
                 </div>
@@ -862,80 +845,81 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
                 {teamMembers.map((member, idx) => {
                   const isActive = activeMemberId === member.id;
                   return (
-                    <div
-                      key={member.id}
-                      ref={el => { teamMemberRowRefs.current[idx] = el; }}
-                      onMouseEnter={() => setActiveMemberId(member.id)}
-                      onMouseLeave={() => setActiveMemberId(null)}
-                      className="flex items-start justify-between border-b border-neutral-900 pb-5 cursor-pointer transition-all duration-300 group"
-                      style={{ opacity: 0 }}
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Status/Active Bullet */}
-                        <div className={`w-2.5 h-2.5 rounded-full mt-1.5 transition-all duration-300 shrink-0 ${
-                          isActive 
-                            ? 'bg-[#c0f20c] shadow-[0_0_8px_rgba(192,242,12,0.8)] scale-110' 
-                            : 'bg-neutral-800'
-                        }`} />
-                        
-                        {/* Member Details */}
-                        <div className="space-y-1 pr-4">
-                          <h4 className={`font-display font-bold text-base md:text-lg tracking-wider uppercase transition-colors duration-305 ${
-                            isActive ? 'text-white' : 'text-neutral-500 hover:text-neutral-400'
-                          }`}>
-                            {member.name}
-                          </h4>
-                          <p className={`font-mono text-[9px] uppercase tracking-widest transition-colors duration-305 ${
-                            isActive ? 'text-[#c0f20c] font-bold' : 'text-neutral-600'
-                          }`}>
-                            {member.role}
-                          </p>
-                          
-                          <AnimatePresence>
-                            {isActive && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.25 }}
-                                className="overflow-hidden"
-                              >
-                                <p className="text-neutral-400 font-sans text-xs leading-relaxed pt-2">
-                                  {member.desc}
-                                </p>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                      <div
+                        key={member.id}
+                        ref={el => { teamMemberRowRefs.current[idx] = el; }}
+                        onMouseEnter={() => setActiveMemberId(member.id)}
+                        onMouseLeave={() => setActiveMemberId(null)}
+                        onClick={() => setActiveMemberId(isActive ? null : member.id)}
+                        className={`flex flex-col border-b border-neutral-900 pb-4 cursor-pointer transition-all duration-300 group ${isActive ? 'bg-white/5 p-4 rounded-xl border-transparent' : 'p-2 mt-2'}`}
+                        style={{ opacity: 0 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            {/* Status/Active Bullet */}
+                            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 shrink-0 ${
+                              isActive 
+                                ? 'bg-[#c0f20c] shadow-[0_0_8px_rgba(192,242,12,0.8)] scale-110' 
+                                : 'bg-neutral-800 group-hover:bg-neutral-600'
+                            }`} />
+                            
+                            {/* Member Details */}
+                            <div className="space-y-1">
+                              <h4 className={`font-display font-bold text-base md:text-lg tracking-wider uppercase transition-colors duration-300 ${
+                                isActive ? 'text-white' : 'text-neutral-500 group-hover:text-neutral-300'
+                              }`}>
+                                {member.name}
+                              </h4>
+                              <p className={`font-mono text-[9px] uppercase tracking-widest transition-colors duration-300 ${
+                                isActive ? 'text-[#c0f20c] font-bold' : 'text-neutral-600'
+                              }`}>
+                                {member.role}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Socials & Chevron */}
+                          <div className="flex items-center gap-3">
+                            <div className={`flex items-center gap-2 transition-all duration-300 shrink-0 ${
+                              isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3 pointer-events-none'
+                            }`}>
+                              {member.socials.twitter && (
+                                <a href={member.socials.twitter} target="_blank" rel="noreferrer" className="w-7 h-7 rounded border border-neutral-800 flex items-center justify-center text-neutral-400 hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors">
+                                  <Twitter className="w-3 h-3" />
+                                </a>
+                              )}
+                              {member.socials.linkedin && (
+                                <a href={member.socials.linkedin} target="_blank" rel="noreferrer" className="w-7 h-7 rounded border border-neutral-800 flex items-center justify-center text-neutral-400 hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors">
+                                  <Linkedin className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                            {/* Chevron Icon */}
+                            <div className={`text-neutral-600 transition-transform duration-300 transform ${isActive ? 'rotate-180 text-white' : 'group-hover:text-white'}`}>
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Social Media Link Steppers */}
-                      <div className={`flex items-center gap-2 transition-all duration-300 shrink-0 ${
-                        isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3 pointer-events-none'
-                      }`}>
-                        {member.socials.twitter && (
-                          <a 
-                            href={member.socials.twitter} 
-                            target="_blank" 
-                            rel="noreferrer" 
-                            className="w-7 h-7 rounded border border-neutral-800 flex items-center justify-center text-neutral-400 hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors"
-                          >
-                            <Twitter className="w-3 h-3" />
-                          </a>
-                        )}
-                        {member.socials.linkedin && (
-                          <a 
-                            href={member.socials.linkedin} 
-                            target="_blank" 
-                            rel="noreferrer" 
-                            className="w-7 h-7 rounded border border-neutral-800 flex items-center justify-center text-neutral-400 hover:border-[#c0f20c] hover:text-[#c0f20c] transition-colors"
-                          >
-                            <Linkedin className="w-3 h-3" />
-                          </a>
-                        )}
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: 'easeInOut' }}
+                              className="overflow-hidden pl-7 pr-2"
+                            >
+                              <div className="w-10 h-[1px] bg-neutral-800 my-4" />
+                              <p className="text-neutral-400 font-display italic font-bold uppercase text-[11px] md:text-xs leading-relaxed md:leading-loose tracking-widest pb-4">
+                                {member.desc}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
-
-                    </div>
                   );
                 })}
               </div>
@@ -1519,9 +1503,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ triggerToast, onAddToCart }) =
         </div>
       </section>
 
-      {/* Forza Showroom Tuner Section */}
-      <ForzaShowroom triggerToast={toast} onAddToCart={onAddToCart} />
-
+      {/* Hood Material Visualiser removed */}
       {/* Join WebGL Vortex Section */}
       <JoinVortex triggerToast={toast} />
 

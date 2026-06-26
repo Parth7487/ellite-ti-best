@@ -65,9 +65,23 @@ const MATERIALS_DATA: MaterialItem[] = [
   }
 ];
 
-export default function MaterialVisualizer() {
+interface MaterialVisualizerProps {
+  type?: 'both' | 'hood' | 'accordion';
+}
+
+export default function MaterialVisualizer({ type = 'both' }: MaterialVisualizerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [accordionIndex, setAccordionIndex] = useState(0);
+  const [showSchema, setShowSchema] = useState(false);
+
+  // Schema Config Options for Material Accordion Explorer
+  const [sectionPadding, setSectionPadding] = useState(0); // vertical padding
+  const [maxWidthDesktop, setMaxWidthDesktop] = useState(1800);
+  const maxWidthTablet = "768px";
+  const maxWidthMobile = "100%";
+  const [containerHeightDesktop, setContainerHeightDesktop] = useState(800); // px
+  const [cardGap, setCardGap] = useState(4); // px
+  const [borderRadius, setBorderRadius] = useState(4); // px
   
   // Wipe transitions
   const [bgImg, setBgImg] = useState(MATERIALS_DATA[0].img);
@@ -332,9 +346,17 @@ export default function MaterialVisualizer() {
   }, [accordionIndex]);
 
   return (
-    <div className="w-full max-w-[1000px] mx-auto px-6 py-16 flex flex-col gap-16 font-mono text-left bg-[#0a0a0c]">
+    <div 
+      className="w-full mx-auto px-6 font-mono text-left bg-[#0a0a0c] transition-all duration-300"
+      style={{
+        paddingTop: `${sectionPadding}px`,
+        paddingBottom: `${sectionPadding}px`,
+        maxWidth: `${maxWidthDesktop}px` // using desktop width by default; can be driven by media queries if extended
+      }}
+    >
       
       {/* SECTION 1: Hood Material Visualiser */}
+      {(type === 'both' || type === 'hood') && (
       <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col gap-8">
         
         {/* Header */}
@@ -438,24 +460,27 @@ export default function MaterialVisualizer() {
 
       </div>
 
+      )}
+
       {/* SECTION 2: Material Accordion Explorer */}
+      {(type === 'both' || type === 'accordion') && (
+      <>
       <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col gap-8">
         
         <div className="flex justify-between items-start border-b border-neutral-900 pb-5">
           <div className="text-left">
             <h2 className="text-2xl md:text-3xl font-black italic tracking-wider text-white uppercase" style={{ fontFamily: 'Teko, sans-serif' }}>
-              Material Accordion Explorer
+              OUR CARBON CATALOG
             </h2>
-            <p className="text-[10px] text-neutral-400 font-sans tracking-wide uppercase mt-1 leading-relaxed">
-              Interactive expanding cards showcasing weave closeups and material parameters.
-            </p>
           </div>
-          <div className="font-mono text-[9px] bg-[#c0f20c]/10 border border-[#c0f20c]/20 text-[#c0f20c] px-3 py-1 uppercase tracking-widest font-bold">
-            🔍 Zoom Details
+          <div className="flex gap-3">
+            <div className="font-mono text-[9px] bg-[#c0f20c]/10 border border-[#c0f20c]/20 text-[#c0f20c] px-3 py-1 uppercase tracking-widest font-bold">
+              🔍 Zoom Details
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 w-full h-auto md:h-[400px]" ref={accordionContainerRef}>
+        <div className="flex flex-col md:flex-row w-full h-auto" style={{ gap: `${cardGap}px`, minHeight: `${containerHeightDesktop}px` }} ref={accordionContainerRef}>
           {MATERIALS_DATA.map((mat, i) => {
             const isActive = i === accordionIndex;
             return (
@@ -463,7 +488,8 @@ export default function MaterialVisualizer() {
                 key={mat.title}
                 ref={(el) => { accordionCardRefs.current[i] = el; }}
                 onClick={() => handleAccordionExpand(i)}
-                className={`relative overflow-hidden cursor-pointer border rounded-xl transition-all duration-500 ease-out flex-shrink-0 flex flex-col justify-end p-5 min-h-[120px] md:min-h-0 ${
+                style={{ borderRadius: `${borderRadius}px` }}
+                className={`relative overflow-hidden cursor-pointer border transition-all duration-500 ease-out flex-shrink-0 flex flex-col justify-end p-5 min-h-[120px] md:min-h-0 ${
                   isActive 
                     ? 'flex-grow-[4] md:flex-[4.5] border-[#c0f20c] shadow-[0_0_25px_rgba(192,242,12,0.15)]' 
                     : 'flex-grow-[1] md:flex-[1] border-neutral-900 hover:border-neutral-700'
@@ -583,6 +609,8 @@ export default function MaterialVisualizer() {
           </div>
         </div>
       </div>
+      </>
+      )}
 
     </div>
   );
