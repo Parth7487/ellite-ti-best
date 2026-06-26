@@ -22,7 +22,7 @@ import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
-import JoinVideoMarquee from './components/JoinVideoMarquee';
+
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -2485,8 +2485,6 @@ export default function App() {
 
 
 
-          {/* 008 — JOIN */}
-          <JoinVideoMarquee triggerToast={triggerToast} />
         </div>
       </div>
     )}

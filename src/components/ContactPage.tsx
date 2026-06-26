@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Clock, ArrowRight, MessageSquare, Shield, Send, CheckCircle2, HelpCircle } from 'lucide-react';
+import { StoreMap } from './StoreMap';
 
 interface ContactPageProps {
   triggerToast: (msg: string) => void;
@@ -593,6 +594,8 @@ export default function ContactPage({ triggerToast, setCurrentPage }: ContactPag
         </div>
 
       </div>
+
+      <StoreMap />
 
       {/* FAQ SECTION */}
       <div className="mt-24 border-t border-neutral-900 pt-16 text-left max-w-4xl mx-auto">

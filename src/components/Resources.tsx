@@ -96,7 +96,7 @@ const blogPosts = [
 ];
 
 const quickLinks = [
-  { label: 'Homepage', desc: 'Full product explorer', icon: '🏠', page: 'home' },
+  { label: 'Checkout Our All Images', desc: 'Showcase & gallery', icon: '📷', page: 'home' },
   { label: 'Story', desc: 'About Elite Ti & team', icon: '📖', page: 'story' },
   { label: 'Blog', desc: 'Build guides & aero deep dives', icon: '✍️', page: 'blog' },
   { label: 'Contact', desc: 'Get in touch or collab', icon: '📬', page: 'contact' },
