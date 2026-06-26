@@ -1114,7 +1114,7 @@ export default function App() {
   };
 
   // Page state routing
-  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'product-detail' | 'contact' | 'blog' | 'resources'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'catalog' | 'titanium' | 'swag' | 'story' | 'showroom' | 'product-detail' | 'contact' | 'blog' | 'resources'>('home');
   const [selectedProductDetail, setSelectedProductDetail] = useState<any | null>(null);
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1494,6 +1494,7 @@ export default function App() {
             <button onClick={() => setCurrentPage('titanium')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'titanium' ? 'text-[#c0f20c]' : ''}`}>TITANIUM</button>
             <button onClick={() => setCurrentPage('home')} className="hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold">ETI MOTORSPORTS</button>
             <button onClick={() => setCurrentPage('story')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'story' ? 'text-[#c0f20c]' : ''}`}>STORY</button>
+            <button onClick={() => setCurrentPage('showroom')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'showroom' ? 'text-[#c0f20c]' : ''}`}>SHOWROOM</button>
             <button onClick={() => setCurrentPage('resources')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'resources' ? 'text-[#c0f20c]' : ''}`}>RESOURCES</button>
             <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'contact' ? 'text-[#c0f20c]' : ''}`}>CONTACT</button>
             <button onClick={() => setCurrentPage('swag')} className={`hover:text-[#c0f20c] transition-colors py-6 cursor-pointer bg-transparent border-0 font-bold ${currentPage === 'swag' ? 'text-[#c0f20c]' : ''}`}>SWAG</button>
@@ -1604,6 +1605,7 @@ export default function App() {
                     { name: 'CATALOG', page: 'catalog' },
                     { name: 'TITANIUM HARDWARE', page: 'titanium' },
                     { name: 'STORY', page: 'story' },
+                    { name: 'SHOWROOM', page: 'showroom' },
                     { name: 'RESOURCES', page: 'resources' },
                     { name: 'CONTACT', page: 'contact' },
                     { name: 'SWAG', page: 'swag' }
@@ -4284,6 +4286,22 @@ export default function App() {
 
       {currentPage === 'story' && (
         <AboutUs triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
+      )}
+
+      {currentPage === 'showroom' && (
+        <div className="pt-24 min-h-screen bg-[#0a0a0c] text-white">
+          <div className="w-full text-center py-12 border-b border-white/5">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[#c0f20c] uppercase font-bold block mb-2">ETI TUNING SECTOR</span>
+            <h1 className="text-4xl md:text-6xl font-black italic tracking-wider uppercase text-white animate-pulse" style={{ fontFamily: 'Teko, sans-serif' }}>
+              SHOWROOM &amp; TUNER
+            </h1>
+            <p className="text-neutral-400 text-xs md:text-sm max-w-xl mx-auto mt-3 font-sans px-6 uppercase tracking-wider leading-relaxed">
+              Interactive WebGL upgrade simulators and chassis telemetry configurations.
+            </p>
+          </div>
+          <ForzaShowroom triggerToast={triggerToast} onAddToCart={handleAddSimpleProductToCart} />
+          <JoinVortex triggerToast={triggerToast} />
+        </div>
       )}
 
       {currentPage === 'blog' && (
