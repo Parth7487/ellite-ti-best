@@ -335,7 +335,7 @@ export default function MaterialVisualizer() {
     <div className="w-full max-w-[1000px] mx-auto px-6 py-16 flex flex-col gap-16 font-mono text-left bg-[#0a0a0c]">
       
       {/* SECTION 1: Hood Material Visualiser */}
-      <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-none p-6 md:p-10 shadow-2xl flex flex-col gap-8">
+      <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col gap-8">
         
         {/* Header */}
         <div className="flex justify-between items-start border-b border-neutral-900 pb-5">
@@ -439,7 +439,7 @@ export default function MaterialVisualizer() {
       </div>
 
       {/* SECTION 2: Material Accordion Explorer */}
-      <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-none p-6 md:p-10 shadow-2xl flex flex-col gap-8">
+      <div className="w-full bg-[#0d0d0e] border border-neutral-900 rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col gap-8">
         
         <div className="flex justify-between items-start border-b border-neutral-900 pb-5">
           <div className="text-left">
@@ -463,7 +463,7 @@ export default function MaterialVisualizer() {
                 key={mat.title}
                 ref={(el) => { accordionCardRefs.current[i] = el; }}
                 onClick={() => handleAccordionExpand(i)}
-                className={`relative overflow-hidden cursor-pointer border rounded-none transition-all duration-500 ease-out flex-shrink-0 flex flex-col justify-end p-5 min-h-[120px] md:min-h-0 ${
+                className={`relative overflow-hidden cursor-pointer border rounded-xl transition-all duration-500 ease-out flex-shrink-0 flex flex-col justify-end p-5 min-h-[120px] md:min-h-0 ${
                   isActive 
                     ? 'flex-grow-[4] md:flex-[4.5] border-[#c0f20c] shadow-[0_0_25px_rgba(192,242,12,0.15)]' 
                     : 'flex-grow-[1] md:flex-[1] border-neutral-900 hover:border-neutral-700'
