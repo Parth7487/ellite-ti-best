@@ -669,108 +669,110 @@ export const AboutUs: React.FC = () => {
       </section>
 
       {/* 2. CORE PHILOSOPHY, MISSION, & VISION */}
-      <section className="border-b border-neutral-900 bg-[#080809]">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24">
-          <div className="text-center mb-16 space-y-2">
-            <span className="font-mono text-[9px] text-[#c0f20c] tracking-[0.25em] uppercase font-bold">CORE VALUES</span>
-            <h2 className="text-2xl md:text-3xl font-display font-bold uppercase tracking-wider text-white">THE ETI PROTOCOL</h2>
+      <Timeline
+        heading={
+          <div className="max-w-7xl mx-auto py-20 px-6 md:px-8 lg:px-10 text-center md:text-left">
+            <span className="font-mono text-[9px] text-[#c0f20c] tracking-[0.25em] uppercase font-bold block mb-3">CORE VALUES</span>
+            <h2 className="text-2xl md:text-3xl font-display font-bold uppercase tracking-[0.2em] text-white">
+              THE ETI <span className="text-[#c0f20c]">PROTOCOL</span>
+            </h2>
             <p className="text-neutral-500 font-mono text-[9px] tracking-widest uppercase mt-2">
               Respecting the past. Engineering the future.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Philosophy */}
-            <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded">
-              <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-              
-              {/* Media container */}
-              <div className="h-44 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
-                <img 
-                  src="/images/about/Gemini_Generated_Image_4luxtr4luxtr4lux.png" 
-                  alt="Philosophy" 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
-                  LOC // PHI_VAL.01
+        }
+        data={[
+          {
+            title: "PHILOSOPHY",
+            content: (
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+                <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
+                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                  <img
+                    src="/images/about/Gemini_Generated_Image_4luxtr4luxtr4lux.png"
+                    alt="Philosophy"
+                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
+                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                    LOC // PHI_VAL.01
+                  </div>
+                </div>
+                <div className="p-6 space-y-4 text-left flex-grow">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-4 h-4 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR PHILOSOPHY</h3>
+                  </div>
+                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                    Every weave, curve, and bolt we create reflects our pursuit of functional beauty.
+                    Performance parts should not only look right but fit right, feel right, and perform under pressure.
+                    We work closely with fabricators, tuners, and sponsored drivers who share the same passion.
+                    Their input drives our innovation and keeps our standards relentless.
+                  </p>
                 </div>
               </div>
-
-              <div className="p-6 space-y-4 text-left flex-grow">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-4 h-4 text-[#c0f20c]" />
-                  <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR PHILOSOPHY</h3>
+            ),
+          },
+          {
+            title: "MISSION",
+            content: (
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+                <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
+                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                  <img
+                    src="/images/about/9_a3293c81-c0e9-4567-8f49-a269000daba6.png"
+                    alt="Mission"
+                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
+                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                    LOC // MSN_VAL.02
+                  </div>
                 </div>
-                <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
-                  Every weave, curve, and bolt we create reflects our pursuit of functional beauty. 
-                  Performance parts should not only look right but fit right, feel right, and perform under pressure. 
-                  We work closely with fabricators, tuners, and sponsored drivers who share the same passion. 
-                  Their input drives our innovation and keeps our standards relentless.
-                </p>
-              </div>
-            </div>
-
-            {/* Mission */}
-            <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded">
-              <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-              
-              {/* Media container */}
-              <div className="h-44 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
-                <img 
-                  src="/images/about/9_a3293c81-c0e9-4567-8f49-a269000daba6.png" 
-                  alt="Mission" 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
-                  LOC // MSN_VAL.02
+                <div className="p-6 space-y-4 text-left flex-grow">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-4 h-4 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR MISSION</h3>
+                  </div>
+                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                    To deliver personalized, high-quality performance components through expert craftsmanship and
+                    advanced technology. Every customer should experience exceptional fitment, function, and finish.
+                  </p>
                 </div>
               </div>
-
-              <div className="p-6 space-y-4 text-left flex-grow">
-                <div className="flex items-center gap-3">
-                  <Target className="w-4 h-4 text-[#c0f20c]" />
-                  <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR MISSION</h3>
+            ),
+          },
+          {
+            title: "VISION",
+            content: (
+              <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded max-w-2xl">
+                <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
+                <div className="h-52 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
+                  <img
+                    src="/images/about/19_0f5095c1-3a32-4745-97ba-2f9ccd979a70.png"
+                    alt="Vision"
+                    className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
+                  <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
+                    LOC // VSN_VAL.03
+                  </div>
                 </div>
-                <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
-                  To deliver personalized, high-quality performance components through expert craftsmanship and 
-                  advanced technology. Every customer should experience exceptional fitment, function, and finish.
-                </p>
-              </div>
-            </div>
-
-            {/* Vision */}
-            <div className="border border-neutral-900 bg-neutral-950/60 hover:border-[#c0f20c]/30 transition-all duration-300 relative group flex flex-col overflow-hidden rounded">
-              <div className="absolute top-0 left-0 w-[2.5px] h-0 bg-[#c0f20c] group-hover:h-full transition-all duration-300 z-20" />
-              
-              {/* Media container */}
-              <div className="h-44 w-full relative overflow-hidden bg-neutral-900 border-b border-neutral-900">
-                <img 
-                  src="/images/about/19_0f5095c1-3a32-4745-97ba-2f9ccd979a70.png" 
-                  alt="Vision" 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700 filter grayscale group-hover:grayscale-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
-                <div className="absolute top-2 left-2 font-mono text-[7px] text-neutral-500 uppercase tracking-widest pointer-events-none select-none">
-                  LOC // VSN_VAL.03
+                <div className="p-6 space-y-4 text-left flex-grow">
+                  <div className="flex items-center gap-3">
+                    <Eye className="w-4 h-4 text-[#c0f20c]" />
+                    <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR VISION</h3>
+                  </div>
+                  <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
+                    To lead the global stage in custom automotive design by staying true to innovation, precision,
+                    and individuality. We don't follow trends. We create them.
+                  </p>
                 </div>
               </div>
-
-              <div className="p-6 space-y-4 text-left flex-grow">
-                <div className="flex items-center gap-3">
-                  <Eye className="w-4 h-4 text-[#c0f20c]" />
-                  <h3 className="font-display font-bold uppercase text-white tracking-widest text-xs">OUR VISION</h3>
-                </div>
-                <p className="text-neutral-400 text-[10.5px] leading-relaxed font-sans uppercase tracking-wide">
-                  To lead the global stage in custom automotive design by staying true to innovation, precision, 
-                  and individuality. We don't follow trends. We create them.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            ),
+          },
+        ]}
+      />
 
       {/* 3. THE BLOODLINE */}
       <Timeline data={timelineData} />
