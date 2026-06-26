@@ -20,7 +20,6 @@ import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
 import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
-import { ExpandingCardsGrid } from './components/ExpandingCardsGrid';
 import { 
   ShieldCheck,
   ShoppingBag, 
@@ -1263,56 +1262,6 @@ export default function App() {
 
   const totalFound = bodyKits.length + aeroFiltered.length + interior.length + hoods.length + engine.length + titanium.length;
 
-  const gridChassisItems = [
-    {
-      id: "rx7",
-      make: "MAZDA",
-      title: "RX-7 FD3S",
-      description: "Legendary sequential twin-turbo rotary chassis designed for ultimate response and handling balance.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/mazda-rx7-6482440.jpg?v=1765735254",
-      icon: <Gauge className="w-5 h-5" />
-    },
-    {
-      id: "supra4",
-      make: "TOYOTA",
-      title: "SUPRA MK4",
-      description: "The iconic JDM street-king drag and track platform featuring the indestructible iron-block 2JZ-GTE.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300",
-      icon: <Flame className="w-5 h-5" />
-    },
-    {
-      id: "supra5",
-      make: "TOYOTA",
-      title: "SUPRA MK5",
-      description: "Modern precision engineering meets high-tech aerodynamics and twin-scroll turbocharging.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301",
-      icon: <Cpu className="w-5 h-5" />
-    },
-    {
-      id: "r34",
-      make: "NISSAN",
-      title: "SKYLINE GT-R BNR34",
-      description: "Godzilla returns with advanced ATTESA E-TS AWD and the twin-turbocharged twin-cam RB26DETT.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270",
-      icon: <ShieldCheck className="w-5 h-5" />
-    },
-    {
-      id: "r35",
-      make: "NISSAN",
-      title: "GT-R R35",
-      description: "Uncompromising track dominance powered by a hand-built VR38DETT twin-turbo V6 engine.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271",
-      icon: <Sliders className="w-5 h-5" />
-    },
-    {
-      id: "350z",
-      make: "NISSAN",
-      title: "350Z Z33",
-      description: "Pure rear-wheel-drive sports coupe balance optimized for drifting and circuit racing.",
-      imgSrc: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262",
-      icon: <Car className="w-5 h-5" />
-    }
-  ];
 
   // --- Slides Data for Featured Chassis Slider ---
   const slidesData = [
@@ -2342,36 +2291,6 @@ export default function App() {
                   items={CHASSIS_LIST} 
                   onSelect={(card) => {
                     if (card.model.includes("350Z")) {
-                      setCurrentPage('product');
-                    } else {
-                      setCurrentPage('catalog');
-                    }
-                  }} 
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* 001-B — CHASSIS COLLECTIONS (GRID ROW/COL EXPAND) */}
-          <section className="eti-featured-chassis py-20 border-b border-neutral-900 bg-[#0a0a0b]" id="fitment-grid-expand">
-            <div className="container">
-              <div className="section-head mb-12">
-                <div>
-                  <span className="kicker reveal">001-B — CHASSIS (OPTION B)</span>
-                  <h2 className="display-l reveal" style={{ '--reveal-delay': '100ms', marginTop: '14px' } as React.CSSProperties}>Shop by Vehicle (Grid-Expand)</h2>
-                  <p className="reveal mt-2 text-[9px] uppercase tracking-widest text-neutral-500 font-mono" style={{ '--reveal-delay': '150ms' } as React.CSSProperties}>
-                    Respecting the past. Engineering the future.
-                  </p>
-                </div>
-                <div className="ti-rule"></div>
-                <span className="mono reveal" style={{ color: 'var(--eti-ti-dim)', '--reveal-delay': '200ms' } as React.CSSProperties}>Option B &nbsp;/&nbsp; grid fraction dynamic scaling</span>
-              </div>
-
-              <div className="reveal flex justify-center w-full" style={{ '--reveal-delay': '250ms' } as React.CSSProperties}>
-                <ExpandingCardsGrid 
-                  items={gridChassisItems} 
-                  onSelect={(card) => {
-                    if (card.title.includes("350Z")) {
                       setCurrentPage('product');
                     } else {
                       setCurrentPage('catalog');
