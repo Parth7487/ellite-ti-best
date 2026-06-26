@@ -496,7 +496,7 @@ export default function MaterialVisualizer() {
                   className={`z-20 transition-all duration-500 origin-left-bottom whitespace-nowrap absolute bottom-6 left-6 ${
                     isActive 
                       ? '-translate-y-[170px] translate-x-0 rotate-0 text-left' 
-                      : 'md:-rotate-90 md:translate-y-0 md:left-7 md:bottom-7'
+                      : 'md:-rotate-90 md:translate-y-0 md:left-7 md:bottom-20'
                   }`}
                 >
                   {isActive && (
