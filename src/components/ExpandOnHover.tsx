@@ -17,14 +17,14 @@ export function ExpandOnHover({ items, onSelect }: ExpandOnHoverProps) {
   // Supra MK5 (index 3) is default open (the 4th item in the 7-item list)
   const [expandedIndex, setExpandedIndex] = useState(3);
 
-  // Customizer Controls State
-  const [sectionPadding, setSectionPadding] = useState(143); // padding top & bottom
-  const [headerYOffset, setHeaderYOffset] = useState(0); // moves header up/down
-  const [headerTopGap, setHeaderTopGap] = useState(0); // gap above the header
-  const [headerBottomGap, setHeaderBottomGap] = useState(48); // space between header & cards
-  const [cardHeight, setCardHeight] = useState(578); // card height
-  const [cardGap, setCardGap] = useState(12); // gap between cards
-  const [borderRadius, setBorderRadius] = useState(9); // corner radius
+  // Saved Customizer Styles from user screenshot
+  const sectionPadding = 86; // padding bottom (from slider Section Padding: 86px)
+  const headerYOffset = 3; // header Y-Offset: 3px
+  const headerTopGap = 52; // gap above header: 52px
+  const headerBottomGap = 16; // gap below header: 16px
+  const cardHeight = 623; // card height: 623px
+  const cardGap = 12; // card gap: 12px
+  const borderRadius = 9; // corner radius: 9px
 
   return (
     <div 
@@ -34,136 +34,6 @@ export function ExpandOnHover({ items, onSelect }: ExpandOnHoverProps) {
         paddingBottom: `${sectionPadding}px`,
       }}
     >
-      {/* Floating Glassmorphic Customizer Controls */}
-      <div className="fixed bottom-6 right-6 z-[999] bg-[#0c0c0e]/85 border border-neutral-800 backdrop-blur-xl p-5 rounded-2xl w-80 text-white shadow-2xl transition-all duration-300 hover:border-[#c0f20c]/40 font-mono text-xs">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-3 mb-4">
-          <span className="font-bold text-[#c0f20c] tracking-widest text-[10px] uppercase">
-            ETI HEADER & CARDS SCHEMATICS
-          </span>
-          <span className="bg-neutral-850 px-2 py-0.5 rounded text-[9px] text-neutral-400 border border-neutral-800">
-            v2.1
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {/* Slider 1: Header Y-Offset */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Header Y-Offset</span>
-              <span className="text-[#c0f20c] font-bold">{headerYOffset}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="-120" 
-              max="120" 
-              value={headerYOffset} 
-              onChange={(e) => setHeaderYOffset(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 2: Gap Above Header */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Gap Above Header</span>
-              <span className="text-[#c0f20c] font-bold">{headerTopGap}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="150" 
-              value={headerTopGap} 
-              onChange={(e) => setHeaderTopGap(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 3: Gap Below Header */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Gap Below Header</span>
-              <span className="text-[#c0f20c] font-bold">{headerBottomGap}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="150" 
-              value={headerBottomGap} 
-              onChange={(e) => setHeaderBottomGap(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 4: Section Padding */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Section Padding</span>
-              <span className="text-[#c0f20c] font-bold">{sectionPadding}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="250" 
-              value={sectionPadding} 
-              onChange={(e) => setSectionPadding(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 5: Card Height */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Card Height</span>
-              <span className="text-[#c0f20c] font-bold">{cardHeight}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="300" 
-              max="950" 
-              value={cardHeight} 
-              onChange={(e) => setCardHeight(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 6: Card Gap */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Card Gap</span>
-              <span className="text-[#c0f20c] font-bold">{cardGap}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="48" 
-              value={cardGap} 
-              onChange={(e) => setCardGap(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Slider 7: Corner Radius */}
-          <div>
-            <div className="flex justify-between mb-1.5 text-neutral-300">
-              <span>Corner Radius</span>
-              <span className="text-[#c0f20c] font-bold">{borderRadius}px</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="40" 
-              value={borderRadius} 
-              onChange={(e) => setBorderRadius(Number(e.target.value))}
-              className="w-full accent-[#c0f20c] bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 pt-3 border-t border-neutral-800 text-[9px] text-neutral-400 leading-normal">
-          Adjust the sliders to style this section. Take a screenshot when you are done and send it over!
-        </div>
-      </div>
-
       {/* Styled Title Header Section with custom JDM Side-label */}
       <div className="w-full max-w-none px-6 md:px-12 transition-transform duration-300 ease-out"
         style={{
@@ -174,7 +44,7 @@ export function ExpandOnHover({ items, onSelect }: ExpandOnHoverProps) {
       >
         <div className="section-head w-full">
           <div>
-            <h2 className="display-l text-white uppercase font-bold text-3xl md:text-5xl tracking-tight">
+            <h2 className="display-l text-[#faf7ed] uppercase font-bold text-3xl md:text-5xl tracking-tight" style={{ color: 'var(--eti-paper)' }}>
               Shop by Vehicle
             </h2>
             <p className="mt-2 text-[9px] uppercase tracking-widest text-neutral-500 font-mono">
