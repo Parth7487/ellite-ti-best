@@ -340,19 +340,7 @@ export const AboutUs: React.FC = () => {
   const [submitProgress, setSubmitProgress] = useState(0);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
 
-  const timelineData = milestones.map((item) => ({
-    title: item.year,
-    content: (
-      <div className="space-y-3">
-        <h4 className="text-white text-lg md:text-xl font-display font-bold tracking-wider uppercase">
-          {item.title}
-        </h4>
-        <p className="text-neutral-400 font-sans text-xs md:text-sm leading-relaxed max-w-lg">
-          {item.desc}
-        </p>
-      </div>
-    ),
-  }));
+
 
   const driverTestimonials = [
     {
@@ -774,8 +762,6 @@ export const AboutUs: React.FC = () => {
         ]}
       />
 
-      {/* 3. THE BLOODLINE */}
-      <Timeline data={timelineData} />
 
       {/* 4. MEET THE CREW (OUR TEAM SHOWCASE - Staggered Grid & List Layout) */}
       <section className="py-24 border-b border-neutral-900 bg-[#080809] overflow-hidden">
