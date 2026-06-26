@@ -20,11 +20,8 @@ import ProductDetail from './components/ProductDetail';
 import ContactPage from './components/ContactPage';
 import { LogoLoop } from './components/LogoLoop';
 import { ExpandOnHover } from './components/ExpandOnHover';
-import { ChassisCinematicShowcase } from './components/ChassisCinematicShowcase';
 import { StoryHorizontalScroll } from './components/StoryHorizontalScroll';
 import StorySplitReveal from './components/StorySplitReveal';
-import MotorsportsTelemetry from './components/MotorsportsTelemetry';
-import MotorsportsBanner from './components/MotorsportsBanner';
 import JoinVideoMarquee from './components/JoinVideoMarquee';
 import JoinSpotlightSplit from './components/JoinSpotlightSplit';
 import { 
@@ -2380,12 +2377,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* 002-C — FEATURED CHASSIS CINEMATIC SHOWCASE */}
-          <ChassisCinematicShowcase
-            slides={slidesData}
-            onNavigate={() => setCurrentPage('catalog')}
-            onAddToCart={handleAddSimpleProductToCart}
-          />
+
 
           {/* 002.5 — INTERACTIVE AERO EXPLORER */}
           <InteractiveCarExplorer onAddToCart={handleAddSimpleProductToCart} />
@@ -2503,11 +2495,7 @@ export default function App() {
 
 
 
-          {/* 005-A — MOTORSPORTS TELEMETRY ALTERNATIVE */}
-          <MotorsportsTelemetry onNavigate={() => setCurrentPage('catalog')} />
 
-          {/* 005-B — MOTORSPORTS BANNER ALTERNATIVE */}
-          <MotorsportsBanner onNavigate={() => setCurrentPage('catalog')} />
 
 
 
