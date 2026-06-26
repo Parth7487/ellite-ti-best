@@ -660,7 +660,7 @@ const CHASSIS_LIST = [
   { make: "TOYOTA", model: "SUPRA MK4", code: "JZA80", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkiv-2961889.png?v=1765735300" },
   { make: "NISSAN", model: "SKYLINE GT-R", code: "BNR34", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r34-gtr-1940832.png?v=1765735270" },
   { make: "TOYOTA", model: "SUPRA MK5", code: "A90", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/toyota-supra-mkv-a90-5805566.jpg?v=1765735301" },
-  { make: "HONDA", model: "NSX", code: "NA1", image: "https://images.unsplash.com/photo-1621932953986-15fcfec8f908?q=80&w=800&auto=format&fit=crop" },
+  { make: "HONDA", model: "NSX", code: "NA1", image: "/images/honda_nsx_telegram.jpg" },
   { make: "NISSAN", model: "GT-R", code: "R35", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-r35-gtr-8162604.jpg?v=1765735271" },
   { make: "NISSAN", model: "350Z", code: "Z33", image: "https://cdn.shopify.com/s/files/1/0842/8362/1657/collections/nissan-370z-3763099.jpg?v=1765735262" }
 ];
