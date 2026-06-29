@@ -25,6 +25,7 @@ import StorySplitReveal from './components/StorySplitReveal';
 import JoinVortex from './components/JoinVortex';
 import ForzaShowroom from './components/ForzaShowroom';
 import MaterialVisualizer from './components/MaterialVisualizer';
+import InteriorConfigurator from './components/InteriorConfigurator';
 
 import { 
   ShieldCheck,
@@ -2321,6 +2322,9 @@ export default function App() {
 
           {/* 002.5 — INTERACTIVE AERO EXPLORER */}
           <InteractiveCarExplorer onAddToCart={handleAddSimpleProductToCart} />
+
+          {/* 002.6 — BESPOKE COCKPIT EXPLORER */}
+          <InteriorConfigurator onAddToCart={handleAddSimpleProductToCart} />
 
           {/* 003 — THE ETI STANDARD */}
           <section className="section standard">

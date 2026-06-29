@@ -13,6 +13,12 @@
   --font-sans: "Sakana-Regular", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Sakana-Regular", "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-etiAccent: #9cce00;
+  --color-etiAccentHover: #8bb800;
+  --color-etiDark: #0a0a0b;
+  --color-etiDarker: #030303;
+  --color-etiBorder: #1f1f22;
+  --color-etiCard: #141416;
 }
 
 
